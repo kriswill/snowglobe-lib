@@ -4,7 +4,7 @@ stdenvNoCC.mkDerivation {
   version = "1.0";
 
   src = builtins.fetchurl {
-    url = "https://cache.earthgman.net/fonts/8-bit-operator.zip";
+    url = "https://cache.earthgman.dev/fonts/8-bit-operator.zip";
     sha256 = "48c3763eb3dad4496bec6597013fb2940243e0fd149d1d1ad39f2561c1012817";
   };
   phases = [ "installPhase" ];

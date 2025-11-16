@@ -96,8 +96,7 @@
     };
 
     vim-config = {
-      # TODO get https working
-      url = "git+http://git.earthgman.dev/EarthGman/vim-config";
+      url = "git+https://git.earthgman.dev/EarthGman/vim-config";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
