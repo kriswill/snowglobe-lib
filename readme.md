@@ -19,9 +19,9 @@ Additionally, the official installer refuses to expose users to nix flakes (whic
 
 This framework aims to be an improvement of the default NixOS experience by providing a more structured configuration framework for modularity and expandability.
 
-To obtain the installer navigate to https://cache.earthgman.net and download the nixos-installer.iso and its sha256sum (only supports x86_64 at this time).
+To obtain the installer navigate to https://cache.earthgman.dev and download the nixos-installer.iso and its sha256sum (only supports x86_64 at this time).
 
-If you don't want to put an iso image from a random guy on the internet into your PC, you can build the installer iso yourself. [Instructions](https://github.com/EarthGman/nix-config/blob/main/docs/build-iso.md)
+If you don't want to put an iso image from a random guy on the internet into your PC, you can build the installer iso yourself. See docs/build-iso.md
 
 if installing on bare metal, Use a program such as rufus, balena-etcher, or dd to flash the iso image to a usb stick.
 
