@@ -568,17 +568,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1762712913,
-        "narHash": "sha256-W+72GbTbz+JWhq0t/nIGmA/74x1kNSLnSHujCGyZLgk=",
+        "lastModified": 1762788584,
+        "narHash": "sha256-O843JT2lLQuLlINMbGzg/lA1JUqb+iLpMfXUCs2n35w=",
         "ref": "refs/heads/main",
-        "rev": "8dbd606f7022b19957399f121c82f6720f37e91c",
-        "revCount": 165,
+        "rev": "32a3244e9f6060dba06e4aa6bdd8ff5a65e0455d",
+        "revCount": 169,
         "type": "git",
-        "url": "https://git.earthgman.net/EarthGman/vim-config"
+        "url": "http://git.earthgman.dev/EarthGman/vim-config"
       },
       "original": {
         "type": "git",
-        "url": "https://git.earthgman.net/EarthGman/vim-config"
+        "url": "http://git.earthgman.dev/EarthGman/vim-config"
       }
     }
   },

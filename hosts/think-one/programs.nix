@@ -5,6 +5,7 @@
     ardour.enable = true;
     bustle.enable = true;
     simple-scan.enable = true;
+    firefox.enable = true;
     gimp.enable = true;
     gcolor.enable = true;
     libreoffice.enable = true;

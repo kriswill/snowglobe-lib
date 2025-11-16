@@ -19,6 +19,8 @@ in
   config = lib.mkIf cfg.enable {
     environment.systemPackages = [
       cfg.package
+      pkgs.wine
+      pkgs.wine64
     ];
   };
 }
