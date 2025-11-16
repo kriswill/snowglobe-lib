@@ -1,4 +1,4 @@
-**EarthGman's Main Nix Flake ❄️ V8**
+**EarthGman's Main Nix Flake V8**
 Now without home-manager!
 
 This flake contains my NixOS modules, nix package derivations, nix functions, NixOS installation environment and installation script.
