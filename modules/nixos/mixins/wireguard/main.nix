@@ -15,20 +15,6 @@ in
     networking = {
       firewall.allowedUDPPorts = [ 51821 ];
 
-      # static host mapping for peers
-      extraHosts = ''
-        10.0.25.2 cypher
-        10.0.25.3 think-one
-
-        192.168.25.32 prox2.home
-        192.168.25.168 forgejo.home
-        192.168.25.85 binary-cache.home
-        192.168.25.93 jellyfin.home
-        192.168.25.41 docker.home
-        192.168.25.193 nas.home
-        192.168.25.129 mc112
-        192.168.25.200 mc112-blueprints
-      '';
       # restart on network reconnect
       networkmanager.dispatcherScripts = [
         {

@@ -96,7 +96,7 @@
     };
 
     vim-config = {
-      url = "git+https://git.earthgman.dev/EarthGman/vim-config";
+      url = "git+https://codeberg.org/EarthGman/vim-config";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
