@@ -1,7 +1,6 @@
-**EarthGman's Main Nix Flake V8**
-Now without home-manager!
+**A down to earth nix module set that is portable and easy to use**
 
-This flake contains my NixOS modules, nix package derivations, nix functions, NixOS installation environment and installation script.
+This flake contains my NixOS modules, nix package derivations, nix functions, and NixOS installation environment + script.
 
 It is highly maintained by myself and a few others, and can be easily imported into your own NixOS flake for expanded functionality.
 
@@ -19,34 +18,8 @@ Additionally, the official installer refuses to expose users to nix flakes (whic
 
 This framework aims to be an improvement of the default NixOS experience by providing a more structured configuration framework for modularity and expandability.
 
-To obtain the installer navigate to https://cache.earthgman.dev and download the nixos-installer.iso and its sha256sum (only supports x86_64 at this time).
+To obtain the installer navigate to https://cache.earthgman.dev and download binaries/nixos-installer.iso and its sha256sum (only supports x86_64 at this time).
 
 If you don't want to put an iso image from a random guy on the internet into your PC, you can build the installer iso yourself. See docs/build-iso.md
 
 if installing on bare metal, Use a program such as rufus, balena-etcher, or dd to flash the iso image to a usb stick.
-
-------------------------------------------------------------------------
-
-# Bug tracker - Last updated: 11-09-2025
-
-- sddm is known to not properly restart when exiting Hyprland. This happens seemingly randomly and I don't know how to fix it.
-  if you encounter this bug, log in via another tty and restart display-manager.service
-
-- xwayland apps within wayland sessions have a bug in which the mouse will not be able to interact with the window if your monitor position contains a negative coordinate.
-  This bug only affects setups with more than 1 monitor.
-
-- steam notifications appear in the middle of the screen on niri
-
-# Personal Notes
-Imperative actions after install
-- install dotfiles
-- login to discord
-- login to steam
-- import gpg private keys
-- ssh-add ssh private key
-- import neomutt email accounts
-- install protonup for steam
-- /etc/nixos -> ~/src/github/earthgman/nix-config
-- Install the English Dictionary extension for libreoffice (otherwise the spell checker wont work)
-- setup any VMs
-- reinstall wine/bottles programs
