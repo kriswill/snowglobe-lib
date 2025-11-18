@@ -66,10 +66,6 @@
       inputs.rust-overlay.follows = "";
     };
 
-    nixos-hardware = {
-      url = "https://flakehub.com/f/NixOS/nixos-hardware/*.tar.gz";
-    };
-
     nix-gaming = {
       url = "github:fufexan/nix-gaming";
       inputs.nixpkgs.follows = "nixpkgs";

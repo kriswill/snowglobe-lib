@@ -342,20 +342,6 @@
         "type": "github"
       }
     },
-    "nixos-hardware": {
-      "locked": {
-        "lastModified": 1761824787,
-        "narHash": "sha256-cH0vVt83ZBafqJzwOl7IHTXo6KA1c1J+8qvMjfARMqI=",
-        "rev": "e07b1618c3009195ffbd4749e9b5618511260557",
-        "revCount": 2470,
-        "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/NixOS/nixos-hardware/0.1.2470%2Brev-e07b1618c3009195ffbd4749e9b5618511260557/019a3500-fe98-71d0-908c-81c78f5f82cf/source.tar.gz"
-      },
-      "original": {
-        "type": "tarball",
-        "url": "https://flakehub.com/f/NixOS/nixos-hardware/%2A.tar.gz"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1755922037,
@@ -512,7 +498,6 @@
         "jovian-nixos": "jovian-nixos",
         "niri": "niri",
         "nix-gaming": "nix-gaming",
-        "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
         "prismlauncher": "prismlauncher",
         "quickshell": "quickshell",
