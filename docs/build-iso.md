@@ -11,7 +11,7 @@ https://nixos.org/download/
 Pull the repository:
 
 ```sh
-git clone https://github.com/earthgman/nix-config --depth 1
+git clone https://codeberg.org/earthgman/nix-modules --depth 1
 ```
 
 Then install nixos-generate using a nix shell

@@ -22,6 +22,7 @@ in
       # terminal
       alacritty.enable = false;
       kitty.enable = lib.mkDefault true;
+      lynx.enable = true;
 
       # pipewire control dashboard
       pwvucontrol.enable = lib.mkDefault true;
