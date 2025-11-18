@@ -4,6 +4,7 @@
   niri = inputs.niri.overlays.default;
   quickshell = inputs.quickshell.overlays.default;
   custom-neovims = inputs.vim-config.overlays.default;
+  prismlauncher = inputs.prismlauncher.overlays.default;
 
   packages =
     final: prev:
