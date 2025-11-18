@@ -568,11 +568,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763314467,
-        "narHash": "sha256-jSibmOvA43JXnJa120vyS8x3jCvQB1K86riR4/XTgoA=",
+        "lastModified": 1763351294,
+        "narHash": "sha256-O9P/ozlI7Yd9iEz+xGpRQrZ4svSMQeWHEZRh6HAaats=",
         "ref": "refs/heads/main",
-        "rev": "d21ce05f78c22098a35b2df14b11dda541bd759c",
-        "revCount": 171,
+        "rev": "b7de034502a545b8b1be147bf0c04defcf786a68",
+        "revCount": 172,
         "type": "git",
         "url": "https://codeberg.org/EarthGman/vim-config"
       },
