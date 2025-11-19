@@ -55,11 +55,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    jovian-nixos = {
-      url = "github:Jovian-Experiments/Jovian-NixOS";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     niri = {
       url = "github:YaLTeR/niri";
       inputs.nixpkgs.follows = "nixpkgs";
