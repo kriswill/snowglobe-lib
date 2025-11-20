@@ -19,20 +19,13 @@ in
       hyprlock.enable = true;
       rofi.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;
-      nwg-look.enable = lib.mkDefault true;
-      quickshell.enable = lib.mkDefault true;
     };
 
     services = {
+      # notification daemon
       swaync.enable = true;
+
       hypridle.enable = true;
-      awww = {
-        enable = true;
-        flags = lib.mkDefault [
-          "-f"
-          "argb"
-        ];
-      };
     };
 
     xdg.portal = {

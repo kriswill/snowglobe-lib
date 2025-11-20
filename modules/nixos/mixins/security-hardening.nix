@@ -12,6 +12,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    networking.firewall.enable = true;
     services = {
       # prevent password login over ssh
       openssh.settings = {

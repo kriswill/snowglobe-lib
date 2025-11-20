@@ -19,28 +19,19 @@ in
       niri = {
         enable = true;
       };
-      # the systemd unit this option provides is broken
-      # essentially it does not provide the proper environment for all components to work properly
-      # waybar.enable = true;
+
+      # default lockscreen
+      swaylock.enable = true;
 
       # default terminal for niri
       alacritty.enable = lib.mkDefault true;
-
-      # suckless terminal (fallback)
-      st.enable = lib.mkDefault true;
     };
 
     services = {
+      # battery notifier / exits if no battery detected
       batsignal.enable = lib.mkDefault true;
+      # setup a default notification daemon
       swaync.enable = lib.mkDefault true;
-      # kde-polkit-agent.enable = lib.mkDefault true;
-      awww = {
-        enable = true;
-        flags = lib.mkDefault [
-          "-f"
-          "argb"
-        ];
-      };
     };
 
     environment = {
@@ -50,12 +41,10 @@ in
 
       systemPackages = builtins.attrValues {
         inherit (pkgs)
-          waybar
           libnotify # provides `notify-send`
           wl-clipboard
           grim # screenshots
           slurp # screen selector
-          swaylock # lockscreen
           swayidle # daemonless swayidle
           xwayland-satellite # setup xwayland support for niri
           ;

@@ -1,5 +1,6 @@
 # dependencies of my personal dotfiles
 {
+  pkgs,
   lib,
   config,
   ...
@@ -13,16 +14,36 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    environment.systemPackages = builtins.attrValues {
+      inherit (pkgs)
+        waybar
+        libnotify
+        wl-clipboard
+        grim
+        grimblast
+        slurp
+        swayidle
+        ;
+    };
+
     programs = {
       cava.enable = true;
       cmatrix.enable = true;
       cbonsai.enable = true;
       sl.enable = true;
       pipes.enable = true;
-      # terminal
+
+      # core dependencies
+      swaylock.enable = true;
+      rofi.enable = true;
+      password-store.enable = true;
+      gnupg.agent.enable = true;
+      lynx.enable = true;
+
+      # terminals
+      st.enable = lib.mkDefault true;
       alacritty.enable = false;
       kitty.enable = lib.mkDefault true;
-      lynx.enable = true;
 
       # pipewire control dashboard
       pwvucontrol.enable = lib.mkDefault true;
@@ -41,7 +62,18 @@ in
       nwg-look.enable = lib.mkDefault true;
     };
 
-    # tray applet for networkmanager
-    services.nm-applet.enable = lib.mkDefault true;
+    services = {
+      # tray applet for networkmanager
+      nm-applet.enable = lib.mkDefault true;
+
+      # wayland wallpaper daemon
+      awww = {
+        enable = true;
+        flags = lib.mkDefault [
+          "-f"
+          "argb"
+        ];
+      };
+    };
   };
 }

@@ -28,7 +28,7 @@ in
       # use open for RTX 20 series or newer
       open = lib.mkDefault true;
       # Enable the Nvidia settings menu,
-      # accessible via `qqnvidia-settings`.
+      # accessible via `nvidia-settings`.
       nvidiaSettings = lib.mkDefault true;
 
       package = lib.mkDefault config.boot.kernelPackages.nvidiaPackages.beta;

@@ -25,6 +25,7 @@
       {
         gman = {
           debloat.enable = true;
+          security-hardening.enable = true;
         };
 
         # remove emergency mode
@@ -38,15 +39,6 @@
             AllowSuspend=no
             AllowHibernation=no
           '';
-        };
-
-        networking.firewall.enable = true;
-
-        services.openssh = {
-          settings = {
-            PasswordAuthentication = lib.mkDefault false;
-            KbdInteractiveAuthentication = lib.mkDefault false;
-          };
         };
       }
     ]

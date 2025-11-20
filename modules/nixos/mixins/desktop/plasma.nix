@@ -27,7 +27,7 @@ in
     };
 
     environment = {
-      systemPackages = [ pkgs.wl-copy ];
+      systemPackages = [ pkgs.wl-clipboard ];
       plasma6.excludePackages = builtins.attrValues {
         inherit (pkgs.kdePackages)
           elisa
