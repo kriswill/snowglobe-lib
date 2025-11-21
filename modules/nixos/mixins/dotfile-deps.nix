@@ -20,7 +20,6 @@ in
         libnotify
         wl-clipboard
         grim
-        grimblast
         slurp
         swayidle
         coreutils-full
