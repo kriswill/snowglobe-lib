@@ -52,10 +52,13 @@
       gpu.amd.enable = (config.meta.gpu == "amd");
     };
 
-    # determinate configuration
     nix.settings = {
-      substituters = [ "https://install.determinate.systems/" ];
-      trusted-public-keys = [ "cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=" ];
+      substituters = [
+        "https://nix-store.earthgman.dev/"
+      ];
+      trusted-public-keys = [
+        "nix-store.earthgman.dev:2Qrw9kS+K2c00ikcgaz5Y0M7j5XmkhFJz3d7oNgJdLw="
+      ];
       lazy-trees = true;
     };
 
