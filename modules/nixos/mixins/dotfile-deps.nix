@@ -23,6 +23,8 @@ in
         grimblast
         slurp
         swayidle
+        coreutils-full
+        findutils
         ;
     };
 
@@ -39,6 +41,7 @@ in
       password-store.enable = true;
       gnupg.agent.enable = true;
       lynx.enable = true;
+      dconf.enable = true;
 
       # terminals
       st.enable = lib.mkDefault true;
