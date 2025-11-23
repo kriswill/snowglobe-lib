@@ -151,6 +151,8 @@
       # program for viewing your nix configuration
       nix-inspect.enable = lib.mkDefault true;
 
+      vim.enable = lib.mkDefault true;
+
       # better version of discord
       discord.package = lib.mkDefault pkgs.vesktop;
       # password store otp plugin
