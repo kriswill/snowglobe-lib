@@ -12,6 +12,12 @@ y_or_n() {
 }
 
 nixos_install() {
+	# for some reason the nix-daemon doesn't start on boot of the iso
+	# start the nix-daemon if its not running already
+	if [[ $(systemctl status nix-daemon | grep "inactive") ]]; then
+		systemctl start nix-daemon
+	fi
+
 	if [[ $IMPERATIVE_USERS == true ]]; then
 		nixos-install --no-channel-copy --flake /mnt/etc/nixos#$HOSTNAME
 	else
