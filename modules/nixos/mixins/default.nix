@@ -24,6 +24,7 @@
     gman = {
       ssh-keys = {
         g = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNRHd6NLt4Yd9y5Enu54fJ/a2VCrRgbvfMuom3zn5zg";
+        cypher = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPk0JEmiuM5xR5JlCjU7EdNVZlztCeXOHkTXKVsOKeW8";
       };
 
       # default mixins

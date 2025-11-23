@@ -5,6 +5,7 @@
   quickshell = inputs.quickshell.overlays.default;
   custom-neovims = inputs.vim-config.overlays.default;
   prismlauncher = inputs.prismlauncher.overlays.default;
+  ghostty = inputs.ghostty.overlays.default;
 
   packages =
     final: prev:
