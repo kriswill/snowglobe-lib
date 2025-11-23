@@ -24,6 +24,7 @@ in
         swayidle
         coreutils-full
         findutils
+        mpd
         ;
     };
 
