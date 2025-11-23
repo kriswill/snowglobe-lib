@@ -41,6 +41,7 @@ in
 
       systemPackages = builtins.attrValues {
         inherit (pkgs)
+          hyprpolkitagent # works on niri
           libnotify # provides `notify-send`
           wl-clipboard
           grim # screenshots
