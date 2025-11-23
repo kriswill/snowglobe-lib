@@ -46,6 +46,7 @@ in
       };
       lynx.enable = true;
       dconf.enable = true;
+      yt-dlp.enable = true;
 
       # terminals
       st.enable = lib.mkDefault true;
