@@ -35,10 +35,14 @@ in
       pipes.enable = true;
 
       # core dependencies
+      direnv.enable = true;
       swaylock.enable = true;
       rofi.enable = true;
       password-store.enable = true;
-      gnupg.agent.enable = true;
+      gnupg.agent = {
+        enable = true;
+        enableSSHSupport = true;
+      };
       lynx.enable = true;
       dconf.enable = true;
 
