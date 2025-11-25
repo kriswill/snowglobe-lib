@@ -153,15 +153,15 @@
 
       vim.enable = lib.mkDefault true;
 
+      disko.enable = lib.mkDefault true;
+
       # better version of discord
       discord.package = lib.mkDefault pkgs.vesktop;
       # password store otp plugin
-      password-store.package = (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
+      password-store.package = lib.mkDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
 
       # system configuration viewer
       fastfetch.enable = lib.mkDefault true;
-
-      # enable gpg key caching
 
       # more shell stuff
       zoxide = {

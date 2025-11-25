@@ -6,6 +6,10 @@
   custom-neovims = inputs.vim-config.overlays.default;
   prismlauncher = inputs.prismlauncher.overlays.default;
   ghostty = inputs.ghostty.overlays.default;
+  # latest disko
+  disko = final: prev: {
+    disko = inputs.disko.packages.${prev.system}.default;
+  };
 
   packages =
     final: prev:
