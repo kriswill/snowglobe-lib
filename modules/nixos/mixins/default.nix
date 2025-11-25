@@ -41,7 +41,7 @@
       # see /modules/nixos/mixins/desktop.nix
       desktop.enable = (config.meta.desktop != "");
       # see /modules/nixos/mixins/sops.nix
-      sops.enable = (config.meta.secretsFile != null);
+      sops.enable = true;
 
       server.enable = (config.meta.specialization == "server");
 
