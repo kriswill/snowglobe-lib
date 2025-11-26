@@ -26,7 +26,7 @@ in
       (lib.mkIf (config.meta.desktop != "") {
         programs = {
           # cpu-z alternative
-          cpu-x.enable = lib.mkDefault true;
+          # cpu-x.enable = lib.mkDefault true;
           # comphrensive testing suite
           phoronix.enable = lib.mkDefault true;
           # alternative to crystal disk mark
