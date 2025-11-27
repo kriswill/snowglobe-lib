@@ -35,6 +35,10 @@ in
     };
 
     environment = {
+
+      # force electron apps to run using wayland
+      sessionVariables.NIXOS_OZONE_WL = "1";
+
       # add network manager applet schemas to XDG_DATA_DIRS
       # services.nm-applet.enable is not needed since it is provded by niri but the DATA DIRS path still needs to be set to render icons
       profiles = [ "${pkgs.networkmanagerapplet}" ];
