@@ -44,6 +44,7 @@ in
       pipes.enable = true;
       qutebrowser.enable = true;
       neovim-custom.enable = true;
+      rmpc.enable = true;
 
       # core dependencies
       swaylock.enable = true;
