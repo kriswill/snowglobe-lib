@@ -34,6 +34,8 @@ in
       }
     );
 
+    gman.nix-development.enable = true;
+
     programs = {
       cava.enable = true;
       cmatrix.enable = true;
@@ -42,7 +44,6 @@ in
       pipes.enable = true;
 
       # core dependencies
-      direnv.enable = true;
       swaylock.enable = true;
       rofi.enable = true;
       password-store.enable = true;
