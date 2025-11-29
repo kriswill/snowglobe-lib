@@ -14,19 +14,25 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = builtins.attrValues {
-      inherit (pkgs)
-        waybar
-        libnotify
-        wl-clipboard
-        grim
-        slurp
-        swayidle
-        coreutils-full
-        findutils
-        mpd
-        ;
-    };
+    environment.systemPackages = builtins.attrValues (
+      {
+        inherit (pkgs)
+          waybar
+          libnotify
+          wl-clipboard
+          grim
+          slurp
+          swayidle
+          coreutils-full
+          findutils
+          mpd
+          ;
+      }
+      // {
+        # gets information regarding xwayland windows
+        inherit (pkgs.xorg) xwininfo;
+      }
+    );
 
     programs = {
       cava.enable = true;

@@ -20,11 +20,6 @@ in
 
     hardware = {
       amdgpu.overdrive.enable = lib.mkDefault true;
-      graphics = {
-        extraPackages = builtins.attrValues {
-          inherit (pkgs) libvdpau-va-gl;
-        };
-      };
     };
   };
 }

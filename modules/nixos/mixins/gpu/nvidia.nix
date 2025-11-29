@@ -18,11 +18,8 @@ in
     };
 
     hardware.nvidia = {
-      # Modesetting is needed most of the time
       modesetting.enable = lib.mkDefault true;
 
-      # Enable power management (do not disable this unless you have a reason to).
-      # Likely to cause problems on laptops and with screen tearing if disabled.
       powerManagement.enable = lib.mkDefault true;
 
       # use open for RTX 20 series or newer

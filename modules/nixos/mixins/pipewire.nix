@@ -23,12 +23,6 @@ in
         alsa.support32Bit = lib.mkDefault true;
         pulse.enable = lib.mkDefault true;
         jack.enable = lib.mkDefault true;
-
-        # from nix-gaming
-        # https://github.com/fufexan/nix-gaming
-        lowLatency = {
-          enable = lib.mkDefault true;
-        };
       };
     };
   };

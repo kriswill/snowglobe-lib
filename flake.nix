@@ -61,10 +61,10 @@
       inputs.rust-overlay.follows = "";
     };
 
-    nix-gaming = {
-      url = "github:fufexan/nix-gaming";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # nix-gaming = {
+    #   url = "github:fufexan/nix-gaming";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     ghostty = {
       url = "github:ghostty-org/ghostty";

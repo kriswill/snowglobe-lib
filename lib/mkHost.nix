@@ -13,8 +13,8 @@ in
   vm ? false, # is this a virtual machine?
   secretsFile ? null, # path to secrets file
   system ? "x86_64-linux", # what cpu architecture?
-  # TODO Update me in november
-  stateVersion ? "25.11", # what version of nixos was this machine initalized?
+  # TODO Update me in may
+  stateVersion ? "26.05", # what version of nixos was this machine initalized?
   configDir ? null, # directory for extra host configuration
   extraModules ? [ ], # additional modules from your own flake
   extraSpecialArgs ? { }, # additional arguments passed to nixosSystem SpecialArgs

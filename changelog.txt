@@ -1,3 +1,18 @@
+11-28-2025
+- update to NixOS 26.05 and linux 6.17.9
+- fix a bug with java programs that run in xwayland-satillete where the screen appears blank.
+- Add NIXOS_OZONE_WL=1 for niri, which will force electron apps to run in native wayland instead of xwayland.
+- remove intel-vaapi-driver from the intel gpu module as it is only for old integrated graphics and does not support newer cards.
+- remove deprecated wiki comments from the nvidia gpu module.
+- add xwininfo to dotfiles to gather information about xwayland windows from a keybind.
+- remove old low-latency pipewire module and its corresponding nix-gaming input as it broke the sound server with the latest update.
+
+
+11-22-2025
+- makeshift cache server https://nix-store.earthgman.dev
+- add ghostty input and overlay
+
+
 11-21-2025
 - added qtpass to programs
 
