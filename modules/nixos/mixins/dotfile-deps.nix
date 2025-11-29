@@ -42,6 +42,7 @@ in
       cbonsai.enable = true;
       sl.enable = true;
       pipes.enable = true;
+      qutebrowser.enable = true;
 
       # core dependencies
       swaylock.enable = true;
