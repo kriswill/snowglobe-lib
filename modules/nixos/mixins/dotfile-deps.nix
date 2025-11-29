@@ -43,6 +43,7 @@ in
       sl.enable = true;
       pipes.enable = true;
       qutebrowser.enable = true;
+      neovim-custom.enable = true;
 
       # core dependencies
       swaylock.enable = true;
