@@ -38,9 +38,6 @@ in
 
   environment = {
     systemPackages = [
-      # latest disko
-      inputs.disko.packages.${config.meta.system}.disko
-
       install-sh
       nixfmt-sh
       pkgs.nixfmt
@@ -97,15 +94,7 @@ in
     # allow signing in to github for private repositories
     gh.enable = true;
 
-    zsh = {
-      # cannot use the standard method of vi and vim aliases
-      # vi and vim packages must be uninstalled, however someone at nixpkgs
-      # decided to put vim into environment.systemPackages instead of using programs.vim.enable
-      # https://github.com/NixOS/nixpkgs/blob/nixos-25.05/nixos/modules/profiles/base.nix
-      shellAliases = {
-        vi = "nvim";
-        vim = "nvim";
-      };
-    };
+    # declarative formatting of disks using nix files
+    disko.enable = true;
   };
 }

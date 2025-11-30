@@ -50,6 +50,8 @@ in
       swaylock.enable = true;
       rofi.enable = true;
       password-store.enable = true;
+      # use git auth with pass
+      pass-git-helper.enable = true;
       gnupg.agent = {
         enable = true;
         enableSSHSupport = true;
