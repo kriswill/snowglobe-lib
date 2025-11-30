@@ -37,14 +37,26 @@ in
     gman.nix-development.enable = true;
 
     programs = {
-      cava.enable = true;
-      cmatrix.enable = true;
-      cbonsai.enable = true;
-      sl.enable = true;
-      pipes.enable = true;
-      qutebrowser.enable = true;
-      neovim-custom.enable = true;
-      rmpc.enable = true;
+      # optional programs
+      cava.enable = lib.mkDefault true;
+      cmatrix.enable = lib.mkDefault true;
+      cbonsai.enable = lib.mkDefault true;
+      sl.enable = lib.mkDefault true;
+      pipes.enable = lib.mkDefault true;
+      qutebrowser.enable = lib.mkDefault true;
+      neovim-custom.enable = lib.mkDefault true;
+      rmpc.enable = lib.mkDefault true;
+      yt-dlp.enable = lib.mkDefault true;
+      vlc.enable = lib.mkDefault true;
+      gnome-calculator.enable = lib.mkDefault true;
+      # gtk themer
+      nwg-look.enable = lib.mkDefault true;
+      # default pdf viewer
+      evince.enable = lib.mkDefault true;
+      # default image viewer
+      gthumb.enable = lib.mkDefault true;
+      # default graphical file manager
+      dolphin.enable = lib.mkDefault true;
 
       # core dependencies
       swaylock.enable = true;
@@ -58,28 +70,16 @@ in
       };
       lynx.enable = true;
       dconf.enable = true;
-      yt-dlp.enable = true;
-
       # terminals
-      st.enable = lib.mkDefault true;
+      st.enable = true;
+      # remove from default niri config
       alacritty.enable = false;
       kitty.enable = lib.mkDefault true;
-
-      # pipewire control dashboard
-      pwvucontrol.enable = lib.mkDefault true;
-      # pdf viewer
-      evince.enable = lib.mkDefault true;
-      # image viewer
-      gthumb.enable = lib.mkDefault true;
-      # graphical file manager
-      dolphin.enable = lib.mkDefault true;
       # setting timers
-      gnome-clocks.enable = lib.mkDefault true;
+      gnome-clocks.enable = true;
+      # pipewire control dashboard
+      pwvucontrol.enable = true;
 
-      # calculator
-      gnome-calculator.enable = lib.mkDefault true;
-      # gtk themer
-      nwg-look.enable = lib.mkDefault true;
     };
 
     services = {
