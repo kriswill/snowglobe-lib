@@ -32,6 +32,7 @@ in
       batsignal.enable = lib.mkDefault true;
       # setup a default notification daemon
       swaync.enable = lib.mkDefault true;
+      nm-applet.enable = lib.mkDefault true;
     };
 
     environment = {
@@ -42,10 +43,6 @@ in
         # prevent blank screens with java applications running under xwayland-satellite
         _JAVA_AWT_WM_NONREPARENTING = "1";
       };
-
-      # add network manager applet schemas to XDG_DATA_DIRS
-      # services.nm-applet.enable is not needed since it is provded by niri but the DATA DIRS path still needs to be set to render icons
-      profiles = [ "${pkgs.networkmanagerapplet}" ];
 
       systemPackages = builtins.attrValues {
         inherit (pkgs)

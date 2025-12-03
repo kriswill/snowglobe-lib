@@ -73,6 +73,8 @@ in
       # breeze assets for qt and other plasma stuff
       pkgs.kdePackages.breeze
 
+      pkgs.dex
+      pkgs.desktop-file-utils
     ]
     ++ lib.optionals (config.programs.dconf.enable) [
       # dang a registry editor on linux :(
