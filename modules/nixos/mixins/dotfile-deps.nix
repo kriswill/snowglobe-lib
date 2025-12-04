@@ -42,6 +42,7 @@ in
       cmatrix.enable = lib.mkDefault true;
       cbonsai.enable = lib.mkDefault true;
       sl.enable = lib.mkDefault true;
+      firefox.enable = lib.mkDefault true;
       pipes.enable = lib.mkDefault true;
       qutebrowser.enable = lib.mkDefault true;
       neovim-custom.enable = lib.mkDefault true;

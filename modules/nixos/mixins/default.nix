@@ -14,7 +14,7 @@
     enable = lib.mkEnableOption "gman's nixos modules";
 
     ssh-keys = lib.mkOption {
-      description = "public ssh keys for ease of access";
+      description = "gman's public ssh-keys";
       type = lib.types.attrsOf lib.types.str;
       default = { };
     };
@@ -25,6 +25,7 @@
       ssh-keys = {
         g = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNRHd6NLt4Yd9y5Enu54fJ/a2VCrRgbvfMuom3zn5zg";
         cypher = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPk0JEmiuM5xR5JlCjU7EdNVZlztCeXOHkTXKVsOKeW8";
+        think-one = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKIkw34vAW/O+Ev1kHG+aLpKxKANzUYGlm//EFELE+lA";
       };
 
       # default mixins
@@ -155,8 +156,12 @@
 
       disko.enable = lib.mkDefault true;
 
-      # better version of discord
+      # better discord
       discord.package = lib.mkDefault pkgs.vesktop;
+
+      # better firefox
+      firefox.package = lib.mkDefault pkgs.librewolf;
+
       # password store otp plugin
       password-store.package = lib.mkDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
 

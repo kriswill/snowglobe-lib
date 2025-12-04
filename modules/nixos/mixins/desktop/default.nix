@@ -119,6 +119,8 @@ in
       gnome-software.enable = lib.mkDefault config.services.flatpak.enable;
       # overcomplicated gtk settings database
       dconf.enable = lib.mkDefault true;
+      # default browser
+      firefox.enable = lib.mkDefault true;
     };
 
     # use sddm as default display manager, will change to gdm if gnome is the desktop
