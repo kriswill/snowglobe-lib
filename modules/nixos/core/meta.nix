@@ -38,8 +38,8 @@
     cpu = lib.mkOption {
       description = "x86 cpu brand";
       type = lib.types.str;
-      default = "intel";
-      example = "amd";
+      default = "";
+      example = "intel";
     };
 
     gpu = lib.mkOption {

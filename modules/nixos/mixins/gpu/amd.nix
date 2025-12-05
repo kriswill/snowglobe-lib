@@ -12,7 +12,6 @@ in
   config = lib.mkIf cfg.enable {
     services = {
       xserver.videoDrivers = [ "amdgpu" ];
-      lact.enable = lib.mkDefault true;
     };
 
     # provide special derivation that can monitor amdgpu stats
@@ -20,6 +19,8 @@ in
 
     hardware = {
       amdgpu.overdrive.enable = lib.mkDefault true;
+      # enable full resolution during early KMS while booting
+      amdgpu.initrd.enable = lib.mkDefault true;
     };
   };
 }

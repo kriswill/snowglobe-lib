@@ -6,12 +6,12 @@ in
 {
   hostname, # name your PC
   bios ? "UEFI", # bios type: one of "legacy" or "UEFI"
-  cpu ? "intel", # cpu brand (amd, intel)
-  gpu ? "intel", # gpu brand (amd, intel, nvidia)
+  cpu ? "", # cpu brand (amd, intel)
+  gpu ? "", # gpu brand (amd, intel, nvidia)
   desktop ? "", # what desktop? "gnome" "hyprland" or "sway"
   specialization ? "", # what will this machine be used for (determined by installer)
   vm ? false, # is this a virtual machine?
-  secretsFile ? null, # path to secrets file
+  secretsFile ? null, # path to the default secrets file
   system ? "x86_64-linux", # what cpu architecture?
   # TODO Update me in may
   stateVersion ? "26.05", # what version of nixos was this machine initalized?

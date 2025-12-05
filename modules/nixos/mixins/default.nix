@@ -106,7 +106,7 @@
 
     nix = {
       # use flakes
-      channel.enable = lib.mkDefault false;
+      channel.enable = false;
       settings = {
         experimental-features = [
           "nix-command"
@@ -126,12 +126,6 @@
 
     # enable linux firmware if a physical machine
     hardware.enableRedistributableFirmware = lib.mkDefault (!config.meta.vm);
-
-    # enable microcode updates for bare metal machines
-    # usually defined by hardware-configuration.nix but just in case its somehow not present
-    hardware.cpu.${config.meta.cpu}.updateMicrocode = lib.mkIf (
-      (!config.meta.vm) && (builtins.substring 0 3 config.meta.system) == "x86"
-    ) (lib.mkDefault config.hardware.enableRedistributableFirmware);
 
     # install tools
     environment.systemPackages = [

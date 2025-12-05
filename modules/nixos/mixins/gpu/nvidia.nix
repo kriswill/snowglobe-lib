@@ -28,6 +28,7 @@ in
       # accessible via `nvidia-settings`.
       nvidiaSettings = lib.mkDefault true;
 
+      # latest nvidia drivers
       package = lib.mkDefault config.boot.kernelPackages.nvidiaPackages.beta;
     };
   };
