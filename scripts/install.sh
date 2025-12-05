@@ -406,24 +406,24 @@ create_config() {
 		" | install -D /dev/stdin "$CONFIG_ROOT/packages/default.nix"
 
 		echo "
+      { inputs, ... }:
       # overlays are functions which add derivations or modify existing derivations.
-			# the flake.nix expects this to be a regular nix attribute set however
-			# the nixos option \`nixpkgs.overlays\` requires the functions to be in a nix array to properly apply them to the configuration modules.
-			# to apply them throughout your nixos configuration add:
-			
-			# extraModules = [
-			#   { nixpkgs.overlays = builtins.attrValues outputs.overlays; }
-			# ];
-			#
-			# to the lib.mkHost function at /hosts/default.nix (apply separately for each host)
-			{
-				# EXAMPLE 
-				# TODO example
-			}
+      # the flake.nix expects this to be a regular nix attribute set however
+      # the nixos option \`nixpkgs.overlays\` requires the functions to be in a nix array to properly apply them to the configuration modules.
+      # to apply them throughout your nixos configuration add:
+
+      # nixpkgs.overlays = builtins.attrValues outputs.overlays;
+      #
+      # to your nixos configuration modules. Note: that \'outputs\' will need to be accessible for this module.
+      {
+        # EXAMPLE 
+        # inputs.yazi.overlays.default;
+      }
 		" | install -D /dev/stdin "$CONFIG_ROOT/overlays.nix"
 
 	else
 		mv $REPO_DIR/{.,}* $CONFIG_ROOT
+		rm -rf $REPO_DIR
 		# if hostname is the same as an existing configuration, replace it
 		if [[ -d $HOST_CONFIG ]]; then
 			rm -rf $HOST_CONFIG
