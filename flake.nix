@@ -43,7 +43,7 @@
     };
 
   inputs = {
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1.0.tar.gz";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
 
     determinate = {
       url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
