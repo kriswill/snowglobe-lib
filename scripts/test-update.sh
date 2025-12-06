@@ -16,16 +16,21 @@ y_or_n() {
 }
 
 update_flake() {
-	git checkout dev
+	PROJECT_DIR="/home/g/src/git/earthgman/nix-modules"
+	if [[ $(git branch --show-current) != "dev" ]]; then
+		git checkout dev
+	fi
 	nix flake update
+	git -C $PROJECT_DIR add $PROJECT_DIR
 	git commit -m "update flake"
 	git push -u origin dev
 }
 
-pull_repositories() {
+check_configs() {
 	# enroll repositories via links here
 	REPOSITORIES=(
-		"https://git.earthgman.dev/thunderbean/nixos-hosts"
+		"https://git.earthgman.dev/earthgman/nixos-hosts"
+		# "https://git.earthgman.dev/thunderbean/nixos-hosts"
 		"https://git.earthgman.dev/pumpkinking/nixos"
 	)
 
@@ -40,6 +45,7 @@ pull_repositories() {
 		else
 			pushd $REPO_DIR >/dev/null
 			git pull
+			popd >/dev/null
 		fi
 
 		if [[ ! -e $REPO_DIR/flake.nix ]]; then
@@ -63,13 +69,18 @@ pull_repositories() {
 				exit 1
 			fi
 		done
+		# return the flake to its original state
+		sed -i "s/\/EarthGman\/nix-modules?ref=dev/\/EarthGman\/nix-modules/g" $REPO_DIR/flake.nix
 		popd >/dev/null
 	done
 }
 
 main() {
 	y_or_n "Update flake?" && update_flake
-	pull_repositories
+	check_configs
+
+	y_or_n "Configuration checks successful, merge into main?" && git merge main
+	exit 0
 }
 
 main
