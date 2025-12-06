@@ -65,6 +65,7 @@ check_configs() {
 			nixos-rebuild build --flake .#$host
 			if [[ $? != 0 ]]; then
 				echo "build for $host from repo: $REPO_OWNER/$REPO_NAME has failed"
+				sed -i "s/\/EarthGman\/nix-modules?ref=dev/\/EarthGman\/nix-modules/g" $REPO_DIR/flake.nix
 				popd >/dev/null
 				exit 1
 			fi
