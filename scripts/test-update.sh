@@ -58,6 +58,8 @@ check_configs() {
 		# TODO ill learn this without looking too scuffed eventually
 		sed -i "s/\/EarthGman\/nix-modules/\/EarthGman\/nix-modules?ref=dev/g" $REPO_DIR/flake.nix
 
+		nix flake update gman
+
 		HOSTS=($(nix eval $REPO_DIR'#'nixosConfigurations --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"'))
 
 		for host in ${HOSTS[@]}; do
