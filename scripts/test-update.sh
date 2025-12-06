@@ -25,7 +25,6 @@ update_flake() {
 pull_repositories() {
 	# enroll repositories via links here
 	REPOSITORIES=(
-		"https://git.earthgman.dev/earthgman/nixos-hosts"
 		"https://git.earthgman.dev/thunderbean/nixos-hosts"
 		"https://git.earthgman.dev/pumpkinking/nixos"
 	)
@@ -52,7 +51,7 @@ pull_repositories() {
 
 		# edit the flake.nix to point to the testing branch
 		# TODO ill learn this without looking too scuffed eventually
-		sed -i "s/\/EarthGman\/nix-modules/\/EarthGman\/nix-modules\/dev/g" $REPO_DIR/flake.nix
+		sed -i "s/\/EarthGman\/nix-modules/\/EarthGman\/nix-modules?ref=dev/g" $REPO_DIR/flake.nix
 
 		HOSTS=($(nix eval $REPO_DIR'#'nixosConfigurations --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"'))
 
