@@ -81,7 +81,12 @@ main() {
 	y_or_n "Update flake?" && update_flake
 	check_configs
 
-	y_or_n "Configuration checks successful, merge into main?" && git merge main
+	y_or_n "Configuration checks successful, merge into main?"
+	if [[ $yn == [Yy] ]]; then
+		git checkout main
+		git merge dev
+		git push -u origin main
+	fi
 	exit 0
 }
 
