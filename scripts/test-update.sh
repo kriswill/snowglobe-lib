@@ -5,7 +5,7 @@
 
 REPOSITORIES=(
 	"https://git.earthgman.dev/earthgman/nixos-hosts"
-	"https://git.earthgman.dev/thunderbean/nixos-hosts"
+	# "https://git.earthgman.dev/thunderbean/nixos-hosts"
 	"https://git.earthgman.dev/pumpkinking/nixos"
 )
 
