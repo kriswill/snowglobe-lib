@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 # This script is used to verify all host configurations for the registered repositories
-# It ensures that all configurations do not have failing builds.
-# additionally it will ensure all packages are cached, preventing local builds
+# It ensures that all configurations that depend on the module set do not have failing builds after a flake update.
+# additionally it will ensure all packages are cached, preventing local builds for these hosts.
+
+REPOSITORIES=(
+	"https://git.earthgman.dev/earthgman/nixos-hosts"
+	"https://git.earthgman.dev/thunderbean/nixos-hosts"
+	"https://git.earthgman.dev/pumpkinking/nixos"
+)
 
 y_or_n() {
 	while true; do
@@ -27,13 +33,6 @@ update_flake() {
 }
 
 check_configs() {
-	# enroll repositories via links here
-	REPOSITORIES=(
-		"https://git.earthgman.dev/earthgman/nixos-hosts"
-		"https://git.earthgman.dev/thunderbean/nixos-hosts"
-		"https://git.earthgman.dev/pumpkinking/nixos"
-	)
-
 	for repo in ${REPOSITORIES[@]}; do
 		REPO_OWNER=$(echo $repo | rev | cut -d "/" -f2 | rev)
 		REPO_NAME=$(echo $repo | rev | cut -d "/" -f1 | rev)
