@@ -1,12 +1,10 @@
 # Modules enabled by `gman.enable` for NixOS
-# /modules/shared is also included
 {
   pkgs,
   lib,
   config,
   ...
 }:
-# handle edge cases in display manager session names
 {
   imports = lib.autoImport ./.;
 
@@ -97,7 +95,7 @@
     };
 
     users = {
-      # users controlled by nix be default
+      # users controlled by nix
       mutableUsers = lib.mkDefault false;
 
       # all users get zsh for login shell
@@ -137,6 +135,7 @@
       # archive helpers
       pkgs.atool
       pkgs.unrar
+      pkgs.zip
     ]
     ++ lib.optionals (!config.meta.vm) [
       pkgs.brightnessctl
@@ -148,6 +147,7 @@
 
       vim.enable = lib.mkDefault true;
 
+      # declarative partitioning tool
       disko.enable = lib.mkDefault true;
 
       # better discord
@@ -159,9 +159,6 @@
       # password store otp plugin
       password-store.package = lib.mkDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
 
-      # system configuration viewer
-      fastfetch.enable = lib.mkDefault true;
-
       # more shell stuff
       zoxide = {
         enable = lib.mkDefault true;
@@ -172,9 +169,11 @@
 
       # nice tools
       ncdu.enable = lib.mkDefault true;
+      fastfetch.enable = lib.mkDefault true;
       hstr.enable = lib.mkDefault true;
       fzf.enable = lib.mkDefault true;
       fd.enable = lib.mkDefault true;
+      jq.enable = lib.mkDefault true;
       eza.enable = lib.mkDefault true;
       btop.enable = lib.mkDefault true;
       sysz.enable = lib.mkDefault true;
