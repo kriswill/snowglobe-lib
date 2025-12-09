@@ -35,8 +35,10 @@ in
       nm-applet.enable = lib.mkDefault true;
     };
 
-    environment = {
+    # polkit agent that works on any desktop environment
+    security.soteria.enable = lib.mkDefault true;
 
+    environment = {
       # force electron apps to run using wayland
       sessionVariables = {
         NIXOS_OZONE_WL = "1";
@@ -46,7 +48,6 @@ in
 
       systemPackages = builtins.attrValues {
         inherit (pkgs)
-          hyprpolkitagent # works on niri
           libnotify # provides `notify-send`
           wl-clipboard
           grim # screenshots
