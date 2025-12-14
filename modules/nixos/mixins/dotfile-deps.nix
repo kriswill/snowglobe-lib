@@ -26,6 +26,9 @@ in
           coreutils-full
           findutils
           mpd
+          xdg-user-dirs
+
+          star-pixel-icons
           ;
       }
       // {
@@ -86,6 +89,15 @@ in
     services = {
       # tray applet for networkmanager
       nm-applet.enable = lib.mkDefault true;
+
+      # idle daemon
+      swayidle = {
+        enable = lib.mkDefault true;
+        flags = [
+          "-w"
+          "-d"
+        ];
+      };
 
       # wayland wallpaper daemon
       awww = {

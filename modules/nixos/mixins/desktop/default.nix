@@ -58,28 +58,26 @@ in
       ];
     };
 
-    environment.systemPackages = [
-      # install some icons
-      pkgs.adwaita-icon-theme
-      pkgs.star-pixel-icons
-
-      # install some cursors
-      pkgs.bibata-cursors
-
-      # backport of libadwaita to gtk3
-      # required for many legacy gtk3 apps to respect custom color schemes
-      pkgs.adw-gtk3
-
-      # breeze assets for qt and other plasma stuff
-      pkgs.kdePackages.breeze
-
-      pkgs.dex
-      pkgs.desktop-file-utils
-    ]
-    ++ lib.optionals (config.programs.dconf.enable) [
-      # dang a registry editor on linux :(
-      pkgs.dconf-editor
-    ];
+    environment.systemPackages =
+      builtins.attrValues {
+        inherit (pkgs)
+          # # install some icons
+          adwaita-icon-theme
+          # install some cursors
+          bibata-cursors
+          # backport of libadwaita to gtk3
+          # required for many legacy gtk3 apps to respect custom color schemes
+          adw-gtk3
+          xdg-user-dirs
+          dex
+          desktop-file-utils
+          ;
+      }
+      ++ (builtins.attrValues {
+        inherit (pkgs.kdePackages)
+          breeze
+          ;
+      });
 
     # install some fonts (many are included by default)
     fonts.packages = builtins.attrValues (
@@ -119,6 +117,7 @@ in
       gnome-software.enable = lib.mkDefault config.services.flatpak.enable;
       # overcomplicated gtk settings database
       dconf.enable = lib.mkDefault true;
+      dconf-editor.enable = lib.mkDefault config.programs.dconf.enable;
       # default browser
       firefox.enable = lib.mkDefault true;
     };
@@ -150,11 +149,10 @@ in
     # desktop modules install a graphical implementation for an interactive sudo prompt
     security.polkit.enable = lib.mkDefault true;
 
-    # use kvantum themes by default since its portable
-    # plasma module will override for the in built configurator
     qt = {
       enable = lib.mkDefault true;
-      platformTheme = lib.mkDefault "kde";
+      platformTheme = lib.mkDefault null;
+      # utilize kvantum for window managers. It is better than qt6ct in my opinion
       style = lib.mkDefault "kvantum";
     };
   };
