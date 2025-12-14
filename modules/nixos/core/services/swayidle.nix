@@ -34,6 +34,7 @@ in
           Restart = "on-failure";
           RestartSec = 5;
 
+          # allow configuration files ~/.config/swayidle/config to execute programs from PATH
           Environment = "\"PATH=/run/current-system/sw/bin\"";
         };
         unitConfig = {
