@@ -5,7 +5,7 @@
   ...
 }:
 let
-  program-name = "setdefaultapplication";
+  program-name = "selectdefaultapplication";
   cfg = config.programs.${program-name};
 in
 {
