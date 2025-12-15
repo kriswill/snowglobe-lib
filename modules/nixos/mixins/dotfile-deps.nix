@@ -26,6 +26,7 @@ in
           coreutils-full
           findutils
           mpd
+          xdg-utils
           xdg-user-dirs
 
           star-pixel-icons
@@ -64,7 +65,7 @@ in
 
       # core dependencies
       swaylock.enable = true;
-      setdefaultapplication.enable = true;
+      selectdefaultapplication.enable = true;
       rofi.enable = true;
       password-store.enable = true;
       # use git auth with pass

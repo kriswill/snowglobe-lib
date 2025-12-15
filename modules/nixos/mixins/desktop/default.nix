@@ -68,7 +68,10 @@ in
           # backport of libadwaita to gtk3
           # required for many legacy gtk3 apps to respect custom color schemes
           adw-gtk3
+
+          # various helper software
           xdg-user-dirs
+          xdg-utils
           dex
           desktop-file-utils
           ;
