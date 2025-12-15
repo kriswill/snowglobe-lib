@@ -86,7 +86,6 @@ in
       gnome-clocks.enable = true;
       # pipewire control dashboard
       pwvucontrol.enable = true;
-
     };
 
     services = {

@@ -35,6 +35,8 @@
       zsh.enable = lib.mkDefault true;
       # tmux configuration
       tmux.enable = lib.mkDefault true;
+      # yazi dependencies
+      yazi.enable = lib.mkDefault true;
 
       # enable mixins based on host metadata
       # see /modules/nixos/mixins/desktop.nix
@@ -133,11 +135,9 @@
       pkgs.file
 
       # archive helpers
-      pkgs.atool
-      pkgs.unrar
       pkgs.zip
-    ]
-    ++ lib.optionals (!config.meta.vm) [
+
+      # control brightness
       pkgs.brightnessctl
     ];
 
