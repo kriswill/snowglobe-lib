@@ -22,6 +22,7 @@ in
         imagemagick
         poppler
         wl-clipboard
+        exiftool
         ;
     };
 
