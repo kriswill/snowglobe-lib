@@ -81,6 +81,7 @@ main() {
 	y_or_n "Update flake?" && update_flake
 	check_configs
 
+	notify-send -a "nix-modules-CI" "test-update.sh" "Configuration Checks successful\!"
 	y_or_n "Configuration checks successful, merge into main?"
 	if [[ $yn == [Yy] ]]; then
 		git checkout main

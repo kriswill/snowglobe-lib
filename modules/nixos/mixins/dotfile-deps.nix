@@ -64,6 +64,7 @@ in
 
       # core dependencies
       swaylock.enable = true;
+      setdefaultapplication.enable = true;
       rofi.enable = true;
       password-store.enable = true;
       # use git auth with pass
