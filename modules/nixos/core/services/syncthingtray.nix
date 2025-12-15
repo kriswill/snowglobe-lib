@@ -24,8 +24,6 @@ in
         serviceConfig = {
           # require syncthing to wait for a tray to bind to
           ExecStart = "${cfg.package}/bin/syncthingtray --wait";
-          Restart = "always";
-          RestartSec = 5;
         };
         unitConfig = {
           After = "graphical-session.target";

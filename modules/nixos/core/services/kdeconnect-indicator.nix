@@ -23,7 +23,7 @@ in
         wantedBy = [ "graphical-session.target" ];
         serviceConfig = {
           ExecStart = "${cfg.package}/bin/kdeconnect-indicator";
-          Restart = "always";
+          Restart = "on-failure";
           RestartSec = 5;
         };
         unitConfig = {

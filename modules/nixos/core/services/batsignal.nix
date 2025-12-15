@@ -36,7 +36,7 @@ in
     systemd.user = {
       services.batsignal = {
         path = [ cfg.package ];
-        wantedBy = [ "graphical-session.target" ];
+        wantedBy = [ "graphical-session-pre.target" ];
         serviceConfig = {
           Type = "simple";
           ExecStart =
@@ -46,9 +46,9 @@ in
           Restart = "no";
         };
         unitConfig = {
-          After = "graphical-session.target";
+          After = "graphical-session-pre.target";
           Description = "batsignal";
-          PartOf = "graphical-session.target";
+          PartOf = "graphical-session-pre.target";
         };
       };
     };

@@ -31,7 +31,7 @@ in
           ExecStart =
             "${cfg.package}/bin/awww-daemon"
             + lib.optionalString (cfg.flags != [ ]) (" " + (lib.concatStringsSep " " cfg.flags));
-          Restart = "always";
+          Restart = "on-failure";
           RestartSec = 5;
         };
         unitConfig = {

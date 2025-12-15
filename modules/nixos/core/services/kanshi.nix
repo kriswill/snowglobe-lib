@@ -1,3 +1,4 @@
+# TODO add system wide configuration options
 {
   pkgs,
   lib,
