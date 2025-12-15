@@ -63,13 +63,14 @@ check_configs() {
 		HOSTS=($(nix eval $REPO_DIR'#'nixosConfigurations --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"'))
 
 		for host in ${HOSTS[@]}; do
-			nixos-rebuild build --flake .#$host
-			if [[ $? != 0 ]]; then
-				echo "build for $host from repo: $REPO_OWNER/$REPO_NAME has failed"
+			nixos-rebuild build --flake .#$host || $(
+				msg="build for $host from repo: $REPO_OWNER/$REPO_NAME has failed"
+				echo $msg
+				notify-send "nix-modules-CI" "test-update.sh" $msg
 				sed -i "s/\/EarthGman\/nix-modules?ref=dev/\/EarthGman\/nix-modules/g" $REPO_DIR/flake.nix
 				popd >/dev/null
 				exit 1
-			fi
+			)
 		done
 		# return the flake to its original state
 		sed -i "s/\/EarthGman\/nix-modules?ref=dev/\/EarthGman\/nix-modules/g" $REPO_DIR/flake.nix
