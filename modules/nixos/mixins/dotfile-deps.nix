@@ -17,7 +17,6 @@ in
     environment.systemPackages = builtins.attrValues (
       {
         inherit (pkgs)
-          waybar
           libnotify
           wl-clipboard
           grim
@@ -25,7 +24,6 @@ in
           swayidle
           coreutils-full
           findutils
-          mpd
           xdg-utils
           xdg-user-dirs
 
@@ -38,7 +36,11 @@ in
       }
     );
 
-    gman.nix-development.enable = true;
+    gman = {
+      nix-development.enable = true;
+      # custom per-user instance of mpd for accessing that users Music directory
+      mpd-user.enable = true;
+    };
 
     programs = {
       # optional programs
@@ -86,6 +88,9 @@ in
       gnome-clocks.enable = true;
       # pipewire control dashboard
       pwvucontrol.enable = true;
+
+      # status bar for wayland
+      waybar.enable = true;
     };
 
     services = {

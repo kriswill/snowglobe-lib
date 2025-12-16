@@ -24,7 +24,11 @@ in
 
     systemd.user = {
       services.swayidle = {
-        path = [ cfg.package ];
+        # allow configuration file to execute programs installed through nixpkgs
+        path = [
+          cfg.package
+          "/run/current-system/sw"
+        ];
         wantedBy = [ "graphical-session.target" ];
         serviceConfig = {
           Type = "simple";
@@ -33,9 +37,6 @@ in
             + lib.optionalString (cfg.flags != [ ]) (lib.concatStringsSep " " cfg.flags);
           Restart = "on-failure";
           RestartSec = 5;
-
-          # allow configuration files ~/.config/swayidle/config to execute programs from PATH
-          Environment = "\"PATH=/run/current-system/sw/bin\"";
         };
         unitConfig = {
           After = "graphical-session.target";
