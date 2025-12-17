@@ -1,4 +1,5 @@
 result
 .direnv
 .obsidian
-.trash/
+.trash
+scripts/test-update.sh
