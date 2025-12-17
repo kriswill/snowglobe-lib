@@ -63,7 +63,7 @@ in
     xdg.portal = {
       wlr.enable = true;
       config.niri = {
-        default = [
+        default = lib.mkOverride 899 [
           "wlr"
           "gtk"
         ];
