@@ -19,7 +19,10 @@ in
 
     systemd.user.services.syncthingtray = {
       path = [ cfg.package ];
-      wantedBy = [ "syncthing.service" ];
+      wantedBy = [
+        "syncthing.service"
+        "graphical-session.target"
+      ];
       serviceConfig = {
         # required to wait for a tray to bind to
         ExecStart = "${cfg.package}/bin/syncthingtray --wait";

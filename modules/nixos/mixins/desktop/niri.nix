@@ -57,19 +57,5 @@ in
           ;
       };
     };
-
-    # global xdg portal configuration
-    # uses wlr as primary with gtk as a fallback
-    xdg.portal = {
-      wlr.enable = true;
-      config.niri = {
-        default = lib.mkOverride 899 [
-          "wlr"
-          "gtk"
-        ];
-        # prevent nautilus from auto installing itself
-        "org.freedesktop.impl.portal.FileChooser" = "gtk";
-      };
-    };
   };
 }
