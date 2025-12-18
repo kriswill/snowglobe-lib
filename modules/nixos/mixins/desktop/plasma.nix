@@ -11,10 +11,9 @@ in
   options.gman.desktop.plasma.enable = lib.mkEnableOption "gman's plasma 6 configuration";
 
   config = lib.mkIf cfg.enable {
+    # script which will repair imperative icons pinned to taskbar and desktop by users
     system.activationScripts = {
-      fix-plasma-icons = pkgs.writeShellScript "fix-plasma-icons" (
-        builtins.readFile ../../../../scripts/fix-plasma-icons.sh
-      );
+      fix-plasma-icons.source = ../../../../scripts/fix-plasma-icons.sh;
     };
 
     gman.sddm.enable = false; # kde does not play well with this module
