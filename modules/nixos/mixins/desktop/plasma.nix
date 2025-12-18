@@ -11,6 +11,12 @@ in
   options.gman.desktop.plasma.enable = lib.mkEnableOption "gman's plasma 6 configuration";
 
   config = lib.mkIf cfg.enable {
+    system.activationScripts = {
+      fix-plasma-icons = pkgs.writeShellScript "fix-plasma-icons" (
+        builtins.readFile ../../../../scripts/fix-plasma-icons.sh
+      );
+    };
+
     gman.sddm.enable = false; # kde does not play well with this module
 
     # make sure plasma can manage the QT configuration independent of nix
