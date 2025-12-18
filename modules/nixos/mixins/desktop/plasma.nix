@@ -42,6 +42,7 @@ in
     qt.style = lib.mkOverride 899 null;
 
     services = {
+      blueman.enable = false;
       desktopManager.plasma6 = {
         enable = true;
       };
