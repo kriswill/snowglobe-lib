@@ -12,7 +12,7 @@ in
 
   config = lib.mkIf cfg.enable {
     # script which will repair imperative icons pinned to taskbar and desktop by users
-    system.activationScripts = {
+    system.userActivationScripts = {
       fix-plasma-icons.text = ''
         # script that will repair KDE plasma icons after a flake update.
         # Instead of referencing icons at the correct location /run/current-system/sw/share/applications, Freaking kde plasma just references the /nix/store directly for some reason.
@@ -20,12 +20,11 @@ in
         # Every time the NAR hashes of the store update, the imperatively created links will not update by default.
         # This causes the icons on KDE plasma to disappear because they now reference a store path that doesn't exist.
 
-        for user in $(ls -A /home); do
         	# fix icons on the taskbar
-        	${pkgs.gnused}/bin/sed -i 's/\/nix\/store\/[A-Za-z0-9]\+-system-path\/share\/applications/\/run\/current-system\/sw\/share\/applications/g' /home/$user/.config/plasma-org.kde.plasma.desktop-appletsrc
+        	${pkgs.gnused}/bin/sed -i 's/\/nix\/store\/[A-Za-z0-9]\+-system-path\/share\/applications/\/run\/current-system\/sw\/share\/applications/g' $HOME/.config/plasma-org.kde.plasma.desktop-appletsrc
 
         	# Fix symlinks in /home/user/Desktop
-        	DESKTOP_DIR="/home/$user/Desktop"
+        	DESKTOP_DIR="$HOME/Desktop"
         	for file in $(ls -A $DESKTOP_DIR); do
         		CURRENT_FILE=$DESKTOP_DIR/$file
         		if [[ $(readlink $CURRENT_FILE) == "/nix/store"* ]]; then
@@ -33,8 +32,6 @@ in
         			ln -s /run/current-system/sw/share/applications/$file $CURRENT_FILE
         		fi
         	done
-        done
-        exit 0
       '';
     };
 
