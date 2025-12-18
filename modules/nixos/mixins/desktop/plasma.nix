@@ -14,7 +14,6 @@ in
     # script which will repair imperative icons pinned to taskbar and desktop by users
     system.activationScripts = {
       fix-plasma-icons.text = ''
-        #!${lib.getExe pkgs.bash}
         # script that will repair KDE plasma icons after a flake update.
         # Instead of referencing icons at the correct location /run/current-system/sw/share/applications, Freaking kde plasma just references the /nix/store directly for some reason.
         # On NixOS (if you do not use home-manager) you should NEVER have files in your home directory that reference the /nix/store directly ever.
