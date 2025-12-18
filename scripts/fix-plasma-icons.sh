@@ -11,9 +11,10 @@ for user in $(ls -A /home); do
 	# Fix symlinks in /home/user/Desktop
 	DESKTOP_DIR="/home/$user/Desktop"
 	for file in $(ls -A $DESKTOP_DIR); do
-		if [[ $(echo $file | grep /nix/store) ]]; then
-			rm $file
-			ln -s $DESKTOP_DIR/$file /run/current-system/sw/share/applications/$file
+		CURRENT_FILE=$DESKTOP_DIR/$file
+		if [[ $(readlink $CURRENT_FILE) == "/nix/store"* ]]; then
+			rm $CURRENT_FILE
+			ln -s /run/current-system/sw/share/applications/$file $CURRENT_FILE
 		fi
 	done
 done
