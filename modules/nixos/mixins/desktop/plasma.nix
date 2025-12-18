@@ -22,7 +22,7 @@ in
 
         for user in $(ls -A /home); do
         	# fix icons on the taskbar
-        	sed -i 's/\/nix\/store\/[A-Za-z0-9]\+-system-path\/share\/applications/\/run\/current-system\/share\/applications/g' /home/$user/.config/plasma-org.kde.plasma.desktop-appletsrc
+        	${pkgs.gnused}/bin/sed -i 's/\/nix\/store\/[A-Za-z0-9]\+-system-path\/share\/applications/\/run\/current-system\/share\/applications/g' /home/$user/.config/plasma-org.kde.plasma.desktop-appletsrc
 
         	# Fix symlinks in /home/user/Desktop
         	DESKTOP_DIR="/home/$user/Desktop"
@@ -34,6 +34,7 @@ in
         		fi
         	done
         done
+        exit 0
       '';
     };
 
