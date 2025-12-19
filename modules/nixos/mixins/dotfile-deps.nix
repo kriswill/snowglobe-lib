@@ -61,6 +61,22 @@ in
           }
         );
 
+        fonts.packages =
+          builtins.attrValues {
+            inherit (pkgs)
+              pixel-code
+              "8-bit-operator-font"
+              omori-font
+              noto-fonts
+              ;
+          }
+          // {
+            inherit (pkgs.nerd-fonts)
+              meslo-lg
+              jetbrains-mono
+              ;
+          };
+
         gman = {
           nix-development.enable = true;
           # custom per-user instance of mpd for accessing that users Music directory

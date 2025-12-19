@@ -37,9 +37,9 @@ in
         set -g status-justify absolute-centre
         set -g status-style "bg=default"
         set -g window-status-current-style "fg=blue bold"
-        set -g status-right "%H:%M %d-%b-%y"
+        set -g status-right "%H:%M | %d-%b-%y"
         set -g status-left-length 30
-        set -g status-left "#S  #H"
+        set -g status-left "#H | #S"
         set -g status-right-length 30
 
         bind E show-environment -g

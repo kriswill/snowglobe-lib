@@ -58,6 +58,11 @@ in
       ];
     };
 
+    # setup bluetooth
+    hardware.bluetooth.enable = true;
+    # gtk configuration GUI and tray applet
+    services.blueman.enable = lib.mkDefault true;
+
     environment.systemPackages =
       builtins.attrValues {
         inherit (pkgs)
@@ -83,21 +88,12 @@ in
       });
 
     # install some fonts (many are included by default)
-    fonts.packages = builtins.attrValues (
-      {
-        inherit (pkgs)
-          pixel-code
-          "8-bit-operator-font"
-          omori-font
-          ;
-      }
-      # nerd fonts
-      // {
-        inherit (pkgs.nerd-fonts)
-          meslo-lg
-          ;
-      }
-    );
+    fonts.packages = builtins.attrValues {
+      # Make sure nerd font is installed
+      inherit (pkgs.nerd-fonts)
+        meslo-lg
+        ;
+    };
 
     # kind of redundant, but good to have.
     hardware.graphics = {
@@ -139,7 +135,7 @@ in
       };
     };
 
-    # configures the xdg-desktop-portal, allowing interprocess communication between applications
+    # configures the xdg-desktop-portal, allowing standardized interprocess communication between applications
     # EX: opening a link from some app in the default browser
     xdg.portal = {
       enable = lib.mkDefault true;
@@ -147,15 +143,16 @@ in
       xdgOpenUsePortal = lib.mkDefault true;
     };
 
-    # allows permission configuration for underprivileged users interacting with privileged process
+    # allows configuration for underprivileged users interacting with privileged process
     # ex calling reboot or poweroff without sudo
-    # desktop modules install a graphical implementation for an interactive sudo prompt
+    # desktop modules install a unique polkit-agent, which allows the session to communicate with polkit
     security.polkit.enable = lib.mkDefault true;
 
     qt = {
       enable = lib.mkDefault true;
       platformTheme = lib.mkDefault null;
-      # utilize kvantum for window managers. It is better than qt6ct in my opinion
+      # utilize kvantum for to style QT for window managers
+      # it is better than qt6ct in my opinion
       style = lib.mkDefault "kvantum";
     };
   };
