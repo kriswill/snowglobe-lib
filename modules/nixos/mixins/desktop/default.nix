@@ -26,7 +26,6 @@ in
     gman = {
       # sound / screen capture server
       pipewire.enable = lib.mkDefault true;
-      bluetooth.enable = lib.mkDefault true;
 
       # common printing configuration
       printing.enable = lib.mkDefault true;
