@@ -17,6 +17,7 @@ in
     environment.systemPackages = builtins.attrValues {
       inherit (pkgs)
         file
+        mediainfo
         resvg
         ffmpeg
         imagemagick
