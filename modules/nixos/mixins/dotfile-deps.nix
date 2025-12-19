@@ -61,8 +61,8 @@ in
           }
         );
 
-        fonts.packages =
-          builtins.attrValues {
+        fonts.packages = builtins.attrValues (
+          {
             inherit (pkgs)
               pixel-code
               "8-bit-operator-font"
@@ -75,7 +75,8 @@ in
               meslo-lg
               jetbrains-mono
               ;
-          };
+          }
+        );
 
         gman = {
           nix-development.enable = true;

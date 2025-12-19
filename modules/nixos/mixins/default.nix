@@ -57,9 +57,11 @@
     nix.settings = {
       substituters = [
         "https://nix-store.earthgman.dev/"
+        "https://yazi.cachix.org"
       ];
       trusted-public-keys = [
         "nix-store.earthgman.dev:2Qrw9kS+K2c00ikcgaz5Y0M7j5XmkhFJz3d7oNgJdLw="
+        "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k="
       ];
       lazy-trees = true;
     };
