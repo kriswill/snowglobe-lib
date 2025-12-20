@@ -1,7 +1,4 @@
 { inputs, lib, ... }:
-let
-  sharedModules = [ ../shared ];
-in
 {
   imports = lib.autoImport ./. ++ [
     inputs.disko.nixosModules.default

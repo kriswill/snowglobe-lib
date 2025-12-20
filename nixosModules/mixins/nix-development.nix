@@ -25,6 +25,7 @@ in
         ;
     };
 
+    # patch direnv to not be annoying
     programs.direnv = {
       enable = true;
       silent = true;

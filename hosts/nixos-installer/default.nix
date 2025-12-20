@@ -8,8 +8,8 @@
   ...
 }:
 let
-  install-sh = pkgs.writeShellScriptBin "install.sh" (builtins.readFile ../../scripts/install.sh);
-  nixfmt-sh = pkgs.writeShellScriptBin "nixfmt.sh" (builtins.readFile ../../scripts/nixfmt.sh);
+  install-sh = pkgs.writeShellScriptBin "install.sh" (builtins.readFile ./install.sh);
+  nixfmt-sh = pkgs.writeShellScriptBin "nixfmt.sh" (builtins.readFile ../../mixins/nixfmt.sh);
 in
 {
   imports = [ (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix") ];

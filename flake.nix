@@ -25,7 +25,7 @@
       inherit lib;
 
       nixosModules = rec {
-        gman = import ./modules/nixos { inherit inputs lib; };
+        gman = import ./nixosModules { inherit inputs lib; };
         default = gman;
       };
 

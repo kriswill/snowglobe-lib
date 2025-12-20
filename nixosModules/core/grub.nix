@@ -22,15 +22,13 @@ in
     };
   };
 
-  config =
-    let
-      theme = pkgs.${cfg.themeName}.override {
-        inherit (cfg) themeConfig;
-      };
-    in
-    {
-      boot.loader.grub = {
-        inherit theme;
-      };
+  config = {
+    boot.loader.grub = {
+      theme = lib.mkDefault (
+        pkgs.${cfg.themeName}.override {
+          inherit (cfg) themeConfig;
+        }
+      );
     };
+  };
 }

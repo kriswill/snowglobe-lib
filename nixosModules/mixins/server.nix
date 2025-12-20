@@ -4,8 +4,6 @@
   ...
 }:
 {
-  imports = lib.autoImport ./.;
-
   options.gman.server.enable = lib.mkEnableOption "gman's configuration for a server";
 
   config = lib.mkIf config.gman.server.enable (

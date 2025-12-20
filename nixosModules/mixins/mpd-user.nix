@@ -1,3 +1,4 @@
+# custom mpd service for users on a desktop
 {
   pkgs,
   lib,

@@ -12,9 +12,6 @@ in
   config = lib.mkIf cfg.enable {
     security.rtkit.enable = true; # hands out realtime scheduling priority to user processes on demand. Improves performance of pulse
 
-    # pipewire-pulse mixer
-    environment.systemPackages = [ pkgs.pamixer ];
-
     services = {
       pipewire = {
         # enables alsa, pulseaudio, and jack support by default
