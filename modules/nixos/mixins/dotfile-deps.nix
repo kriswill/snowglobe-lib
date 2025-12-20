@@ -98,6 +98,9 @@ in
           rmpc.enable = lib.mkDefault true;
           yt-dlp.enable = lib.mkDefault true;
           vlc.enable = lib.mkDefault true;
+          # disable alacritty because it is enabled in niri config
+          alacritty.enable = lib.mkOverride 899 false;
+          kitty.enable = lib.mkDefault true;
           gnome-calculator.enable = lib.mkDefault true;
           # gtk themer
           nwg-look.enable = lib.mkDefault true;
@@ -120,12 +123,10 @@ in
             enableSSHSupport = true;
           };
           lynx.enable = true;
+          eza.enable = true;
           dconf.enable = true;
-          # terminals
+          # suckless/simple terminal
           st.enable = true;
-          # remove from default niri config
-          alacritty.enable = false;
-          kitty.enable = lib.mkDefault true;
           # setting timers
           gnome-clocks.enable = true;
           # pipewire control dashboard
