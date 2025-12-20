@@ -1,4 +1,5 @@
 # quick and dirty declarative service config to launch an imperatively configured minecraft server
+# servers must be set up with a `start.sh` containing the jvm arguments for the service to run
 {
   pkgs,
   lib,
@@ -57,6 +58,12 @@ in
       jre
     ];
 
+    # allow connection to the server console running under systemd
+    programs = {
+      mrpack-install.enable = lib.mkDefault true;
+      mcrcon.enable = lib.mkDefault true;
+    };
+
     # copied from nixpkgs
     systemd.sockets.minecraft-server = {
       bindsTo = [ "minecraft-server.service" ];
@@ -87,6 +94,7 @@ in
         ExecStart = "${cfg.config.dataDir}/start.sh";
         ExecStop = "${stopScript} $MAINPID";
         Restart = "always";
+        RestartSec = 30;
         User = "minecraft";
         WorkingDirectory = cfg.config.dataDir;
 
