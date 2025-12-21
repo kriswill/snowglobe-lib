@@ -1,5 +1,5 @@
 # quick and dirty declarative service config to launch an imperatively configured minecraft server
-# servers must be set up with a `start.sh` containing the jvm arguments for the service to run
+# servers must be set up with a `run.sh` containing the jvm arguments for the service to run
 {
   pkgs,
   lib,
@@ -29,6 +29,11 @@ in
       #   type = lib.types.str;
       #   default = "server";
       # };
+      javaPackage = lib.mkOption {
+        description = "java package used to start the server";
+        type = lib.types.package;
+        default = pkgs.jre;
+      };
       dataDir = lib.mkOption {
         description = "directory on the filesystem where the server is stored";
         type = lib.types.str;
@@ -51,13 +56,6 @@ in
     };
     users.groups.minecraft = { };
 
-    environment.systemPackages = with pkgs; [
-      # old versions
-      jre8
-      # new versions
-      jre
-    ];
-
     # allow connection to the server console running under systemd
     programs = {
       mrpack-install.enable = lib.mkDefault true;
@@ -78,10 +76,7 @@ in
     };
 
     systemd.services.minecraft-server = {
-      path = with pkgs; [
-        jre8
-        jre
-      ];
+      path = [ cfg.config.javaPackage ];
       description = "Minecraft Server Service";
       wantedBy = [ "multi-user.target" ];
       requires = [ "minecraft-server.socket" ];
@@ -91,10 +86,10 @@ in
       ];
 
       serviceConfig = {
-        ExecStart = "${cfg.config.dataDir}/start.sh";
+        ExecStart = "${cfg.config.dataDir}/run.sh";
         ExecStop = "${stopScript} $MAINPID";
-        Restart = "always";
-        RestartSec = 30;
+        Restart = "on-failure";
+        RestartSec = 15;
         User = "minecraft";
         WorkingDirectory = cfg.config.dataDir;
 
