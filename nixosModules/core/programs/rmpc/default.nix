@@ -20,7 +20,6 @@ in
     environment.systemPackages = [
       cfg.package
       # provide mpd to path for user configuration
-      # TODO test if services.mpd works
       pkgs.mpd
     ];
   };

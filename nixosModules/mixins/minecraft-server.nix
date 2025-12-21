@@ -23,7 +23,7 @@ in
   options.gman.minecraft-server = {
     enable = lib.mkEnableOption "gman's minecraft-server implementation";
     config = {
-      # future expansion
+      # TODO future expansion, allow multiple servers on one machine
       # name = lib.mkOption {
       #   description = "name of the minecraft server";
       #   type = lib.types.str;
@@ -43,10 +43,21 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.minecraft-server.enable = lib.mkForce false;
+    # Disable the default minecraft server
+    services.minecraft-server.enable = lib.mkOverride 0 false;
 
+    # allow the minecraft port
+    # if using rcon from a remote machine, port 25575 will also need to opened
     networking.firewall.allowedTCPPorts = [ 25565 ];
 
+    programs = {
+      # install modpacks from modrinth
+      mrpack-install.enable = lib.mkDefault true;
+      # allow connection to the server console running under systemd
+      mcrcon.enable = lib.mkDefault true;
+    };
+
+    # copied from nixpkgs
     users.users.minecraft = {
       description = "Minecraft server service user";
       home = cfg.config.dataDir;
@@ -56,13 +67,6 @@ in
     };
     users.groups.minecraft = { };
 
-    # allow connection to the server console running under systemd
-    programs = {
-      mrpack-install.enable = lib.mkDefault true;
-      mcrcon.enable = lib.mkDefault true;
-    };
-
-    # copied from nixpkgs
     systemd.sockets.minecraft-server = {
       bindsTo = [ "minecraft-server.service" ];
       socketConfig = {
@@ -76,6 +80,7 @@ in
     };
 
     systemd.services.minecraft-server = {
+      # provide javaPackage to the service path so it can call `java -jar` from run.sh using a specific version
       path = [ cfg.config.javaPackage ];
       description = "Minecraft Server Service";
       wantedBy = [ "multi-user.target" ];
@@ -86,6 +91,7 @@ in
       ];
 
       serviceConfig = {
+        # most server setup tools create a `run.sh` so just hardcode it lol
         ExecStart = "${cfg.config.dataDir}/run.sh";
         ExecStop = "${stopScript} $MAINPID";
         Restart = "on-failure";

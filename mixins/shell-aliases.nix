@@ -22,7 +22,6 @@ in
   gba = lib.mkIf has-git "git branch -a";
   cat = lib.mkIf config.programs.bat.enable "bat";
   nrs =
-    # TODO implement ways to alter where nix config is stored
     if (has-nh) then
       "nh os switch $(readlink -f /etc/nixos)"
     else
