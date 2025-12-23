@@ -73,7 +73,7 @@ Currently the following desktop environments are supported:
 To obtain the installer, go to https://cache.earthgman.dev/binaries and download the nixos-installer-$arch.iso.
 If you wish to test the integrity and non-repudiation. Download the installer.sha256.gpg. My gpg public key is stored on the webroot.
 
-If you do not feel comfortable putting an iso image from a random guy on the internet into your computer, you can [build it yourself](https://codeberg.org/earthgman/nix-modules/raw/branch/main/docs/Build-Installer.md).
+If you do not feel comfortable putting an iso image from a random guy on the internet into your computer, you can [build it yourself](https://codeberg.org/earthgman/nix-modules/raw/branch/dev/docs/Build-Installer.md).
 
 Once booted, the rest should be self-explanitory.
 
