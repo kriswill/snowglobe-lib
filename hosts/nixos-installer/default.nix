@@ -7,8 +7,8 @@
   ...
 }:
 let
-  install-sh = pkgs.writeShellScriptBin "install.sh" (builtins.readFile ./install.sh);
-  nixfmt-sh = pkgs.writeShellScriptBin "nixfmt.sh" (builtins.readFile ../../mixins/nixfmt.sh);
+  install-sh = pkgs.writeScriptBin "install.sh" (builtins.readFile ./install.sh);
+  nixfmt-sh = pkgs.writeScriptBin "nixfmt.sh" (builtins.readFile ../../mixins/nixfmt.sh);
 in
 {
   imports = [ (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix") ];
@@ -16,10 +16,16 @@ in
   gman = {
     debloat.enable = true;
     hardware-tools.enable = true;
+    # disable custom deps for yazi desktop
+    # TODO package yazi similar to neovim with a debloated version
+    yazi.enable = false;
+
+    # remove nix helper as it goes unused during the install process
+    nh.enable = false;
   };
 
   hardware = {
-    # needed for some machines
+    # To get drivers for various wireless devices
     enableRedistributableFirmware = true;
 
     # no need for these on an installer
@@ -83,6 +89,7 @@ in
   };
 
   programs = {
+    yazi.enable = true;
     neovim-custom = {
       enable = true;
       defaultEditor = true;

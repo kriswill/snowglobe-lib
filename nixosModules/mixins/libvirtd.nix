@@ -15,14 +15,6 @@ in
       {
         boot.kernelModules = lib.mkIf (config.meta.cpu != "") [ "kvm-${config.meta.cpu}" ];
 
-        environment = {
-          systemPackages = builtins.attrValues {
-            inherit (pkgs)
-              virtiofsd # file system sharing with VMs
-              ;
-          };
-        };
-
         virtualisation = {
           spiceUSBRedirection.enable = true;
           libvirtd = {
@@ -30,6 +22,8 @@ in
             qemu = {
               swtpm.enable = true;
               package = pkgs.qemu_kvm;
+              # fix for: https://discourse.nixos.org/t/virt-manager-cannot-find-virtiofsd/26752/6
+              vhostUserPackages = [ pkgs.virtiofsd ];
             };
           };
         };
