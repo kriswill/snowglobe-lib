@@ -58,6 +58,7 @@ lib.nixosSystem {
             desktop
             vm
             specialization
+            system
             secretsFile
             ;
         };

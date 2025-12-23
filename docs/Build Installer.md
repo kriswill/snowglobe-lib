@@ -1,9 +1,9 @@
-NixOS installers are simply configurations compiled to bootable iso format. All source code for the configuration is available at hosts/nixos-installer/default.nix
+NixOS installers are simply NixOS system configurations compiled to bootable iso format. The source code for the installer configuration is available at hosts/nixos-installer/default.nix
 
 # Supported systems
 
 - x86_64
-- aarch64
+- aarch64 - (install may fail due to unsupported packages)
 
 To begin building the custom installer you will first need to install nix and enable flake support.
 https://nixos.org/download/
@@ -26,9 +26,9 @@ cd to the root of the repository and run
 nixos-generate --flake .#nixos-installer-x86_64 -f iso -o result
 ```
 
-Ensure that you use the correct cpu architecture from supported systems for your machine
+Ensure that you use the correct cpu architecture from supported systems for your machine.
 
-a "result" symlink to the /nix/store will be created. You can then cp the iso from the directory result/iso (mv does not work as the store is immutable)
+a "result" symlink to the /nix/store will be created. You can then copy the installer image from result/iso (mv does not work as the store is immutable)
 
 # Cleanup
 

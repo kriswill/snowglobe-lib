@@ -9,7 +9,12 @@
     hostname = "nixos-installer";
     system = "x86_64-linux";
     configDir = ./nixos-installer;
-    extraSpecialArgs = { inherit inputs; };
+  };
+
+  nixos-installer-aarch64 = lib.mkHost {
+    hostname = "nixos-installer";
+    system = "aarch64-linux";
+    configDir = ./nixos-installer;
   };
 
   # test vm for install.sh and other

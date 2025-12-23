@@ -4,7 +4,6 @@
   lib,
   config,
   modulesPath,
-  inputs,
   ...
 }:
 let

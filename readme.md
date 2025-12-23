@@ -1,25 +1,80 @@
-**A down to earth nix module set that is portable and easy to use**
+This flake contains my personal NixOS modules, nix package derivations, nix functions, and NixOS installation environment + script.
 
-This flake contains my NixOS modules, nix package derivations, nix functions, and NixOS installation environment + script.
+This project aims to provide various module wrappers and patches for NixOS aimed toward my use case, but is usable by others without being invasive. Think if it as a `nixpkgs+`
 
-It is highly maintained by myself and a few others, and can be easily imported into your own NixOS flake for expanded functionality.
+It is actively maintained and is currently in use by several friends and family members.
 
-If you are interested in Nix or NixOS, then this repository can serve as a well-refined example and reference of what can be accomplished with the language and OS.
-
-Note - This flake no longer provides any home-manager modules. You will have to manage user dotfiles yourself or just use mine (not recommended).
+If you are interested in NixOS, Consider checking it out.
 
 ------------------------------------------------------------------------
 
 # Getting Started
 
-NixOS is known for being a very confusing distribution with little documentation.
+Supported Architectures:
+- x86_64-linux - yes (fully supported)
+- aarch64-linux - no (support planned)
+- riscv-linux - no
 
-Additionally, the official installer refuses to expose users to nix flakes (which are the real superpower of nix) out of the box, opting to use nix channels which are basically deprecated at this point.
+# Add to an independent flake
 
-This framework aims to be an improvement of the default NixOS experience by providing a more structured configuration framework for modularity and expandability.
+First, add the input:
 
-To obtain the installer navigate to https://cache.earthgman.dev and download binaries/nixos-installer.iso and its sha256sum (only supports x86_64 at this time).
+```
+{
+  inputs = { 
+    gman.url = "https://codeberg.org/earthgman/nix-modules";
+  };
+}
+```
 
-If you don't want to put an iso image from a random guy on the internet into your PC, you can build the installer iso yourself. See docs/build-iso.md
+Unfortunately nixpkgs has an issue with consuming nix modules that extend the nixpkgs.lib attrSet.
+This is becuase the `lib` argument commonly seen in configuration.nix is hardcoded to be nixpkgs.lib by the nixosSystem function.
+As a result, an extended lib requires calling nixosSystem with a special argument to provide the extended attrSet to all submodules of your configuration.
 
-if installing on bare metal, Use a program such as rufus, balena-etcher, or dd to flash the iso image to a usb stick.
+```
+{
+  inputs = { 
+    gman.url = "https://codeberg.org/earthgman/nix-modules";
+  };
+}
+
+outputs = { gman, ... }@inputs: 
+let
+  # merged attrset of nixpkgs.lib and custom lib functions needed for modules to work properly.
+  lib = gman.lib;
+in
+{
+  nixosConfigurations."your-configuration" = lib.nixosSystem {
+    # Integrate custom lib functions with your nixos hosts.
+    specialArgs = { inherit lib; };
+  };
+}
+```
+
+You will now have access to my custom nix modules.
+These range from patches to many extra options for enabling programs and services.
+
+For a list of custom patches and suites, see nixosModules/mixins
+For extra programs and services, see nixosModules/core/programs and nixosModules/core/services
+
+# Installation script
+
+This project also provides a guided installation for those who have never used NixOS and want to give it a try.
+While the official installers from nixos.org are typically enough to get started, they lack several features such as declarative disk partition management and declarative secret management.
+
+This custom installer aims to integrate these features into the installation process, providing a truly declarative, flake-powered NixOS configuration repository you can easily expand to your own needs.
+
+Currently the following desktop environments are supported:
+- KDE Plasma 6
+- Niri
+- Sway
+- Hyprland
+
+To obtain the installer, go to https://cache.earthgman.dev/binaries and download the nixos-installer-$arch.iso.
+If you wish to test the integrity and non-repudiation. Download the installer.sha256.gpg. My gpg public key is stored on the webroot.
+
+If you do not feel comfortable putting an iso image from a random guy on the internet into your computer, you can [!build it yourself](https://codeberg.org/earthgman/nix-modules/raw/branch/main/docs/Build Installer.md).
+
+Once booted, the rest should be self-explanitory.
+
+I encourage you to report issues if you have any.

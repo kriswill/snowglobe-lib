@@ -1,3 +1,9 @@
+12-21-2025
+- add custom minecraft module
+- alot of cleanup
+- added aarch64 installer iso
+
+
 11-29-2025
 - change demo "nixos" host to be compatible with EFI firmware
 - enable the nix development suite for dotfile deps
