@@ -12,7 +12,7 @@ If you are interested in NixOS, Consider checking it out.
 
 Supported Architectures:
 - x86_64-linux
-- aarch64-linux (some packages may not build)
+- aarch64-linux (limited package support)
 
 # Add to an independent flake
 
