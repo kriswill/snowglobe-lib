@@ -11,9 +11,8 @@ If you are interested in NixOS, Consider checking it out.
 # Getting Started
 
 Supported Architectures:
-- x86_64-linux - yes (fully supported)
-- aarch64-linux - no (support planned)
-- riscv-linux - no
+- x86_64-linux
+- aarch64-linux (some packages may not build)
 
 # Add to an independent flake
 
