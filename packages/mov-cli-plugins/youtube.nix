@@ -1,19 +1,20 @@
-{ lib
-, python3Packages
-, fetchFromGitHub
-, ...
+{
+  lib,
+  python3Packages,
+  fetchFromGitHub,
+  ...
 }:
 
 python3Packages.buildPythonPackage rec {
   pname = "mov-cli-youtube";
-  version = "1.3.8";
+  version = "1.3.11";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "mov-cli";
     repo = "mov-cli-youtube";
     rev = "${version}";
-    hash = "sha256-2dc6EYy+6vCOCy+FZBVKWzeV3xFAswUaX9XfYk0jz1E=";
+    hash = "sha256-H+00f/0+zVY9KXbVwxCN3FjlRO1/maOdfZvLoNRAMzc=";
   };
 
   dependencies = with python3Packages; [
@@ -30,8 +31,7 @@ python3Packages.buildPythonPackage rec {
     platforms = [
       "x86_64-linux"
       "aarch64_linux"
-      "aarch64_darwin"
     ];
-    # maintainers = [ maintainers.EarthGman ];
+    maintainers = [ lib.maintainers.EarthGman ];
   };
 }

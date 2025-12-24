@@ -1,4 +1,9 @@
-{ stdenvNoCC, fetchurl, themeConfig ? { }, ... }:
+{
+  stdenvNoCC,
+  fetchurl,
+  themeConfig ? { },
+  ...
+}:
 stdenvNoCC.mkDerivation {
   pname = "distro-grub-themes-nixos";
   version = "3.2";

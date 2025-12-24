@@ -3,11 +3,14 @@
   config,
   ...
 }:
+let
+  username = "";
+in
 {
-  sops.secrets.g_password.neededForUsers = true;
-  users.users.g = {
+  sops.secrets."${username}_password".neededForUsers = true;
+  users.users.${username} = {
     initialPassword = "";
-    hashedPasswordFile = config.sops.secrets.g_password.path;
+    hashedPasswordFile = config.sops.secrets."${username}_password".path;
     password = null;
     isNormalUser = true;
     shell = pkgs.zsh;
