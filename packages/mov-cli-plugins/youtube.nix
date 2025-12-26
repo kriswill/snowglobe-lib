@@ -30,7 +30,7 @@ python3Packages.buildPythonPackage rec {
     license = licenses.mit;
     platforms = [
       "x86_64-linux"
-      "aarch64_linux"
+      "aarch64-linux"
     ];
     maintainers = [ lib.maintainers.EarthGman ];
   };

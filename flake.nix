@@ -10,7 +10,7 @@
     let
       supported-systems = [
         "x86_64-linux"
-        "aarch_64-linux"
+        "aarch64-linux"
       ];
       myLib = (
         import ./lib {

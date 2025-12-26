@@ -10,7 +10,6 @@
         content = {
           type = "gpt";
           partitions = {
-            # required for legacy bios to boot GPT via grub
             esp = {
               type = "EF00";
               size = "256M";

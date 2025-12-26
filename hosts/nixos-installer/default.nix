@@ -50,14 +50,20 @@ in
       pkgs.age
     ];
 
-    # these are not set properly on nixos by default
+    # these are not set properly on nixos by default for some reason
     sessionVariables = {
       SYSTEMD_KEYMAP_DIRECTORIES = "${pkgs.kbd}/share/keymaps";
     };
 
-    #	make all possible locales accessible for install script
     etc = {
-      "locales.txt".source = ./locales.txt;
+      # provide a comprhensive list of locales for the locale selector
+      "locales.txt".source = ../../mixins/locales.txt;
+
+      # provide disko configurations for the installer
+      "disko/defaults/luks-legacy.nix".source = ../../mixins/disko/luks-legacy.nix;
+      "disko/defaults/luks-uefi.nix".source = ../../mixins/disko/luks-uefi.nix;
+      "disko/defaults/default-legacy.nix".source = ../../mixins/disko/default-legacy.nix;
+      "disko/defaults/default-uefi.nix".source = ../../mixins/disko/default-uefi.nix;
     };
   };
 

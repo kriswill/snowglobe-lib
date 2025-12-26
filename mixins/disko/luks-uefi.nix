@@ -5,7 +5,7 @@
       nixos = {
         type = "disk";
         # CHANGE BEFORE FORMATTING
-        # device = "/dev/sda";
+        device = "/dev/sda";
         content = {
           type = "gpt";
           partitions = {
