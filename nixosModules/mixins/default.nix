@@ -93,8 +93,6 @@
       # hardware-configuration.nix has always had this on
       useDHCP = lib.mkDefault true;
 
-      # use networkmanager as im too lazy to learn wpa_supplicant
-      wireless.enable = false; # disable wpa_supplicant
       networkmanager.enable = lib.mkDefault true;
     };
 
