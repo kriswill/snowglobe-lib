@@ -86,10 +86,12 @@
     };
 
     # ensure that kanata keymaps transfer to virtual console TTY
-    console.useXkbConfig = true;
+    console.useXkbConfig = lib.mkDefault true;
+
+    users.mutableUsers = lib.mkDefault false;
 
     networking = {
-      hostName = config.meta.hostname;
+      hostName = lib.mkDefault config.meta.hostname;
       # hardware-configuration.nix has always had this on
       useDHCP = lib.mkDefault true;
 
