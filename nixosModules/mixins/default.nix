@@ -99,9 +99,6 @@
     };
 
     users = {
-      # users controlled by nix
-      mutableUsers = lib.mkDefault false;
-
       # all users get zsh for login shell
       defaultUserShell = lib.mkOverride 800 pkgs.zsh;
     };

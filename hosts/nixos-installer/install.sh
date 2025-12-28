@@ -21,15 +21,13 @@ main() {
 		systemctl start nix-daemon
 	fi
 
-	# TODO introduction
-
 	while [[ ! $(curl -s ifconfig.me) ]]; do
 		y_or_n "No internet connection detected. Connect Now?" && nmtui || exit 0
 	done
 
 	printf "\nIf you have used this installer before, you might have already created a configuration for this host.\n"
 	printf "In this case, assuming you have read access to the remote repository, you can skip directly to the installation phase.\n"
-	printf "This mode can also be used to repair your host if somehow it cannot boot, even after a rebuild.\n"
+	printf "This mode can also be used to repair your system if somehow it cannot boot, even after a rollback.\n"
 	y_or_n "Install an existing configuration?" && {
 		install_existing_config
 		post_install
@@ -46,7 +44,6 @@ main() {
 	create_config
 	nixos_install
 	post_install
-	exit 0
 }
 
 format_disks() {
@@ -59,8 +56,8 @@ format_disks() {
 
 	printf "\nThe installer will use a nix-community tool called disko to declaratively partition your hard drvies or other persistent storage volumes.\n"
 	printf "This allows you to easily store & re-deploy the partition scheme without reliance on partition UUIDs\n"
-	printf "By default, this will create a GPT partition table with a FAT32 partition for the bootloader and root partition with ext4 for the OS. This is suitable for most scenarios.\n"
-	printf "If you wish to deploy a custom setup, such as RAID, add the nix file to /etc/disko before you continue.\n"
+	printf "By default, this will create a GPT partition table with a FAT32 partition for the bootloader and an ext4 partition for the OS root filesystem. This is suitable for most scenarios.\n"
+	printf "If you wish to deploy a custom setup, such as RAID or a different filesystem, add the nix file to /etc/disko anywhere except the \"defaults\" directory before you continue.\n"
 	if [[ $REPO_DIR ]]; then
 		printf "Since you have cloned a repository, you will also have the option to select a disko configuration from it to use for formatting.\n"
 	fi
@@ -70,7 +67,7 @@ format_disks() {
 	if [[ $REPO_DIR ]]; then
 		y_or_n "Use a disko file from your repo?" && {
 			pushd $REPO_DIR >/dev/null
-			SELECTED=$(fzf --border --border-label-pos 1:bottom --border-label="Choose a disko file to use for formatting. (Press ESC or Ctrl+C to cancel)")
+			SELECTED="$REPO_DIR/""$(fzf --border --border-label-pos 1:bottom --border-label="Choose a disko file to use for formatting. (Press ESC or Ctrl+C to cancel)")"
 			popd >/dev/null
 		}
 	fi
@@ -78,19 +75,21 @@ format_disks() {
 	if [[ ! $SELECTED ]]; then
 		DISKO_CONFIGURATIONS=$(find /etc/disko -type f | sed 's/\/etc\/disko\///' | grep -v defaults)
 		if [[ $DISKO_CONFIGURATIONS ]]; then
-			SELECTED=$(for config in $DISKO_CONFIGURATIONS; do
-				file=/etc/disko/$config
-				# small check to see if the file actually contains a disko config
-				if [[ ! $(cat $file | grep disko) ]]; then
-					continue
-				else
-					printf "%s\n" $config
-				fi
-			done | fzf --preview='cat /etc/disko/{}' --border --border-label-pos 1:bottom --border-label="Found the following custom configurations. Would you like to use one of these? (Press ESC or Ctrl+C to skip)")
+			SELECTED=$(
+				for config in $DISKO_CONFIGURATIONS; do
+					file=/etc/disko/$config
+					# small check to see if the file actually contains a disko config
+					if [[ ! $(cat $file | grep disko) ]]; then
+						continue
+					else
+						printf "%s\n" $config
+					fi
+				done | fzf --preview='cat /etc/disko/{}' --border --border-label-pos 1:bottom --border-label="Found the following custom configurations. Would you like to use one of these? (Press ESC or Ctrl+C to skip)"
+			)
 			if [[ $SELECTED ]]; then
 				SELECTED="/etc/disko/""$SELECTED"
 			else
-				printf "\nNo custom disko configuration file selected, using defaults.\n"
+				printf "\nNo custom disko configuration file selected, proceeding with defaults.\n"
 			fi
 		fi
 	fi
@@ -145,22 +144,25 @@ format_disks() {
 	# TODO
 	# If a disko file is copied from your repo, it is actually possible that the device specified is not the correct one
 	# depending on the position of the drives in your board, udevadm can assign a different value to it per-boot.
+	# This is rare and only comes up with drives that are not in the primary location on your board.
+	# As of now, users must ensure that the disko file they are using targets the correct drives, using by-label or by-partlabel for example.
+
 	if [[ $SELECTED_DISK ]]; then
 		# replace default /dev/sda with whatever disk was selected
 		sed -i "s|device = \"\/dev\/sda\"|device = \"$SELECTED_DISK\"|" $CURRENT_DISKO_FILE
 	fi
 
-	# Wipe all contents of the mount directory
+	# Wipe all contents of the mount directory in preparation for mounting
 	rm -rf /mnt || {
 		printf "\nError: Could not remove contents of the /mnt directory.\n"
 		exit 1
 	}
 	mkdir -p /mnt
 
-	printf "\nFormatting Disks\n"
+	printf "\nPreparing to format disks.\n"
 	# since disko 1.12+ gives a warning about what device its about to destroy, there is no need to implement that here.
 	disko --mode destroy,format,mount $CURRENT_DISKO_FILE || {
-		printf "\nError: Disko was unable to format the specified drives"
+		printf "\nError: Disko was unable to format the requested drives"
 		exit 1
 	}
 
@@ -178,6 +180,7 @@ create_config() {
 	# file containing all hosts on your flake
 	HOSTS_CONFIG=$CONFIG_ROOT/hosts/default.nix
 
+	# "Out of the box" experiences
 	SPECIALIZATIONS=(
 		"Let me install my own bloatware."
 		"server"
@@ -421,12 +424,6 @@ create_config() {
 	# start creating configuration specific to the host.
 	mkdir -p $HOST_CONFIG
 
-	# Kind of ugly hack for getting the disko file in place.
-	# The file has to be kept in /tmp for the situation in which the installer fails after formatting but formatting is not completed again.
-	if [[ -e /tmp/selected-disko-config.nix ]]; then
-		cp /tmp/selected-disko-config.nix $HOST_CONFIG/disko.nix
-	fi
-
 	# TODO hack where this is hardcoded in the installer. if the host somehow has a different default key file path set in the sops module this will cause an error.
 	# Could fix by just forcing the sops age key file location in modules, but that would break the purpose of them.
 	# This shouldn't come up too often (hopefully)
@@ -451,6 +448,14 @@ create_config() {
 		PUBLIC_AGE_KEY=$(cat $KEY_FILE | grep "public key:" | cut -d ":" -f2 | tr -d " ")
 
 		read -p "Create an alias for your new key (\`default\`, \`workstations\`, \`homelab\`, etc): " KEY_NAME
+
+		# quick check to make sure 2 keys are not named the same thing
+		if [[ $INSTALLATION_METHOD == "append" ]]; then
+			while [[ $(cat $CONFIG_ROOT/.sops.yaml | grep "&$KEY_NAME") ]]; do
+				printf "\nWARNING: Detected duplicate key names/aliases in .sops.yaml. Your new key name must be different than your other keys.\n"
+				read -p "Create an alias for your new key (\`default\`, \`workstations\`, \`homelab\`, etc): " KEY_NAME
+			done
+		fi
 
 		echo "Configuring sops..."
 		# write the configuration to .sops.yaml
@@ -576,7 +581,7 @@ creation_rules:
 	fi
 
 	if [[ $DESKTOP == "no-desktop" ]]; then
-		DESKTOP=""
+		unset DESKTOP
 	fi
 
 	if [[ $INSTALLATION_METHOD == "new" ]]; then
@@ -613,14 +618,15 @@ nixos_install() {
 	# /tmp will be cleared on bootup if nixos option boot.tmp.cleanOnBoot is set (which it is by default in my config)
 	if [[ $(cat /proc/meminfo | grep MemAvailable | cut -d ":" -f2 | tr -d " kB") -lt 4000000 && ! -f /mnt/tmp/swap ]]; then
 		# unless you are installing on a REALLY small drive, this will work fine
-		printf "Detected less than 4GB of free ram\nNixOS requires at least 4GB of free ram to install smoothly.\nCreating a 4GB swap file at /mnt/tmp/swap."
+		printf "\nWARNING: Detected less than 4GB of free ram\nNixOS requires at least 4GB of free ram to install smoothly.\nCreating a 8GB swap file at /mnt/tmp/swap.\n"
+		printf "This file will be cleared upon next bootup and Zram swap will be enabled for this system to ensure it runs smoothly after install.\n"
 		mkdir -p /mnt/tmp
-		dd if=/dev/zero of=/mnt/tmp/swap bs=1024 count=4194304 || {
+		dd if=/dev/zero of=/mnt/tmp/swap bs=1024 count=8000000 || {
 			printf "\nError: Unable to create swap file.\n"
 			exit 1
 		}
 		mkswap /mnt/tmp/swap || {
-			printf "\nError: Could not complete mkswap\n"
+			printf "\nError: Could not use mkswap on that file\n"
 			exit 1
 		}
 		chmod 600 /mnt/tmp/swap
@@ -635,13 +641,18 @@ nixos_install() {
 		git -C $CONFIG_ROOT add $CONFIG_ROOT
 	fi
 
-	if [[ ${#USERS[@]} == 0 && $INSTALLATION_METHOD != "append" ]]; then
+	if [[ ! -d $HOST_CONFIG/users ]]; then
 		# if no users have been configured, ensure root gets a password
 		# This password will not be declaratively stored with sops.
-		# also assume existing configurations have proper user configurations and do not set root password
-		nixos-install --no-channel-copy --flake "/mnt/etc/nixos#$HOSTNAME"
+		nixos-install --no-channel-copy --flake "/mnt/etc/nixos#$HOSTNAME" || {
+			printf "\nERROR: Installation failed or aborted.\n"
+			exit 1
+		}
 	else
-		nixos-install --no-channel-copy --no-root-password --flake "/mnt/etc/nixos#$HOSTNAME"
+		nixos-install --no-channel-copy --no-root-password --flake "/mnt/etc/nixos#$HOSTNAME" || {
+			printf "\nERROR: Installation failed or aborted.\n"
+			exit 1
+		}
 	fi
 }
 
@@ -689,6 +700,38 @@ hardware_config() {
 	rm $CONFIG_ROOT/configuration.nix
 
 	mv $CONFIG_ROOT/hardware-configuration.nix $HOST_CONFIG
+
+	# enable ZramSwap if the host has 4 GB or less RAM
+	if [[ $(cat /proc/meminfo | grep MemTotal | cut -d: -f2 | tr -d " kB") -le 5000000 ]]; then
+		printf "\nDetected a small amount of available RAM for this host.\n"
+		printf "The installer will enable a module for compressed zramSwap to assist with RAM management\n"
+
+		sed -i '$ s/.$//' $HOST_CONFIG/default.nix
+		echo "zramSwap.enable = true;" >>$HOST_CONFIG/default.nix
+		echo "}" >>$HOST_CONFIG/default.nix
+	fi
+
+	# assume that if /tmp/selected-disko-config.nix exists, the formatting process was run for this host and any existing config should be replaced by it
+	if [[ -e /tmp/selected-disko-config.nix && $HOST_CONFIG/disko.nix ]]; then
+		rm -f $HOST_CONFIG/disko.nix
+	fi
+
+	if [[ ! -e $HOST_CONFIG/disko.nix ]]; then
+		# get the disko file in place.
+		if [[ ! -e /tmp/selected-disko-config.nix ]]; then
+			printf "\nERROR: Neither a disko configuration file for this host nor a configuration file generated by the installer could be found.\n"
+			printf "This can only happen in very specific scenarios such as rebooting the installer or clearing /tmp before the configuration files could get properly copied.\n"
+			printf "Alternatively, it could be caused by a faulty configuration that does not contain a disko.nix\n"
+			printf "It can be fixed by reformatting or placing a valid disko file at $HOST_CONFIG/disko.nix\n"
+			exit 1
+		fi
+		cp /tmp/selected-disko-config.nix $HOST_CONFIG/disko.nix || {
+			printf "\nERROR: Failed to copy /tmp/selected-disko-config.nix to $HOST_CONFIG\n"
+			exit 1
+		}
+	else
+		return 0
+	fi
 }
 
 install_existing_config() {
@@ -718,6 +761,7 @@ install_existing_config() {
 
 	# regenerate the hardware configuration on every re-install
 	# Since the file is never supposed to be touched anyway, this will cover some hardware changes if they occur.
+	# TODO one day when nixos-factor matures enough, use that
 	hardware_config
 
 	printf "\nchecking configuration\n"
@@ -731,16 +775,28 @@ install_existing_config() {
 		fi
 
 		while [[ ! -f /mnt$SOPS_KEYFILE ]]; do
-			printf "Keyfile not found.\nEnsure the file is present in /mnt%s.\n" $SOPS_KEYFILE
+			printf "Keyfile not found.\nEnsure the file is present in /mnt%s before you continue.\n" $SOPS_KEYFILE
 			printf "Press any key to continue..."
 			read -n 1 key
 		done
 	fi
 
+	printf "\nChecks complete. No further action needed.\n"
+	printf "Installing now.\n"
+
 	nixos_install
 }
 
 post_install() {
+	printf "You should be able to boot NixOS after you reboot.\n"
+
+	if [[ -d /sys/firmware/efi ]]; then
+		printf "\nWARNING: On modern UEFI systems manufactured by MSI, I have observed several instances in which the boot entries are not accessible via the UEFI configuration menu after a reboot.\n"
+		printf "As of now, only MSI seems to be affected, and if you have a board from another manufacturer, everything should be ok.\n"
+		printf "In this case, you may want to research and use the tool \`efibootmgr\` to manually add the boot entry to your system before you reboot.\n"
+	fi
+
+	y_or_n "Reboot now?" && reboot
 	exit 0
 }
 

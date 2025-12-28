@@ -33,8 +33,18 @@
     extraModules = [ { hardware.enableRedistributableFirmware = lib.mkForce false; } ];
   };
 
-  # test vm for install.sh and other
-  nixos = lib.mkHost {
+  # test vms for install.sh and other
+  nixos-uefi = lib.mkHost {
+    hostname = "nixos";
+    bios = "uefi";
+    vm = true;
+    desktop = "plasma";
+    configDir = ./nixos;
+    stateVersion = "25.11";
+    system = "x86_64-linux";
+  };
+
+  nixos-legacy = lib.mkHost {
     hostname = "nixos";
     bios = "legacy";
     vm = true;
@@ -43,4 +53,5 @@
     stateVersion = "25.11";
     system = "x86_64-linux";
   };
+
 }

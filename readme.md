@@ -69,8 +69,12 @@ Currently the following desktop environments are supported:
 - Sway
 - Hyprland
 
-To obtain the installer, go to https://cache.earthgman.dev/binaries and download the nixos-installer-$arch.iso.
-If you wish to test the integrity and non-repudiation. Download the installer.sha256.gpg. My gpg public key is stored on the webroot.
+To obtain the installer, go to https://cache.earthgman.dev/binaries and download the nixos-installer.iso for your system's CPU architecture.
+
+Note: There is an alternate version of the installer suffixed with -small. This build of the installer lacks firmware blobs from linux-firmware and can be used if your hardware does not require any blobs from it.
+If in doubt, just use the default image.
+
+If you wish to validate integrity and non-repudiation of the downloaded image. Decrypt the sha256.gpg associated with it. My gpg public key is stored on the webroot.
 
 If you do not feel comfortable putting an iso image from a random guy on the internet into your computer, you can [build it yourself](https://codeberg.org/earthgman/nix-modules/src/branch/dev/docs/Build-Installer.md).
 
