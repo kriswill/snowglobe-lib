@@ -88,8 +88,6 @@
     # ensure that kanata keymaps transfer to virtual console TTY
     console.useXkbConfig = lib.mkDefault true;
 
-    users.mutableUsers = lib.mkDefault false;
-
     networking = {
       hostName = lib.mkDefault config.meta.hostname;
       # hardware-configuration.nix has always had this on
