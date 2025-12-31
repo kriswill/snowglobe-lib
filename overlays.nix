@@ -3,8 +3,7 @@
   awww = inputs.awww.overlays.default;
   niri = inputs.niri.overlays.default;
   quickshell = inputs.quickshell.overlays.default;
-  custom-neovims = inputs.dotfiles.overlays.custom-neovims;
-  custom-yazis = inputs.dotfiles.overlays.custom-yazis;
+  custom-packages = inputs.dotfiles.overlays.packages;
   prismlauncher = inputs.prismlauncher.overlays.default;
   ghostty = inputs.ghostty.overlays.default;
   disko = final: prev: {
