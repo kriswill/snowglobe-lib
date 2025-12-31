@@ -14,7 +14,7 @@ in
     package = lib.mkOption {
       description = "custom program option for neovim, allowing for custom wrapped neovim configurations or imperative configuration";
       type = lib.types.package;
-      default = pkgs.nvim;
+      default = pkgs.neovim;
     };
 
     defaultEditor = lib.mkEnableOption "neovim as the default editor";
