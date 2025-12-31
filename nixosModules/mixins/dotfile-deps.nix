@@ -94,7 +94,12 @@ in
           hstr.enable = lib.mkDefault true;
           pipes.enable = lib.mkDefault true;
           qutebrowser.enable = lib.mkDefault true;
+
+          # these will give stock configurations for the programs by default.
+          # You can then imperatively configure or set the .package option to your own wrapped nix derivation.
           neovim-custom.enable = lib.mkDefault true;
+          yazi-custom.enable = lib.mkDefault true;
+
           rmpc.enable = lib.mkDefault true;
           yt-dlp.enable = lib.mkDefault true;
           vlc.enable = lib.mkDefault true;

@@ -10,18 +10,33 @@ let
 in
 {
   options.gman.gaming = {
-    enable = lib.mkEnableOption "gman's gaming PC configuration";
+    enable = lib.mkEnableOption "Various out of the box utilities for the 'gaming' specialization";
   };
 
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
+        environment = {
+          systemPackages = [
+            pkgs.protonup-ng
+          ];
+          # sessionVariables = {
+          #   STEAM_EXTRA_COMPAT_TOOLS_PATHS = "~/.steam/root/compatibilitytools.d";
+          # };
+        };
         gman = {
-          steam.enable = true;
           hardware-tools.enable = lib.mkDefault true;
         };
         programs = {
           lutris.enable = lib.mkDefault true;
+          mangohud.enable = lib.mkDefault true;
+          protonup.enable = lib.mkDefault true;
+          steam = {
+            enable = true;
+            gamescopeSession = {
+              enable = lib.mkDefault true;
+            };
+          };
         };
       }
     ]

@@ -12,9 +12,9 @@ in
     enable = lib.mkEnableOption "fully configured custom neovim package";
 
     package = lib.mkOption {
-      description = "package for your configured neovim";
+      description = "custom program option for neovim, allowing for custom wrapped neovim configurations or imperative configuration";
       type = lib.types.package;
-      default = pkgs.gman.nvim;
+      default = pkgs.nvim;
     };
 
     defaultEditor = lib.mkEnableOption "neovim as the default editor";
@@ -28,7 +28,7 @@ in
 
     programs = {
       vim.enable = lib.mkIf (cfg.vimAlias) (lib.mkForce false);
-      neovim.enable = lib.mkForce false;
+      neovim.enable = lib.mkOverride 0 false;
     };
 
     environment.systemPackages = [

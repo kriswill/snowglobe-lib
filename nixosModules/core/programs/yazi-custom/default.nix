@@ -32,6 +32,7 @@ in
     };
 
   config = lib.mkIf cfg.enable {
+    programs.yazi.enable = lib.mkOverride 0 false;
     environment.systemPackages = [
       cfg.package
     ];
