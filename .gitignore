@@ -2,4 +2,4 @@ result
 .direnv
 .obsidian
 .trash
-.scripts/
+.secrets/
