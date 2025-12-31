@@ -1,6 +1,6 @@
 This flake contains my personal NixOS modules, nix package derivations, nix functions, and NixOS installation environment + script.
 
-This project aims to provide various module wrappers and patches for NixOS aimed toward my use case, but is usable by others without being invasive. Think if it as a `nixpkgs+`
+This project aims to provide a one-stop-shop for any project that I create or use regularly with NixOS to make them easily accessible in one place.
 
 It is actively maintained and is currently in use by several friends and family members.
 
@@ -14,7 +14,9 @@ Supported Architectures:
 - x86_64-linux
 - aarch64-linux (limited package support)
 
-# Add to an independent flake
+There are a few methods for consuming the modules, depending on your preferences.
+
+# 1. Raw addition to a flake
 
 First, add the input:
 
@@ -46,17 +48,61 @@ in
   nixosConfigurations."your-configuration" = lib.nixosSystem {
     # Integrate custom lib functions with your nixos hosts.
     specialArgs = { inherit lib; };
+    modules = [
+      ./configuration.nix
+
+      # add the module set
+      gman.nixosModules.default
+    ];
   };
 }
 ```
 
-You will now have access to my custom nix modules.
-These range from patches to many extra options for enabling programs and services.
+If you do not wish to use any custom modules from /mixins then you are good to go.
+However, Some custom suites and patches found under /mixins may not be fully functional unless you populate various metadata referenced by the option `config.meta` found at nixosModules/core/meta.nix
 
-For a list of custom patches and suites, see nixosModules/mixins
-For extra programs and services, see nixosModules/core/programs and nixosModules/core/services
+There are 2 methods:
+- 1. Do it manually, fill in the various information in a module consumed by your host (such as configuration.nix)
+- 2. Use a custom wrapper for lib.nixosSystem `mkHost`.
 
-# Installation script
+# 2. nixosSystem wrapper function
+
+A wrapper function `mkHost` for nixosSystem can be used in your flake.nix to automatically propagate the needed modules to your host configuration.
+It also provides a great overview of the host's specific properties.
+
+```
+{
+  inputs = { 
+    gman.url = "https://codeberg.org/earthgman/nix-modules";
+  };
+}
+
+outputs = { gman, ... }@inputs: 
+let
+  # merged attrset of nixpkgs.lib and custom lib functions needed for modules to work properly.
+  lib = gman.lib;
+in
+{
+  # each argument is described in detail at /lib/mkHost.nix
+  nixosConfigurations."your-configuration" = lib.mkHost {
+    hostname = "nixos";
+    cpu = "amd";
+    gpu = "amd";
+    specialization = "gaming";
+    desktop = "niri";
+    system = "x86_64-linux";
+    stateVersion = "25.11";
+    configDir = ./nixos;
+    extraSpecialArgs = { inherit inputs; };
+    secretsFile = ./nixos/secrets.yaml;
+    extraModules = [ outputs.nixosModules.default ]
+  };
+}
+```
+
+Now all modules should be fully functional.
+
+# 3. Installation script
 
 This project also provides a guided installation for those who have never used NixOS and want to give it a try.
 While the official installers from nixos.org are typically enough to get started, they lack several features such as declarative disk partition management and declarative secret management.
