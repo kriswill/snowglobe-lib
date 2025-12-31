@@ -35,8 +35,6 @@
       zsh.enable = lib.mkDefault true;
       # tmux configuration
       tmux.enable = lib.mkDefault true;
-      # yazi dependencies
-      yazi.enable = lib.mkDefault true;
 
       # enable mixins based on host metadata
       # see /modules/nixos/mixins/desktop.nix
@@ -174,7 +172,8 @@
       eza.enable = lib.mkDefault true;
       btop.enable = lib.mkDefault true;
       sysz.enable = lib.mkDefault true;
-      yazi.enable = lib.mkDefault true;
+      # custom module that allows you to configure yazi outside of nix
+      yazi-custom.enable = lib.mkDefault true;
       git.enable = lib.mkDefault true;
       lazygit.enable = lib.mkDefault true;
       ripgrep.enable = lib.mkDefault true;

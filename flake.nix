@@ -45,6 +45,12 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
 
+    dotfiles = {
+      url = "git+https://git.earthgman.dev/EarthGman/dotfiles";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.yazi.follows = "yazi";
+    };
+
     determinate = {
       url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -88,11 +94,6 @@
 
     awww = {
       url = "git+https://codeberg.org/LGFae/awww";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    vim-config = {
-      url = "git+https://codeberg.org/EarthGman/vim-config";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

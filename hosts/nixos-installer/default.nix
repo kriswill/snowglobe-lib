@@ -16,10 +16,6 @@ in
   gman = {
     debloat.enable = true;
     hardware-tools.enable = true;
-    # disable custom deps for yazi desktop
-    # TODO package yazi similar to neovim with a debloated version
-    yazi.enable = false;
-
     # remove nix helper as it goes unused during the install process
     nh.enable = false;
   };
@@ -95,7 +91,6 @@ in
   };
 
   programs = {
-    yazi.enable = true;
     neovim-custom = {
       enable = true;
       defaultEditor = true;
