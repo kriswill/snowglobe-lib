@@ -3,7 +3,7 @@
   awww = inputs.awww.overlays.default;
   niri = inputs.niri.overlays.default;
   quickshell = inputs.quickshell.overlays.default;
-  custom-packages = inputs.dotfiles.overlays.packages;
+  custom-packages = inputs.dotfiles.overlays.default;
   prismlauncher = inputs.prismlauncher.overlays.default;
   ghostty = inputs.ghostty.overlays.default;
   disko = final: prev: {

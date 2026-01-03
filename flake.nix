@@ -46,6 +46,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
 
     dotfiles = {
+      # url = "/home/g/src/git/codeberg.org/earthgman/dotfiles";
       url = "git+https://git.earthgman.dev/EarthGman/dotfiles";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.yazi.follows = "yazi";

@@ -31,8 +31,11 @@
       grub.enable = lib.mkDefault true;
       # improved nixos rebuild
       nh.enable = lib.mkDefault true;
-      # riced zsh
-      zsh.enable = lib.mkDefault true;
+
+      # patch for automatically setting the timezone based on your current geolocation through networkmanager
+      geolocation-timezones.enable = lib.mkDefault (
+        config.networking.networkmanager.enable && config.time.timeZone == null
+      );
 
       # enable mixins based on host metadata
       # see /modules/nixos/mixins/desktop.nix
@@ -152,14 +155,6 @@
       # password store otp plugin
       password-store.package = lib.mkDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
 
-      # more shell stuff
-      zoxide = {
-        enable = lib.mkDefault true;
-        flags = lib.mkDefault [
-          "--cmd j"
-        ];
-      };
-
       # nice tools
       ncdu.enable = lib.mkDefault true;
       fastfetch.enable = lib.mkDefault true;
@@ -168,16 +163,23 @@
       fd.enable = lib.mkDefault true;
       jq.enable = lib.mkDefault true;
       eza.enable = lib.mkDefault true;
+      starship.enable = lib.mkDefault true;
+      zoxide.enable = lib.mkDefault true;
       btop.enable = lib.mkDefault true;
       sysz.enable = lib.mkDefault true;
       yazi-custom.enable = lib.mkDefault true;
       tmux-custom.enable = lib.mkDefault true;
+      zsh-custom = {
+        enable = lib.mkDefault true;
+        # zsh-headless, meaning without any configuration specific for a desktop setup
+        package = lib.mkDefault pkgs.gman.zsh-headless;
+      };
       git.enable = lib.mkDefault true;
       lazygit.enable = lib.mkDefault true;
       ripgrep.enable = lib.mkDefault true;
+      # needed for basic nixos shell checks
       zsh.enable = lib.mkDefault true;
       bat.enable = lib.mkDefault true;
-      starship.enable = lib.mkDefault true;
     };
 
     services = {

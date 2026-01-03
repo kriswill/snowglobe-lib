@@ -95,11 +95,33 @@ in
           pipes.enable = lib.mkDefault true;
           qutebrowser.enable = lib.mkDefault true;
 
-          # these will give stock configurations for the programs by default.
-          # You can then imperatively configure or set the .package option to your own wrapped nix derivation.
-          neovim-custom.enable = lib.mkDefault true;
-          yazi-custom.enable = lib.mkDefault true;
+          # favor neovim
+          vim.enable = lib.mkOverride 0 false;
 
+          # install my personal configurations of the following
+          # you can override the .package option of these to be your own derivation or just pkgs.$name for imperative configuration.
+          # additionally you can just disable these in favor of the stock nixos module configuration approach.
+          neovim-custom = {
+            enable = lib.mkDefault true;
+            package = lib.mkDefault pkgs.gman.nvim;
+            viAlias = true;
+            vimAlias = true;
+            defaultEditor = true;
+          };
+          yazi-custom = {
+            enable = lib.mkDefault true;
+            package = lib.mkDefault pkgs.gman.yazi;
+          };
+          zsh-custom = {
+            enable = lib.mkDefault true;
+            package = lib.mkOverride 899 pkgs.gman.zsh;
+          };
+          tmux-custom = {
+            enable = lib.mkDefault true;
+            package = lib.mkDefault pkgs.gman.tmux;
+          };
+
+          # other good programs I use
           rmpc.enable = lib.mkDefault true;
           yt-dlp.enable = lib.mkDefault true;
           vlc.enable = lib.mkDefault true;
@@ -114,6 +136,7 @@ in
           # default image viewer
           gthumb.enable = lib.mkDefault true;
           # default graphical file manager
+          # I hate having to use this but I have to since many apps hardcode this one and I like the filemanager to be uniform.
           nautilus.enable = true;
 
           # core dependencies

@@ -77,6 +77,15 @@ check_configs() {
 }
 
 main() {
+	if [[ ! $(git status | grep 'nothing to commit, working tree clean') ]]; then
+		y_or_n "Detected uncommitted changes, commit them now?" && {
+			COMMIT_MSG=$(read -p "Commit Message: ")
+			git add .
+			git commit -m $COMMIT_MSG
+			git push -u origin dev
+		}
+	fi
+
 	y_or_n "Update flake?" && update_flake
 	check_configs
 
