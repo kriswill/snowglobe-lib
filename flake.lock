@@ -112,11 +112,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767299213,
-        "narHash": "sha256-ONmYWnT/gmMazT/A7EE6rFc0ZtIpk7R8lWR6m8f0yUM=",
+        "lastModified": 1767462380,
+        "narHash": "sha256-mX1sdkjpThY87+fX2uOUbhwTwTE0OjiivihVgB6jnXc=",
         "ref": "refs/heads/main",
-        "rev": "4d8743a29ea28dc35e87c0056de6e1a683224793",
-        "revCount": 91,
+        "rev": "d6cb43087537cb1145184383f97b253ee0595c45",
+        "revCount": 92,
         "type": "git",
         "url": "https://git.earthgman.dev/EarthGman/dotfiles"
       },
