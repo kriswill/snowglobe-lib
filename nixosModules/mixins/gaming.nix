@@ -24,10 +24,17 @@ in
           #   STEAM_EXTRA_COMPAT_TOOLS_PATHS = "~/.steam/root/compatibilitytools.d";
           # };
         };
+
+        hardware = {
+          xone.enable = lib.mkDefault true;
+        };
+
         gman = {
           hardware-tools.enable = lib.mkDefault true;
         };
+
         programs = {
+          steam-rom-manager.enable = lib.mkDefault true;
           lutris.enable = lib.mkDefault true;
           mangohud.enable = lib.mkDefault true;
           protonup.enable = lib.mkDefault true;
@@ -36,8 +43,10 @@ in
             gamescopeSession = {
               enable = lib.mkDefault true;
             };
+            localNetworkGameTransfers.openFirewall = lib.mkDefault true;
           };
         };
+        # TODO gamemode
       }
     ]
   );

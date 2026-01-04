@@ -65,7 +65,7 @@ in
           {
             inherit (pkgs)
               pixel-code
-              "8-bit-operator-font"
+              _8-bit-operator-font
               omori-font
               noto-fonts
               ;

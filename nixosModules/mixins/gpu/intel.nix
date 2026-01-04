@@ -11,6 +11,13 @@ in
 {
   options.gman.gpu.intel.enable = mkEnableOption "gman's intel gpu module";
   config = mkIf cfg.enable {
-    # nothing here yet
+    # provide hardware acceleration to most GPUs
+    hardware.graphics.extraPackages = builtins.attrValues {
+      inherit (pkgs)
+        intel-media-driver
+        intel-vaapi-driver
+        ;
+    };
+
   };
 }

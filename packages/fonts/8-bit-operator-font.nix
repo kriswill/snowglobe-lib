@@ -1,6 +1,6 @@
 { pkgs, stdenvNoCC, ... }:
 stdenvNoCC.mkDerivation {
-  pname = "8-bit-operator-font";
+  pname = "_8-bit-operator-font";
   version = "1.0";
 
   src = builtins.fetchurl {

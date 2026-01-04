@@ -26,6 +26,9 @@
 
       nixosModules = rec {
         gman = import ./nixosModules { inherit inputs lib; };
+        # forward modules from jovian and nixos-hardware so they can be used directly
+        jovian = import ./nixosModules/extras/jovian.nix { inherit inputs lib; };
+        nixos-hardware = inputs.nixos-hardware.nixosModules;
         default = gman;
       };
 
@@ -62,10 +65,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    jovian-nixos = {
+      url = "github:Jovian-Experiments/Jovian-NixOS";
+    };
+
     niri = {
       url = "github:YaLTeR/niri";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.rust-overlay.follows = "";
+    };
+
+    nixos-hardware = {
+      url = "https://flakehub.com/f/NixOS/nixos-hardware/*.tar.gz";
     };
 
     # nix-gaming = {
