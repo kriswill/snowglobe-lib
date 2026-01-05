@@ -29,7 +29,7 @@ First, add the input:
 ```
 
 Unfortunately nixpkgs has an issue with consuming nix modules that extend the nixpkgs.lib attrSet.
-This is becuase the `lib` argument commonly seen in configuration.nix is hardcoded to be nixpkgs.lib by the nixosSystem function.
+This is because the `lib` argument commonly seen in configuration.nix is hardcoded to be nixpkgs.lib by the nixosSystem function.
 As a result, an extended lib requires calling nixosSystem with a special argument to provide the extended attrSet to all submodules of your configuration.
 
 ```
@@ -58,8 +58,8 @@ in
 }
 ```
 
-If you do not wish to use any custom modules from /mixins then you are good to go.
-However, Some custom suites and patches found under /mixins may not be fully functional unless you populate various metadata referenced by the option `config.meta` found at nixosModules/core/meta.nix
+If you do not wish to use any custom modules from nixosModules/mixins then you are good to go.
+However, Some custom suites and patches found under nixosModules/mixins may not be fully functional unless you populate various metadata referenced by the option `config.meta` found at nixosModules/core/meta.nix
 
 There are 2 methods:
 - 1. Do it manually, fill in the various information in a module consumed by your host (such as configuration.nix)
@@ -72,7 +72,7 @@ It also provides a great overview of the host's specific properties.
 
 ```
 {
-  inputs = { 
+  inputs = {
     gman.url = "https://codeberg.org/earthgman/nix-modules";
   };
 }
@@ -120,9 +120,9 @@ To obtain the installer, go to https://cache.earthgman.dev/binaries and download
 Note: There is an alternate version of the installer suffixed with -small. This build of the installer lacks firmware blobs from linux-firmware and can be used if your hardware does not require any blobs from it.
 If in doubt, just use the default image.
 
-If you wish to validate integrity and non-repudiation of the downloaded image. Decrypt the sha256.gpg associated with it. My gpg public key is stored on the webroot.
+If you wish to validate integrity and non-repudiation of the downloaded image, decrypt the sha256.gpg associated with it. My gpg public key is stored on the webroot.
 
-If you do not feel comfortable putting an iso image from a random guy on the internet into your computer, you can [build it yourself](https://codeberg.org/earthgman/nix-modules/src/branch/dev/docs/Build-Installer.md).
+If you do not feel comfortable putting an iso image from a random guy on the internet into your computer, you can [build it yourself](https://git.earthgman.dev/earthgman/nix-modules/src/branch/dev/docs/Build-Installer.md).
 
 Once booted, the rest should be self-explanitory.
 

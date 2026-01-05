@@ -171,8 +171,7 @@
       tmux-custom.enable = lib.mkDefault true;
       zsh-custom = {
         enable = lib.mkDefault true;
-        # zsh-headless, meaning without any configuration specific for a desktop setup
-        package = lib.mkDefault pkgs.gman.zsh-headless;
+        package = lib.mkOverride 1337 pkgs.gman.zsh;
       };
       git.enable = lib.mkDefault true;
       lazygit.enable = lib.mkDefault true;
