@@ -23,7 +23,7 @@ First, add the input:
 ```
 {
   inputs = { 
-    gman.url = "https://codeberg.org/earthgman/nix-modules";
+    gman.url = "https://git.earthgman.dev/earthgman/nix-modules";
   };
 }
 ```
@@ -35,7 +35,7 @@ As a result, an extended lib requires calling nixosSystem with a special argumen
 ```
 {
   inputs = { 
-    gman.url = "https://codeberg.org/earthgman/nix-modules";
+    gman.url = "https://git.earthgman.dev/earthgman/nix-modules";
   };
 }
 
@@ -73,7 +73,7 @@ It also provides a great overview of the host's specific properties.
 ```
 {
   inputs = {
-    gman.url = "https://codeberg.org/earthgman/nix-modules";
+    gman.url = "https://git.earthgman.dev/earthgman/nix-modules";
   };
 }
 

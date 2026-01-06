@@ -299,7 +299,7 @@ create_config() {
 				# };
 
 				gman = {
-					url = \"git+https://codeberg.org/EarthGman/nix-modules\";
+					url = \"git+https://git.earthgman.dev/EarthGman/nix-modules\";
 					# Be sure to uncomment this if you use your own nixpkgs input. Mismatched system dependencies are not good.
 					# inputs.nixpkgs.follows = \"nixpkgs\";
 				};
