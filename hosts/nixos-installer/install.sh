@@ -54,10 +54,11 @@ format_disks() {
 		y_or_n "Is your disk mounted?" && return 0
 	fi
 
-	printf "\nThe installer will use a nix-community tool called disko to declaratively partition your hard drvies or other persistent storage volumes.\n"
-	printf "This allows you to easily store & re-deploy the partition scheme without reliance on partition UUIDs\n"
+	printf "\nThe installer will use a nix-community tool called disko to declaratively partition your hard drives or other persistent storage volumes.\n"
+	printf "This allows you to easily store & re-deploy the partition scheme without reliance on nixos-generate-config or partition UUIDs\n"
 	printf "By default, this will create a GPT partition table with a FAT32 partition for the bootloader and an ext4 partition for the OS root filesystem. This is suitable for most scenarios.\n"
-	printf "If you wish to deploy a custom setup, such as RAID or a different filesystem, add the nix file to /etc/disko anywhere except the \"defaults\" directory before you continue.\n"
+	printf "If you wish to deploy a custom setup, such as a dual boot, RAID, or the use of a different filesystem, add the nix file to /etc/disko anywhere except the \"defaults\" directory before you continue.\n"
+	printf "The disko repository: https://github.com/nix-community/disko/example has several examples to help you get started.\n"
 	if [[ $REPO_DIR ]]; then
 		printf "Since you have cloned a repository, you will also have the option to select a disko configuration from it to use for formatting.\n"
 	fi
@@ -254,18 +255,6 @@ create_config() {
 
 	printf "\nChosen Layout $KBD_LAYOUT\n"
 
-	# TODO timesyncd
-	TIMEZONE=$(timedatectl list-timezones | fzf --border --border-label-pos 1:bottom --border-label="Select your time zone.")
-
-	if [[ ! $TIMEZONE ]]; then
-		printf "\nNo time zone selected, using default (UTC)\n"
-		TIMEZONE="UTC"
-		# give people time to read
-		sleep 2
-	fi
-
-	printf "\nChosen Timezone: $TIMEZONE\n"
-
 	DESKTOPS=("hyprland" "niri" "plasma" "no-desktop")
 	DESKTOP=$(printf "%s\n" "${DESKTOPS[@]}" | fzf --border --border-label-pos 1:bottom --border-label "Choose a desktop environment.")
 
@@ -286,7 +275,6 @@ create_config() {
   NixOS - $STATEVERSION
   Locale - $LOCALE
   Keyboard - $KBD_LAYOUT
-  Timezone - $TIMEZONE
   Desktop - $DESKTOP 
   Specialization - $SPECIALIZATION
 "
@@ -324,7 +312,7 @@ create_config() {
 			in
 			{
 				# expose hosts configured under this flake
-				nixosConfigurations = import ./hosts { inherit lib outputs; };
+				nixosConfigurations = import ./hosts { inherit lib inputs outputs; };
 
 				# expose your custom modules
 				nixosModules.default = import ./nixosModules { inherit inputs lib; };
@@ -472,7 +460,7 @@ creation_rules:
 			sed -i "/keys:/a\  - &$KEY_NAME $PUBLIC_AGE_KEY" $CONFIG_ROOT/.sops.yaml
 			sed -i "/creation_rules:/a\  - path_regex: $SECRETS_PATH\n    key_groups:\n      - age:\n          - *$KEY_NAME" $CONFIG_ROOT/.sops.yaml
 		fi
-		echo "Completed, the generated key will be stored at $KEY_FILE."
+		echo "Completed, the generated private key is stored at $KEY_FILE."
 		echo "It is imperative that you create a backup of this private key after installation is complete. If you lose it, you will no longer be able to access your secrets and your system cannot rebuild."
 		echo "press any key to acknowledge..."
 		read -n 1 key
@@ -528,9 +516,7 @@ creation_rules:
 		y_or_n "Should this user have access to sudo?" && SUDO=true || SUDO=false
 
 		USER_DIR=$HOST_CONFIG/users/$USERNAME
-		if [[ ! -d $USER_DIR ]]; then
-			mkdir -p $USER_DIR
-		fi
+		mkdir -p $USER_DIR
 
 		echo "{ config, ... }:
     {
@@ -568,17 +554,10 @@ creation_rules:
 			  ./disko.nix
 			];
 
-			time.timeZone = \"$TIMEZONE\";
-
 			i18n.defaultLocale = \"$LOCALE\";
 
 			services.xserver.xkb.layout = \"$KBD_LAYOUT\";
 		}" >$HOST_CONFIG/default.nix
-
-	# adds disko to the imports array
-	if [[ $DISKO_CONFIG != "" ]]; then
-		sed -i '/]/i./disko.nix' $HOST_CONFIG/default.nix
-	fi
 
 	if [[ $DESKTOP == "no-desktop" ]]; then
 		unset DESKTOP
@@ -587,7 +566,7 @@ creation_rules:
 	if [[ $INSTALLATION_METHOD == "new" ]]; then
 		mkdir -p $CONFIG_ROOT/hosts
 		# add the function header if this is a new configuration
-		echo " { lib, outputs, ... }:
+		echo " { lib, inputs, outputs, ... }:
 		{" >$HOSTS_CONFIG
 	else
 		# with "append" remove the last character to make way for the new configuration
@@ -604,6 +583,7 @@ creation_rules:
 			desktop = \"$DESKTOP\";
 			configDir = ./$HOSTNAME;
 			secretsFile = ./$HOSTNAME/secrets.yaml;
+			extraSpecialArgs = { inherit inputs; };
 			extraModules = [ outputs.nixosModules.default ];
 		};
 	}

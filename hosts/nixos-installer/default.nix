@@ -94,6 +94,8 @@ in
     neovim-custom = {
       enable = true;
       defaultEditor = true;
+      vimAlias = false;
+      viAlias = false;
       # custom build of neovim with only nix lsp
       package = pkgs.gman.nvim-nix;
     };

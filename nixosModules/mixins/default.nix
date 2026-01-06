@@ -173,6 +173,8 @@
       };
       neovim-custom = {
         enable = lib.mkDefault true;
+        viAlias = lib.mkDefault true;
+        vimAlias = lib.mkDefault true;
       };
       git.enable = lib.mkDefault true;
       lazygit.enable = lib.mkDefault true;

@@ -112,7 +112,6 @@ This custom installer aims to integrate these features into the installation pro
 Currently the following desktop environments are supported:
 - KDE Plasma 6
 - Niri
-- Sway
 - Hyprland
 
 To obtain the installer, go to https://cache.earthgman.dev/binaries and download the nixos-installer.iso for your system's CPU architecture.
