@@ -141,8 +141,6 @@
       # program for viewing your nix configuration
       nix-inspect.enable = lib.mkDefault true;
 
-      vim.enable = lib.mkDefault true;
-
       # declarative partitioning tool
       disko.enable = lib.mkDefault true;
 
@@ -172,6 +170,9 @@
       zsh-custom = {
         enable = lib.mkDefault true;
         package = lib.mkOverride 1337 pkgs.gman.zsh;
+      };
+      neovim-custom = {
+        enable = lib.mkDefault true;
       };
       git.enable = lib.mkDefault true;
       lazygit.enable = lib.mkDefault true;

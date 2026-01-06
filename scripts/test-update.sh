@@ -61,7 +61,7 @@ check_configs() {
 		HOSTS=($(nix eval $REPO_DIR'#'nixosConfigurations --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"'))
 
 		for host in ${HOSTS[@]}; do
-			nixos-rebuild build --flake .#$host || {
+			nh os build ".#nixosConfigurations.$host" || {
 				msg="build for $host from repo: $REPO_OWNER/$REPO_NAME has failed"
 				echo $msg
 				notify-send -a "nix-modules-CI" "test-update.sh" "$msg"
