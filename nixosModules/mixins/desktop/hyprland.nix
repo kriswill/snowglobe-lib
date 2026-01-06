@@ -22,6 +22,8 @@ in
       waybar.enable = lib.mkDefault true;
     };
 
+    security.hyprpolkitagent.enable = true;
+
     services = {
       # notification daemon
       swaync.enable = true;
