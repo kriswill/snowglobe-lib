@@ -19,6 +19,7 @@ in
       hyprlock.enable = true;
       rofi.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;
+      waybar.enable = lib.mkDefault true;
     };
 
     services = {
@@ -43,7 +44,6 @@ in
 
     environment.systemPackages = builtins.attrValues {
       inherit (pkgs)
-        waybar
         libnotify
         wl-clipboard
         grim
