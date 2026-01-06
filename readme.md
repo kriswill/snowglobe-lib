@@ -27,6 +27,7 @@ First, add the input:
   };
 }
 ```
+This project is also mirrored to codeberg, allowing you to use that url in case my personal git server is down for any reason.
 
 Unfortunately nixpkgs has an issue with consuming nix modules that extend the nixpkgs.lib attrSet.
 This is because the `lib` argument commonly seen in configuration.nix is hardcoded to be nixpkgs.lib by the nixosSystem function.
