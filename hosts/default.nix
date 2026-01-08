@@ -33,12 +33,32 @@
     extraModules = [ { hardware.enableRedistributableFirmware = lib.mkForce false; } ];
   };
 
-  # test vms for install.sh and other
-  nixos-uefi = lib.mkHost {
+  # test vms for install.sh and other components I usually dont use personally but want to ensure stay working for others.
+  nixos-plasma = lib.mkHost {
     hostname = "nixos";
     bios = "uefi";
-    vm = true;
     desktop = "plasma";
+    vm = true;
+    configDir = ./nixos;
+    stateVersion = "25.11";
+    system = "x86_64-linux";
+  };
+
+  nixos-niri = lib.mkHost {
+    hostname = "nixos";
+    bios = "uefi";
+    desktop = "niri";
+    vm = true;
+    configDir = ./nixos;
+    stateVersion = "25.11";
+    system = "x86_64-linux";
+  };
+
+  nixos-hyprland = lib.mkHost {
+    hostname = "hyprland";
+    bios = "uefi";
+    desktop = "plasma";
+    vm = true;
     configDir = ./nixos;
     stateVersion = "25.11";
     system = "x86_64-linux";
@@ -48,10 +68,8 @@
     hostname = "nixos";
     bios = "legacy";
     vm = true;
-    desktop = "plasma";
     configDir = ./nixos;
     stateVersion = "25.11";
     system = "x86_64-linux";
   };
-
 }

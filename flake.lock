@@ -112,11 +112,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767640156,
-        "narHash": "sha256-jH5HaEx1QsERXqnwefyeL6JUaa4Hdhgmt3w9WwoBh7g=",
+        "lastModified": 1767765113,
+        "narHash": "sha256-M3UIkpewcBRgBYSRZKXrsUHanagG/zUt43vXM5HOhtk=",
         "ref": "refs/heads/main",
-        "rev": "6957e0fa438b27f4be8deaef16472a02427c4657",
-        "revCount": 95,
+        "rev": "ee2c394ceb45cc530c9c4c61172af394148761f4",
+        "revCount": 97,
         "type": "git",
         "url": "https://git.earthgman.dev/EarthGman/dotfiles"
       },
@@ -260,11 +260,11 @@
         "zon2nix": "zon2nix"
       },
       "locked": {
-        "lastModified": 1766930820,
-        "narHash": "sha256-YwSlB25j3m7DKWrhLoG5jjoXeUOrG+eG+8BpYCH59EY=",
+        "lastModified": 1767821852,
+        "narHash": "sha256-CHjTyd/3ZnletnYcoZfC8wnRqzbZEwkilyx23/swlv8=",
         "owner": "ghostty-org",
         "repo": "ghostty",
-        "rev": "52d8e1f44c6ba69b56f0e3b7dfcda64bd481b63c",
+        "rev": "891f442041f3c767c1c851fb46c1877fe64e6406",
         "type": "github"
       },
       "original": {
@@ -327,11 +327,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1767082077,
-        "narHash": "sha256-2tL1mRb9uFJThUNfuDm/ehrnPvImL/QDtCxfn71IEz4=",
+        "lastModified": 1767777502,
+        "narHash": "sha256-jXb2kBU6lO6Q6S9zoR/bhVLMjg2hM9EW8gWIwsmkj64=",
         "owner": "Jovian-Experiments",
         "repo": "Jovian-NixOS",
-        "rev": "efd4b22e6fdc6d7fb4e186ae333a4b74e03da440",
+        "rev": "a81fad3f4a70fdaa779e74b7da2063fa2e358028",
         "type": "github"
       },
       "original": {
@@ -364,11 +364,11 @@
         "rust-overlay": []
       },
       "locked": {
-        "lastModified": 1766751930,
-        "narHash": "sha256-83/YSW6c58i/iwGzAFApuMy6MCgoIaROeCcoIGh+ViU=",
+        "lastModified": 1767792726,
+        "narHash": "sha256-qS4tdG2iUQwSld9dTH1gk8GcIOrRi9umMgPv8MGDIA0=",
         "owner": "YaLTeR",
         "repo": "niri",
-        "rev": "b5640d5293ad8dca06cb447692ea7cbb21680eb1",
+        "rev": "10df9f4717cbd4efd20ae796eb6b0aa400127bdc",
         "type": "github"
       },
       "original": {
@@ -513,11 +513,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1766902047,
-        "narHash": "sha256-5hlaevYkLMeR2+6WThInVkWl0F35ioE4027kXVsglEE=",
+        "lastModified": 1767808640,
+        "narHash": "sha256-sNFuxUl3VxbKbKc5paKLex9YnsGA1JeL88A3gGsOd4I=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "652f1b042e5fa87705fb952aad193cefc18446f5",
+        "rev": "0a2a75c03be78dd84edb14f4ae1a36a8228aa6d1",
         "type": "github"
       },
       "original": {
@@ -535,11 +535,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766844630,
-        "narHash": "sha256-tS6I2s5HylAf+TOORHl4A+FgndZR3LRWCduHp5ev93U=",
+        "lastModified": 1767814467,
+        "narHash": "sha256-xZyOQQuSvkUkXsifFIsHE3eblcerzG5foJV0UV4HEUs=",
         "owner": "PrismLauncher",
         "repo": "PrismLauncher",
-        "rev": "57c4b71c6188d06aa20945f305f4dac77cfc53ef",
+        "rev": "3e5990f8ecc6e38a9a1a27a0e4c460cd841ebcad",
         "type": "github"
       },
       "original": {
@@ -555,11 +555,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766725085,
-        "narHash": "sha256-O2aMFdDUYJazFrlwL7aSIHbUSEm3ADVZjmf41uBJfHs=",
+        "lastModified": 1767693058,
+        "narHash": "sha256-rnLX8IA4yMbKHjYmJPcYCcWrqJ50B8WApQW62l+V9LE=",
         "ref": "refs/heads/master",
-        "rev": "41828c4180fb921df7992a5405f5ff05d2ac2fff",
-        "revCount": 715,
+        "rev": "6742148cf4a8415a9c51fdeb11d8c3ea716c2e14",
+        "revCount": 717,
         "type": "git",
         "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
       },
@@ -685,11 +685,11 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1766909106,
-        "narHash": "sha256-Ojvjywux/aN0Bw9k4eiAPrK4/KRYvDFCDSKK8fwZ+XE=",
+        "lastModified": 1767810350,
+        "narHash": "sha256-1mtZeq/zxk4VYhBcVjrYfgCD/FhuS6HPxeLZWiuT0iw=",
         "owner": "sxyazi",
         "repo": "yazi",
-        "rev": "faf33e1b03319820df696890d85e9dd1c8f084d7",
+        "rev": "30ac041d9e9a42f9157d279300c694a2b1ed6ad8",
         "type": "github"
       },
       "original": {
