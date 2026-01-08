@@ -105,8 +105,6 @@ in
       displayManager = {
         inherit defaultSession;
       };
-      # mounting network drives in file managers
-      gvfs.enable = lib.mkDefault true;
     };
 
     services.flatpak.enable = lib.mkDefault true;
