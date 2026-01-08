@@ -12,7 +12,6 @@ in
   config = lib.mkIf cfg.enable {
     programs = {
       # be sure to add your user to adbusers group
-      adb.enable = lib.mkDefault true;
       kdeconnect = {
         enable = lib.mkDefault true;
         package =
@@ -24,10 +23,12 @@ in
       scrcpy.enable = lib.mkDefault true;
     };
 
-    environment.systemPackages = [
-      pkgs.android-tools
-      pkgs.apksigner
-    ];
+    environment.systemPackages = builtins.attrValues {
+      inherit (pkgs)
+        android-tools
+        apksigner
+        ;
+    };
 
     # services.udev.packages = [
     #   pkgs.android-udev-rules
