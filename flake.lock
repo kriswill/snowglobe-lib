@@ -112,11 +112,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767765113,
-        "narHash": "sha256-M3UIkpewcBRgBYSRZKXrsUHanagG/zUt43vXM5HOhtk=",
+        "lastModified": 1767860008,
+        "narHash": "sha256-riAXSxwwDag5CbdRDmcaHp2Aim60zDZ3ZiPoi/6PSfA=",
         "ref": "refs/heads/main",
-        "rev": "ee2c394ceb45cc530c9c4c61172af394148761f4",
-        "revCount": 97,
+        "rev": "d3d75f7c2a727b80e248deaf3500460656834f9a",
+        "revCount": 98,
         "type": "git",
         "url": "https://git.earthgman.dev/EarthGman/dotfiles"
       },
@@ -199,11 +199,11 @@
         "nixpkgs-lib": "nixpkgs-lib"
       },
       "locked": {
-        "lastModified": 1765835352,
-        "narHash": "sha256-XswHlK/Qtjasvhd1nOa1e8MgZ8GS//jBoTqWtrS1Giw=",
+        "lastModified": 1767609335,
+        "narHash": "sha256-feveD98mQpptwrAEggBQKJTYbvwwglSbOv53uCfH9PY=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "a34fae9c08a15ad73f295041fec82323541400a9",
+        "rev": "250481aafeb741edfe23d29195671c19b36b6dca",
         "type": "github"
       },
       "original": {
