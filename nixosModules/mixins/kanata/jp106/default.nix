@@ -26,7 +26,7 @@ in
       keyboards = {
         gman-jp106 = {
           devices = cfg.config.devices;
-          extraDefConfig = "process-unmapped-keys yes";
+          extraDefCfg = "process-unmapped-keys yes";
           config = builtins.readFile ./config.kbd;
         };
       };
