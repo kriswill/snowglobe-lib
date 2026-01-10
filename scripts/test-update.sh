@@ -76,7 +76,7 @@ check_configs() {
 main() {
 	if ! git status | grep -q 'nothing to commit, working tree clean'; then
 		y_or_n "Detected uncommitted changes, commit them now?" && {
-			echo "Commit Message: "
+			printf "Commit Message: "
 			read -r COMMIT_MSG
 			git add .
 			git commit -m "$COMMIT_MSG"
