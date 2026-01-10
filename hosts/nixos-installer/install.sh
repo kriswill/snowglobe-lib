@@ -332,7 +332,12 @@ create_config() {
 				lib.genAttrs supported-systems (
 					system:
 					import ./packages {
-						pkgs = nixpkgs.legacyPackages.\${system};
+						pkgs = import nixpkgs {
+              config.allowUnfree = true;
+							inherit system;
+							# give your packages access to your overlay modifications
+							overlays = builtins.attrValues self.outputs.overlays;
+						};
 					}
 				);
 			};

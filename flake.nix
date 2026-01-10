@@ -38,7 +38,11 @@
         system:
         import ./packages {
           inherit inputs;
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = import nixpkgs {
+            config.allowUnfree = true;
+            inherit system;
+            overlays = builtins.attrValues self.outputs.overlays;
+          };
         }
       );
 
@@ -53,6 +57,7 @@
       url = "git+https://git.earthgman.dev/EarthGman/dotfiles";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.yazi.follows = "yazi";
+      inputs.awww.follows = "awww";
     };
 
     determinate = {

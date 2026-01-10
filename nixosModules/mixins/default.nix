@@ -123,19 +123,15 @@
     # enable linux firmware if a physical machine
     hardware.enableRedistributableFirmware = lib.mkDefault (!config.meta.vm);
 
-    # install tools
-    environment.systemPackages = [
-      # keylogger
-      pkgs.libinput
-
-      pkgs.file
-
-      # archive helpers
-      pkgs.zip
-
-      # control brightness
-      pkgs.brightnessctl
-    ];
+    environment = {
+      # link /bin/sh to dash instead of a weird bash shell
+      binsh = lib.mkOverride 899 "${pkgs.dash}/bin/dash";
+      # install tools
+      systemPackages = [
+        pkgs.file
+        pkgs.zip
+      ];
+    };
 
     programs = {
       # program for viewing your nix configuration
