@@ -65,6 +65,7 @@ in
     environment.systemPackages =
       builtins.attrValues {
         inherit (pkgs)
+          brightnessctl
           # # install some icons
           adwaita-icon-theme
           # install some cursors
