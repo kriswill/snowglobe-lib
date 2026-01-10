@@ -57,7 +57,6 @@
       url = "git+https://git.earthgman.dev/EarthGman/dotfiles";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.yazi.follows = "yazi";
-      inputs.awww.follows = "awww";
     };
 
     determinate = {
