@@ -98,7 +98,9 @@ in
     # kind of redundant, but good to have.
     hardware.graphics = {
       enable = true;
-      enable32Bit = lib.mkDefault true;
+      enable32Bit = lib.mkIf ((builtins.substring 0 3 config.nixpkgs.hostPlatform.system) == "x86") (
+        lib.mkDefault true
+      );
     };
 
     services = {

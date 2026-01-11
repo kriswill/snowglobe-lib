@@ -21,15 +21,19 @@ in
       };
 
       # default lockscreen
-      swaylock.enable = true;
+      swaylock.enable = lib.mkDefault true;
 
       # default terminal for niri
       alacritty.enable = lib.mkDefault true;
+
+      # default picker
+      fuzzel.enable = lib.mkDefault true;
     };
 
     services = {
       # battery notifier / exits if no battery detected
       batsignal.enable = lib.mkDefault true;
+
       # setup a default notification daemon
       swaync.enable = lib.mkDefault true;
       nm-applet.enable = lib.mkDefault true;
@@ -39,8 +43,8 @@ in
     security.soteria.enable = lib.mkDefault true;
 
     environment = {
-      # force electron apps to run using wayland
       sessionVariables = {
+        # force electron apps to run using wayland
         NIXOS_OZONE_WL = "1";
         # prevent blank screens with java applications running under xwayland-satellite
         _JAVA_AWT_WM_NONREPARENTING = "1";
@@ -52,7 +56,6 @@ in
           wl-clipboard
           grim # screenshots
           slurp # screen selector
-          swayidle # daemonless swayidle
           xwayland-satellite # setup xwayland support for niri
           ;
       };

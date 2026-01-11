@@ -143,6 +143,7 @@ in
           swaylock.enable = true;
           selectdefaultapplication.enable = true;
           rofi.enable = true;
+          fuzzel.enable = lib.mkOverride 899 false;
           password-store.enable = true;
           # use git auth with pass
           pass-git-helper.enable = true;

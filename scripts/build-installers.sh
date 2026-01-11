@@ -14,7 +14,7 @@ type nixos-generate || {
 }
 
 INSTALLERS=$(
-	for configuration in $(nix eval "$REPO_DIR'#'nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"'); do
+	for configuration in $(nix eval "$REPO_DIR#nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"'); do
 		printf "%s\n" "$configuration"
 	done | grep 'installer'
 )
@@ -23,7 +23,7 @@ for image in $INSTALLERS; do
 	# store isos so they can be shared between hosts
 	ISO_DEST_PATH=~/src/isos/$image.iso
 	HASH_DEST_PATH="$XDG_CACHE_HOME/nix-modules-CI/installers/$image.iso.sha256"
-	nixos-generate "--flake .#$image -f iso -o result" || {
+	nixos-generate --flake .\#"$image" -f iso -o result || {
 		echo "Could not build the installer image"
 		exit 1
 	}
