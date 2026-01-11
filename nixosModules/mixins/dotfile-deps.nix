@@ -43,6 +43,7 @@ in
           {
             inherit (pkgs)
               libnotify
+              brightnessctl
               wl-clipboard
               grim
               slurp
