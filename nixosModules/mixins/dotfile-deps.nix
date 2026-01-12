@@ -86,6 +86,32 @@ in
         };
 
         programs = {
+          # core dependencies
+          swaylock.enable = true;
+          selectdefaultapplication.enable = true;
+          bat.enable = true;
+          rofi.enable = true;
+          fuzzel.enable = lib.mkOverride 899 false;
+          password-store.enable = true;
+          # use git auth with pass
+          pass-git-helper.enable = true;
+          gnupg.agent = {
+            enable = true;
+            enableSSHSupport = true;
+          };
+          lynx.enable = true;
+          eza.enable = true;
+          dconf.enable = true;
+          # suckless/simple terminal
+          st.enable = true;
+          # setting timers
+          gnome-clocks.enable = true;
+          # pipewire control dashboard
+          pwvucontrol.enable = true;
+
+          # status bar for wayland
+          waybar.enable = true;
+
           # optional programs
           cava.enable = lib.mkDefault true;
           cmatrix.enable = lib.mkDefault true;
@@ -139,31 +165,6 @@ in
           # default graphical file manager
           # I hate having to use this but I have to since many apps hardcode this one and I like the filemanager to be uniform.
           nautilus.enable = true;
-
-          # core dependencies
-          swaylock.enable = true;
-          selectdefaultapplication.enable = true;
-          rofi.enable = true;
-          fuzzel.enable = lib.mkOverride 899 false;
-          password-store.enable = true;
-          # use git auth with pass
-          pass-git-helper.enable = true;
-          gnupg.agent = {
-            enable = true;
-            enableSSHSupport = true;
-          };
-          lynx.enable = true;
-          eza.enable = true;
-          dconf.enable = true;
-          # suckless/simple terminal
-          st.enable = true;
-          # setting timers
-          gnome-clocks.enable = true;
-          # pipewire control dashboard
-          pwvucontrol.enable = true;
-
-          # status bar for wayland
-          waybar.enable = true;
         };
 
         services = {
