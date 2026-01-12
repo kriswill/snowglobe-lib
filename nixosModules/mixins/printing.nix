@@ -14,7 +14,6 @@ in
       printing = {
         enable = true;
         browsed.enable = lib.mkDefault false;
-        tempDir = lib.mkDefault "/tmp/cups";
       };
     };
   };

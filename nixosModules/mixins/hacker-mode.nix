@@ -14,7 +14,8 @@ in
     lib.mkMerge [
       (lib.mkIf (config.meta.desktop != "") {
         programs = {
-          ghidra.enable = lib.mkDefault true;
+          # TODO: will not build, 1-12-2026
+          # ghidra.enable = lib.mkDefault true;
           # burpsuite.enable = lib.mkDefault true;
 
           john.package = lib.mkDefault pkgs.johnny;
