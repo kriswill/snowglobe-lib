@@ -78,6 +78,11 @@ check_configs() {
 }
 
 main() {
+	if [ $(git branch | grep '*' | cut -d' ' -f2) != 'dev' ]; then
+		printf "You are not on the development branch, Aborting."
+		exit 1
+	fi
+
 	if ! git status | grep -q 'nothing to commit, working tree clean'; then
 		y_or_n "Detected uncommitted changes, commit them now?" && {
 			printf "Commit Message: "
