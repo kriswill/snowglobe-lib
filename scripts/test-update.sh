@@ -33,7 +33,11 @@ check_configs() {
 	for repo in $REPOSITORIES; do
 		REPO_OWNER=$(echo "$repo" | rev | cut -d "/" -f2 | rev)
 		REPO_NAME=$(echo "$repo" | rev | cut -d "/" -f1 | rev)
-		REPO_DIR="$XDG_CACHE_HOME/nix-modules-CI/repos/$REPO_OWNER/$REPO_NAME"
+		if [ -z "$XDG_CACHE_HOME" ]; then
+			REPO_DIR="/tmp/nix-modules-CI/repos/$REPO_OWNER/$REPO_NAME"
+		else
+			REPO_DIR="$XDG_CACHE_HOME/nix-modules-CI/repos/$REPO_OWNER/$REPO_NAME"
+		fi
 
 		if [ ! -d "$REPO_DIR" ]; then
 			mkdir -p "$REPO_DIR"
