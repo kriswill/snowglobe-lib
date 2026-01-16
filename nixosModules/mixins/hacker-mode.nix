@@ -28,6 +28,7 @@ in
         programs = {
           tcpdump.enable = true;
           lynx.enable = true;
+          binsider.enable = true;
 
           wireshark.enable = true;
           nmap.enable = true;

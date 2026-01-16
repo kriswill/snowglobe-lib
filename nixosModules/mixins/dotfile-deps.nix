@@ -15,12 +15,15 @@ in
 
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
-      (lib.mkIf (config.meta.desktop == "niri") {
-        programs.niri = {
-          enable = true;
-        };
-      })
       {
+        # setup pam to allow decrypting of gpg key on login and through swaylock
+        security.pam.services = {
+          swaylock.gnupg.enable = true;
+          login.gnupg = {
+            enable = lib.mkDefault true;
+            storeOnly = lib.mkDefault true;
+          };
+        };
         # use pass and gnupg for secrets not gnome-keyring
         services.gnome.gnome-keyring.enable = false;
 
