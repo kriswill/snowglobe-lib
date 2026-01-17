@@ -102,7 +102,6 @@ main() {
 		git checkout main
 		git merge dev
 		git push -u origin main
-		# switch back to the development branch
 		git checkout dev
 	}
 
