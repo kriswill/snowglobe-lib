@@ -88,11 +88,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766150702,
-        "narHash": "sha256-P0kM+5o+DKnB6raXgFEk3azw8Wqg5FL6wyl9jD+G5a4=",
+        "lastModified": 1768727946,
+        "narHash": "sha256-le2GY+ZR6uRHMuOAc60sBR3gBD2BEk1qOZ3S5C/XFpU=",
         "owner": "nix-community",
         "repo": "disko",
-        "rev": "916506443ecd0d0b4a0f4cf9d40a3c22ce39b378",
+        "rev": "558e84658d0eafc812497542ad6ca0d9654b3b0f",
         "type": "github"
       },
       "original": {
@@ -112,11 +112,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768690814,
-        "narHash": "sha256-FRdRTxdLqgB6Vlksl4c/OfLuUUNlEoOvGVpXCnjexJQ=",
+        "lastModified": 1768770331,
+        "narHash": "sha256-B+1pthwm5I1POFrSNCwmB891u7qNhG8QLsFMjFkDTXs=",
         "ref": "refs/heads/main",
-        "rev": "d106a1d084a878bd50a0f6f1a086d846fce2a7ad",
-        "revCount": 123,
+        "rev": "b84ead53a03c5d447d9c0b77ee486376bcf6a0e2",
+        "revCount": 126,
         "type": "git",
         "url": "https://git.earthgman.dev/EarthGman/dotfiles"
       },
@@ -512,11 +512,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1768640357,
-        "narHash": "sha256-NRmPViu76stpOUahRWuR3zMKfY2dKr/qAxRlcqfyps4=",
+        "lastModified": 1768701115,
+        "narHash": "sha256-kkRg+hOTrRye6nDf6WBG8Ue7/ETUhfXdFSIVEXV2XXo=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "d157866bc6cc1a986f88f6e78a6884efeeec6187",
+        "rev": "a48c9dbce9a434f3647d4d9eab783eca11a242c4",
         "type": "github"
       },
       "original": {
@@ -534,11 +534,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768691866,
-        "narHash": "sha256-MvnxwwfyO4fwozHlMWC4vW8l5GVNuv2ojwWtFOk/fUg=",
+        "lastModified": 1768769825,
+        "narHash": "sha256-xyopf7flBNNiAL8ZhgNrNYTnM6wUvWDyfy+YTpQShSs=",
         "owner": "PrismLauncher",
         "repo": "PrismLauncher",
-        "rev": "e8b5d491545f181599aaba610e53196e658a8bf2",
+        "rev": "f60535dd6873272fb35752782feb0cdf7f435aa6",
         "type": "github"
       },
       "original": {
@@ -554,11 +554,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768648470,
-        "narHash": "sha256-4UvZsC/IedptJtSFasZRnA2PxufWq11aTh3uHjuvDyw=",
+        "lastModified": 1768689040,
+        "narHash": "sha256-Tlnr5BulJcMers/cb+YvmBQW4nKHjdKo9loInJkyO2k=",
         "ref": "refs/heads/master",
-        "rev": "5eb6f51f4a2a84d3f0f3f7352253780730beee1b",
-        "revCount": 728,
+        "rev": "7a427ce1979ce7447e885c4f30129b40f3d466f5",
+        "revCount": 729,
         "type": "git",
         "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
       },
@@ -684,11 +684,11 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1768669787,
-        "narHash": "sha256-gc9NTenY/ILu6j8jrXr7zFDmkCESOBsI7vksJa3yVbk=",
+        "lastModified": 1768756095,
+        "narHash": "sha256-5YO/8LTVhUFJ4jJMuJtgE3oGGD0D7aR0fcfHEKvQmTo=",
         "owner": "sxyazi",
         "repo": "yazi",
-        "rev": "97d0c6bb23df413f4add8b888071233c912c49a3",
+        "rev": "ca4cc594136e313b47f8da0f3699b7ea9699a959",
         "type": "github"
       },
       "original": {
