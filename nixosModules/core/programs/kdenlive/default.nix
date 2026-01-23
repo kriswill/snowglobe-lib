@@ -13,7 +13,7 @@ in
     description = "nonlinear video editor from kde plasma";
     programName = program-name;
     packageName = program-name;
-    inherit pkgs;
+    pkgs = pkgs.kdePackages;
   };
 
   config = lib.mkIf cfg.enable {
