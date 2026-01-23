@@ -119,6 +119,7 @@ in
           cava.enable = lib.mkDefault true;
           cmatrix.enable = lib.mkDefault true;
           cbonsai.enable = lib.mkDefault true;
+          neomutt.enable = lib.mkDefault true;
           sl.enable = lib.mkDefault true;
           firefox.enable = lib.mkDefault true;
           hstr.enable = lib.mkDefault true;
@@ -191,6 +192,9 @@ in
               "argb"
             ];
           };
+
+          # used for some cron jobs throughout scripts
+          cron.enable = true;
         };
       }
     ]

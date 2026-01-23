@@ -9,6 +9,7 @@
 
 (deflocalkeys-linux
   Convert 92
+  katakanahiragana 93
   NonConvert 94
   IntlYen 124
   IntlRo 89
@@ -16,8 +17,9 @@
 
 (deflayermap base
   caps esc
-  NonConvert (multi f24 (tap-hold $tap-time $hold-time bspc (layer-while-held helper)))
   esc (layer-switch norm)
+  katakanahiragana C-b
+  NonConvert (multi f24 (tap-hold $tap-time $hold-time bspc (layer-while-held helper)))
   Convert (multi f24 (tap-hold $tap-time $hold-time ret (layer-while-held helper)))
   a (multi f24 (tap-hold $tap-time $hold-time a lmet))
   s (multi f24 (tap-hold $tap-time $hold-time s lalt))
@@ -60,6 +62,7 @@
   b S-0
 
   Convert tab
+  NonConvert C-b
   h left
   j down
   k up

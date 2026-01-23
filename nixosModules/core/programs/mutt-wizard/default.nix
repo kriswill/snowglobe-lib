@@ -17,12 +17,32 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # requred dependency of mw
-    programs.password-store.enable = true;
+    # requred dependencies of mw
+    programs = {
+      password-store.enable = true;
+      abook.enable = true;
+      lynx.enable = true;
+    };
+
+    services.cron.enable = true;
+
     environment = {
       systemPackages = [
         cfg.package
-      ];
+      ]
+      ++ (builtins.attrValues {
+        inherit (pkgs)
+          curl
+          isync
+          msmtp
+          gettext
+          notmuch
+          urlscan
+          mpop
+          goimapnotify
+          ;
+      });
+      # allow mutt-wizard config files to be accessible outside of /nix/store
       pathsToLink = [
         "/share/mutt-wizard"
       ];

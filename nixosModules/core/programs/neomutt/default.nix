@@ -23,20 +23,12 @@ in
 
   config = lib.mkIf cfg.enable {
     programs = {
-      # address book
-      abook.enable = lib.mkDefault true;
       # helper
       mutt-wizard.enable = lib.mkDefault true;
     };
 
     environment.systemPackages = [
       cfg.package
-    ]
-    ++ builtins.attrValues {
-      inherit (pkgs)
-        msmtp
-        isync
-        ;
-    };
+    ];
   };
 }

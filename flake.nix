@@ -56,6 +56,7 @@
       # url = "/home/g/src/git/codeberg.org/earthgman/dotfiles";
       url = "git+https://git.earthgman.dev/EarthGman/dotfiles";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.quickshell.follows = "quickshell";
       inputs.yazi.follows = "yazi";
     };
 
