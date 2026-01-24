@@ -50,7 +50,7 @@
     };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     dotfiles = {
       # url = "/home/g/src/git/codeberg.org/earthgman/dotfiles";
