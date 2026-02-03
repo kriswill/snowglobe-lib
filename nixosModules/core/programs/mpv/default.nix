@@ -5,12 +5,12 @@
   ...
 }:
 let
-  program-name = "ani-cli";
+  program-name = "mpv";
   cfg = config.programs.${program-name};
 in
 {
   options.programs.${program-name} = lib.mkProgramOption {
-    description = "an anime indexer using fzf";
+    description = "lightweight media player";
     programName = program-name;
     packageName = program-name;
     inherit pkgs;
@@ -20,6 +20,5 @@ in
     environment.systemPackages = [
       cfg.package
     ];
-    programs.mpv.enable = true;
   };
 }
