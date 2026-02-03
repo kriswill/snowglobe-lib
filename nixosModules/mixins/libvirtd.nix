@@ -13,7 +13,9 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
+        environment.systemPackages = [ pkgs.dnsmasq ];
         boot.kernelModules = lib.mkIf (config.meta.cpu != "") [ "kvm-${config.meta.cpu}" ];
+        networking.firewall.trustedInterfaces = [ "virbr0" ];
 
         virtualisation = {
           spiceUSBRedirection.enable = true;

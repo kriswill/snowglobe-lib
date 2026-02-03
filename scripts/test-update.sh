@@ -18,17 +18,6 @@ y_or_n() {
 	done
 }
 
-update_flake() {
-	PROJECT_DIR=$(pwd)
-	if [ "$(git branch --show-current)" != "dev" ]; then
-		git checkout dev
-	fi
-	nix flake update
-	git -C "$PROJECT_DIR" add "$PROJECT_DIR"
-	git commit -m "update flake"
-	git push -u origin dev
-}
-
 check_configs() {
 	for repo in $REPOSITORIES; do
 		REPO_OWNER=$(echo "$repo" | rev | cut -d "/" -f2 | rev)
@@ -93,7 +82,6 @@ main() {
 		}
 	fi
 
-	y_or_n "Update flake?" && update_flake
 	check_configs
 
 	notify-send -a "nix-modules-CI" "test-update.sh" "Configuration Checks successful\!"

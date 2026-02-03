@@ -21,10 +21,12 @@
   katakanahiragana C-b
   NonConvert (multi f24 (tap-hold $tap-time $hold-time bspc (layer-while-held helper)))
   Convert (multi f24 (tap-hold $tap-time $hold-time ret (layer-while-held helper)))
+  lsft IntlRo
   a (multi f24 (tap-hold $tap-time $hold-time a lmet))
   s (multi f24 (tap-hold $tap-time $hold-time s lalt))
   d (multi f24 (tap-hold $tap-time $hold-time d lsft))
   f (multi f24 (tap-hold $tap-time $hold-time f lctl))
+
   j (multi f24 (tap-hold $tap-time $hold-time j rctl))
   k (multi f24 (tap-hold $tap-time $hold-time k rsft))
   l (multi f24 (tap-hold $tap-time $hold-time l ralt))
@@ -45,33 +47,38 @@
 )
 
 (deflayermap (helper)
-  a S--
-  q S-1
+  a S-8
+  q S-[
   w S-2
-  e S-3
+  e S--
   r S-4
   t S-5
-  s S-6
+  s S-9
   d S-]
   f S-\
   g S-'
-  z S-8
-  x S-9
+  z S-1
+  x S-6
   c ]
   v \
   b S-0
 
   Convert tab
   NonConvert C-b
+
   h left
   j down
   k up
   l right
+  ; S-IntlRo
   ' S-7 
+  u -
   i S-,
   o S-.
-  u -
-  p S-[
+  p S-;
   n S-IntlYen
-  m S-IntlRo
+  m C-v
+  , C-c
+  . C-x
+  / C-z
 )

@@ -115,17 +115,13 @@
         ]
       },
       "locked": {
-        "lastModified": 1769981469,
-        "narHash": "sha256-ZDWy6iyqVuZbbW55gLmrvIyMk/ehdydSlT2KPNE92mw=",
-        "ref": "refs/heads/main",
-        "rev": "ff2e968d124dea23d8eed3a98a92d09cdfc208ee",
-        "revCount": 135,
-        "type": "git",
-        "url": "https://git.earthgman.dev/EarthGman/dotfiles"
+        "narHash": "sha256-37xn5simQM1KgAKnVXeri3d+/UBgYllPlAb2hggIbzY=",
+        "path": "/home/g/src/git/earthgman.dev/earthgman/dotfiles",
+        "type": "path"
       },
       "original": {
-        "type": "git",
-        "url": "https://git.earthgman.dev/EarthGman/dotfiles"
+        "path": "/home/g/src/git/earthgman.dev/earthgman/dotfiles",
+        "type": "path"
       }
     },
     "flake-compat": {
@@ -202,11 +198,11 @@
         "nixpkgs-lib": "nixpkgs-lib"
       },
       "locked": {
-        "lastModified": 1768135262,
-        "narHash": "sha256-PVvu7OqHBGWN16zSi6tEmPwwHQ4rLPU9Plvs8/1TUBY=",
+        "lastModified": 1769996383,
+        "narHash": "sha256-AnYjnFWgS49RlqX7LrC4uA+sCCDBj0Ry/WOJ5XWAsa0=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "80daad04eddbbf5a4d883996a73f3f542fa437ac",
+        "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
         "type": "github"
       },
       "original": {
@@ -468,11 +464,11 @@
     },
     "nixpkgs-lib": {
       "locked": {
-        "lastModified": 1765674936,
-        "narHash": "sha256-k00uTP4JNfmejrCLJOwdObYC9jHRrr/5M/a/8L2EIdo=",
+        "lastModified": 1769909678,
+        "narHash": "sha256-cBEymOf4/o3FD5AZnzC3J9hLbiZ+QDT/KDuyHXVJOpM=",
         "owner": "nix-community",
         "repo": "nixpkgs.lib",
-        "rev": "2075416fcb47225d9b68ac469a5c4801a9c4dd85",
+        "rev": "72716169fe93074c333e8d0173151350670b824c",
         "type": "github"
       },
       "original": {
