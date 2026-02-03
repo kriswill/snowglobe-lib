@@ -6,6 +6,8 @@
 # conceal identities of those enrolled for the checks
 REPOSITORIES=$(cat .secrets/repo-urls.txt)
 
+NIX_MODULES_DIR=~/src/git/earthgman.dev/earthgman/nix-modules
+
 y_or_n() {
 	while true; do
 		printf "%s [y/n]: " "$@"
@@ -64,6 +66,8 @@ check_configs() {
 		# return the flake to its original state
 		sed -i 's|/EarthGman/nix-modules?ref=dev|/EarthGman/nix-modules|' "$REPO_DIR/flake.nix"
 	done
+
+	cd "$NIX_MODULES_DIR"
 }
 
 main() {
