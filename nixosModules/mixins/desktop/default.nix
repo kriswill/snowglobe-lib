@@ -35,7 +35,6 @@ in
           # friendship ended with gnome
           # gnome.enable = (activeDesktop == "gnome");
           plasma.enable = (activeDesktop == "plasma");
-          sway.enable = (activeDesktop == "sway");
           hyprland.enable = (activeDesktop == "hyprland");
           niri.enable = (activeDesktop == "niri");
         };
