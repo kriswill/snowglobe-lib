@@ -33,7 +33,7 @@
       nh.enable = lib.mkDefault true;
 
       # patch for automatically setting the timezone based on your current geolocation through networkmanager
-      geolocation-timezones.enable = lib.mkDefault (
+      dynamic-timezone.enable = lib.mkDefault (
         config.networking.networkmanager.enable && config.time.timeZone == null
       );
 
