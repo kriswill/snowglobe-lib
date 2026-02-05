@@ -9,7 +9,6 @@ let
   package = pkgs.sddm-astronaut.override {
     inherit (cfg.config) themeConfig embeddedTheme;
   };
-
 in
 {
   options.gman.sddm = {

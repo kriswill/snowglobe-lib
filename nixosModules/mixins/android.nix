@@ -30,10 +30,6 @@ in
         ;
     };
 
-    # services.udev.packages = [
-    #   pkgs.android-udev-rules
-    # ];
-
     services.kdeconnect-indicator.enable = lib.mkDefault config.meta.desktop != "";
   };
 }

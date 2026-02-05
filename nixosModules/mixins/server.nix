@@ -17,13 +17,14 @@
           };
         };
       })
+      # use grub over systemd-boot for legacy bios implementations since systemd-boot is supported on UEFI only.
       (lib.mkIf (config.meta.bios == "legacy") {
         gman.grub.enable = true;
       })
       {
         gman = {
-          debloat.enable = true;
-          security-hardening.enable = true;
+          debloat-nixos.enable = true;
+          hardening.enable = true;
         };
 
         # remove emergency mode

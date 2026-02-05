@@ -52,6 +52,7 @@ in
     };
 
     environment = {
+      # needed for some scripts and applications
       systemPackages = [ pkgs.wl-clipboard ];
       plasma6.excludePackages = builtins.attrValues {
         inherit (pkgs.kdePackages)

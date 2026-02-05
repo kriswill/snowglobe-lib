@@ -20,7 +20,10 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # add to PATH
     environment.systemPackages = [ config.services.kanata.package ];
+    # ensure that the keyboard layout is configured with x and virtual consoles
+    services.xserver.xkb.layout = "jp";
     services.kanata = {
       enable = true;
       keyboards = {

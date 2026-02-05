@@ -83,8 +83,7 @@ in
         );
 
         gman = {
-          nix-development.enable = true;
-          # custom per-user instance of mpd for accessing that users Music directory
+          # custom per-user instance of mpd for accessing the users ~/Music directory
           mpd-user.enable = true;
         };
 

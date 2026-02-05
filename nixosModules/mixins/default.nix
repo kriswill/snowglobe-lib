@@ -74,17 +74,19 @@
     boot = {
       # use latest nixpkgs linux kernel by default
       kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+      # remove all temporary socket and cache files on boot
       tmp.cleanOnBoot = lib.mkDefault true;
       kernelParams = [
         "quiet"
       ];
       loader = {
         efi.canTouchEfiVariables = lib.mkDefault true;
+        # give the user more time to select configurations for slow monitors
         timeout = lib.mkDefault 10;
       };
     };
 
-    # ensure that kanata keymaps transfer to virtual console TTY
+    # sync xserver and console keymaps
     console.useXkbConfig = lib.mkDefault true;
 
     networking = {
@@ -126,30 +128,28 @@
     environment = {
       # link /bin/sh to dash instead of a weird bash shell
       binsh = lib.mkOverride 899 "${pkgs.dash}/bin/dash";
-      # install tools
-      systemPackages = [
-        pkgs.file
-        pkgs.zip
-      ];
+      # small tools
+      systemPackages = builtins.attrValues {
+        inherit (pkgs)
+          file
+          zip
+          # custom script for managing tmux sessions
+          tmux-helper
+          ;
+      };
     };
 
     programs = {
-      # program for viewing your nix configuration
-      nix-inspect.enable = lib.mkDefault true;
-
-      # declarative partitioning tool
-      disko.enable = lib.mkDefault true;
-
+      # modify default program option packages to better alternatives
       # better discord
       discord.package = lib.mkDefault pkgs.vesktop;
-
       # better firefox
       firefox.package = lib.mkDefault pkgs.librewolf;
-
       # password store otp plugin
       password-store.package = lib.mkDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
 
       # nice tools
+      disko.enable = lib.mkDefault true;
       ncdu.enable = lib.mkDefault true;
       fastfetch.enable = lib.mkDefault true;
       hstr.enable = lib.mkDefault true;
@@ -161,8 +161,15 @@
       zoxide.enable = lib.mkDefault true;
       btop.enable = lib.mkDefault true;
       sysz.enable = lib.mkDefault true;
+      # prefer custom modules for yazi, tmux, zsh and neovim.
+      # configuring these using nix is literal hell and the default options mess with your ability to customize them from your home directory
+      # instead, install a wrapped derivation that uses symlinkJoin to create a fully packaged and portable config.
+      # additionally you can just set these to pkgs.tmux, pkgs.yazi or whatever and it will fully respect your imperative configs in /etc and your home directory.
       yazi-custom.enable = lib.mkDefault true;
-      tmux-custom.enable = lib.mkDefault true;
+      tmux-custom = {
+        package = pkgs.gman.tmux;
+        enable = lib.mkDefault true;
+      };
       zsh-custom = {
         enable = lib.mkDefault true;
         package = lib.mkOverride 1337 pkgs.gman.zsh;
@@ -173,11 +180,11 @@
         vimAlias = lib.mkDefault true;
       };
       git.enable = lib.mkDefault true;
-      lazygit.enable = lib.mkDefault true;
+      lazygit.enable = lib.mkDefault config.programs.git.enable;
       ripgrep.enable = lib.mkDefault true;
+      bat.enable = lib.mkDefault true;
       # needed for basic nixos shell checks
       zsh.enable = lib.mkDefault true;
-      bat.enable = lib.mkDefault true;
     };
 
     services = {

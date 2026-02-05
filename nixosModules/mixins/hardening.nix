@@ -4,10 +4,10 @@
   ...
 }:
 let
-  cfg = config.gman.security-hardening;
+  cfg = config.gman.hardening;
 in
 {
-  options.gman.security-hardening = {
+  options.gman.hardening = {
     enable = lib.mkEnableOption "gman's linux hardening configuration";
   };
 

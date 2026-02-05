@@ -34,7 +34,6 @@ in
         };
 
         programs = {
-          steam-rom-manager.enable = lib.mkDefault true;
           lutris.enable = lib.mkDefault true;
           mangohud.enable = lib.mkDefault true;
           protonup.enable = lib.mkDefault true;

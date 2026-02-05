@@ -14,7 +14,7 @@ in
   imports = [ (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix") ];
 
   gman = {
-    debloat.enable = true;
+    debloat-nixos.enable = true;
     hardware-tools.enable = true;
     # remove nix helper as it goes unused during the install process
     nh.enable = false;
@@ -22,7 +22,7 @@ in
 
   hardware = {
     # To get drivers for various wireless devices
-    enableRedistributableFirmware = true;
+    enableRedistributableFirmware = lib.mkDefault true;
 
     # no need for these on an installer
     cpu.intel.updateMicrocode = false;
@@ -41,10 +41,14 @@ in
     systemPackages = [
       install-sh
       nixfmt-sh
-      pkgs.nixfmt
-      pkgs.sops
-      pkgs.age
-    ];
+    ]
+    ++ (builtins.attrValues {
+      inherit (pkgs)
+        nixfmt
+        sops
+        age
+        ;
+    });
 
     # these are not set properly on nixos by default for some reason
     sessionVariables = {

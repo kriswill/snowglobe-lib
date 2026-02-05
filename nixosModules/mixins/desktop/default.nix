@@ -9,12 +9,7 @@ let
   cfg = config.gman.desktop;
 
   defaultSession =
-    if (config.meta.desktop == "hyprland") then
-      "hyprland-uwsm"
-    else if (config.meta.desktop == "sway") then
-      "sway-uwsm"
-    else
-      config.meta.desktop;
+    if (config.meta.desktop == "hyprland") then "hyprland-uwsm" else config.meta.desktop;
 in
 {
   imports = lib.autoImport ./.;
