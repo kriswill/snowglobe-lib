@@ -38,12 +38,13 @@ in
         path = [ cfg.package ];
         wantedBy = [ "graphical-session-pre.target" ];
         serviceConfig = {
-          Type = "simple";
+          Type = "exec";
           ExecStart =
             "${cfg.package}/bin/batsignal "
             + lib.optionalString (cfg.flags != [ ]) (lib.concatStringsSep " " cfg.flags);
           # let the service fail if no battery is found
           Restart = "no";
+          Slice = "session.slice";
         };
         unitConfig = {
           After = "graphical-session-pre.target";

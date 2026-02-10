@@ -8,16 +8,16 @@
 }:
 let
   install-sh = pkgs.writeScriptBin "install.sh" (builtins.readFile ./install.sh);
-  nixfmt-sh = pkgs.writeScriptBin "nixfmt.sh" (builtins.readFile ../../mixins/nixfmt.sh);
+  nixfmt-sh = pkgs.writeScriptBin "nixfmt.sh" (builtins.readFile ../../lib/mixins/nixfmt.sh);
 in
 {
   imports = [ (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix") ];
 
   gman = {
-    debloat-nixos.enable = true;
     hardware-tools.enable = true;
     # remove nix helper as it goes unused during the install process
     nh.enable = false;
+    debloat-nixos.enable = lib.mkDefault true;
   };
 
   hardware = {
@@ -56,21 +56,25 @@ in
     };
 
     etc = {
-      # provide a comprhensive list of locales for the locale selector
-      "locales.txt".source = ../../mixins/locales.txt;
+      # provide a comprehensive list of locales for the locale selector
+      "locales.txt".source = ../../lib/mixins/locales.txt;
 
       # provide disko configurations for the installer
-      "disko/defaults/luks-legacy.nix".source = ../../mixins/disko/luks-legacy.nix;
-      "disko/defaults/luks-uefi.nix".source = ../../mixins/disko/luks-uefi.nix;
-      "disko/defaults/default-legacy.nix".source = ../../mixins/disko/default-legacy.nix;
-      "disko/defaults/default-uefi.nix".source = ../../mixins/disko/default-uefi.nix;
+      "disko/defaults/luks-legacy.nix".source = ../../lib/mixins/disko/luks-legacy.nix;
+      "disko/defaults/luks-uefi.nix".source = ../../lib/mixins/disko/luks-uefi.nix;
+      "disko/defaults/default-legacy.nix".source = ../../lib/mixins/disko/default-legacy.nix;
+      "disko/defaults/default-uefi.nix".source = ../../lib/mixins/disko/default-uefi.nix;
     };
   };
 
   # zsh will complain about no config file in the home directory
-  users.users.nixos.shell = pkgs.bash;
-
-  time.timeZone = "America/Chicago";
+  system.userActivationScripts = {
+    create-zshrc = ''
+      if [ ! -e "$HOME/.zshrc" ]; then
+        printf "#" >"$HOME/.zshrc"
+      fi
+    '';
+  };
 
   boot = {
     # disables zfs, bcachefs
@@ -98,8 +102,8 @@ in
     neovim-custom = {
       enable = true;
       defaultEditor = true;
-      vimAlias = false;
-      viAlias = false;
+      vimAlias = lib.mkDefault false;
+      viAlias = lib.mkDefault false;
       # custom build of neovim with only nix lsp
       package = pkgs.gman.nvim-nix;
     };

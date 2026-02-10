@@ -25,6 +25,7 @@ in
         wantedBy = [ "graphical-session.target" ];
         serviceConfig = {
           ExecStart = "${cfg.package}/bin/kanshi";
+          Slice = "app.slice";
         };
         unitConfig = {
           After = "graphical-session.target";

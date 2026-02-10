@@ -22,9 +22,12 @@ in
         path = [ cfg.package ];
         wantedBy = [ "graphical-session.target" ];
         serviceConfig = {
+          Type = "exec";
           ExecStart = "${cfg.package}/bin/kdeconnect-indicator";
           Restart = "on-failure";
           RestartSec = 5;
+          ExitType = "cgroup";
+          Slice = "app.slice";
         };
         unitConfig = {
           After = "graphical-session.target";

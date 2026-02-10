@@ -4,7 +4,7 @@
   ...
 }:
 {
-  # custom installer
+  # custom installers
   nixos-installer-x86_64 = lib.mkHost {
     hostname = "nixos-installer";
     system = "x86_64-linux";
@@ -17,6 +17,14 @@
     configDir = ./nixos-installer;
     # disable linux firmware as its extremely fat and not needed all of the time, especially for VMs
     extraModules = [ { hardware.enableRedistributableFirmware = lib.mkForce false; } ];
+  };
+
+  nixos-installer-x86_64-plus = lib.mkHost {
+    hostname = "nixos-installer";
+    system = "x86_64-linux";
+    configDir = ./nixos-installer;
+    desktop = "niri";
+    extraModules = [ ../nixosModules/extras/live-iso-plus.nix ];
   };
 
   nixos-installer-aarch64 = lib.mkHost {

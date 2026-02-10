@@ -23,14 +23,18 @@ in
       path = [ cfg.package ];
       wantedBy = [ "graphical-session.target" ];
       serviceConfig = {
-        Type = "simple";
+        Type = "exec";
         ExecStart = "${cfg.package}/libexec/hyprpolkitagent";
         Restart = "on-failure";
         RestartSec = 5;
+        Slice = "session.slice";
       };
       unitConfig = {
         After = "graphical-session.target";
-        ConditionEnvironment = "WAYLAND_DISPLAY";
+        ConditionEnvironment = [
+          "WAYLAND_DISPLAY"
+          "XDG_CURRENT_DESKTOP=Hyprland"
+        ];
         Description = "hyprland polkit agent";
         PartOf = "graphical-session.target";
       };

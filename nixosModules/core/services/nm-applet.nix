@@ -29,12 +29,17 @@ in
         path = [ cfg.package ];
         wantedBy = [ "graphical-session.target" ];
         serviceConfig = {
+          Type = "exec";
           ExecStart = "${cfg.package}/bin/nm-applet";
+          ExitType = "cgroup";
+          Restart = "on-failure";
+          RestartSec = 5;
         };
         unitConfig = {
           After = "graphical-session.target";
           Description = "network manager applet";
           PartOf = "graphical-session.target";
+          Slice = "app.slice";
         };
       };
     };

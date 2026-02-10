@@ -25,6 +25,9 @@ in
       # common printing configuration
       printing.enable = lib.mkDefault true;
 
+      # disable debloater
+      debloat-nixos.enable = false;
+
       # which desktop to enable
       # multiple desktops can be enabled at once but it is not recommended nor supported
       desktop =
@@ -99,7 +102,7 @@ in
 
     services = {
       # set the determined default session for the display manager
-      displayManager = {
+      displayManager = lib.mkIf config.services.displayManager.enable {
         inherit defaultSession;
       };
     };
@@ -115,9 +118,7 @@ in
       firefox.enable = lib.mkDefault true;
     };
 
-    # use sddm as default display manager, will change to gdm if gnome is the desktop
-    # my sddm config
-    gman.sddm.enable = lib.mkDefault true;
+    gman.display-manager.enable = lib.mkDefault true;
 
     # ensure xserver configuration is applied
     services.xserver = {

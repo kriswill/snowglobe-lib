@@ -33,6 +33,7 @@ in
             + lib.optionalString (cfg.flags != [ ]) (" " + (lib.concatStringsSep " " cfg.flags));
           Restart = "on-failure";
           RestartSec = 5;
+          Slice = "app.slice";
         };
         unitConfig = {
           After = "graphical-session.target";

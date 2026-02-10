@@ -31,12 +31,13 @@ in
         ];
         wantedBy = [ "graphical-session.target" ];
         serviceConfig = {
-          Type = "simple";
+          Type = "exec";
           ExecStart =
             "${cfg.package}/bin/swayidle "
             + lib.optionalString (cfg.flags != [ ]) (lib.concatStringsSep " " cfg.flags);
           Restart = "on-failure";
           RestartSec = 5;
+          Slice = "app.slice";
         };
         unitConfig = {
           After = "graphical-session.target";

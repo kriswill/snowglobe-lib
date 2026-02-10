@@ -14,30 +14,31 @@ in
     lib.mkMerge [
       (lib.mkIf (config.meta.desktop != "") {
         programs = {
-          # TODO: will not build, 1-12-2026
-          # ghidra.enable = lib.mkDefault true;
-          # burpsuite.enable = lib.mkDefault true;
-
+          ghidra.enable = lib.mkDefault true;
           john.package = lib.mkDefault pkgs.johnny;
           nmap.package = lib.mkDefault pkgs.zenmap;
-
-          wireshark.package = pkgs.wireshark; # install gui version if desktop is enabled
+          tor-browser.enable = lib.mkDefault true;
+          wireshark.package = lib.mkDefault pkgs.wireshark; # install gui version if desktop is enabled
         };
+        environment.systemPackages = lib.mkIf config.programs.nmap.enable [
+          # provide CLI with zenmap
+          pkgs.nmap
+        ];
       })
       {
         programs = {
-          tcpdump.enable = true;
-          lynx.enable = true;
-          binsider.enable = true;
+          tcpdump.enable = lib.mkDefault true;
+          metasploit.enable = lib.mkDefault true;
+          lynx.enable = lib.mkDefault true;
+          binsider.enable = lib.mkDefault true;
 
-          wireshark.enable = true;
-          nmap.enable = true;
+          wireshark.enable = lib.mkDefault true;
+          nmap.enable = lib.mkDefault true;
           john.enable = lib.mkDefault true;
         };
 
         environment.systemPackages = builtins.attrValues {
           inherit (pkgs)
-            gcc
             python3
             binutils
             busybox

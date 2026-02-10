@@ -8,8 +8,8 @@
 {
   imports = [ inputs.jovian-nixos.nixosModules.jovian ];
 
-  # remove sddm config
-  gman.sddm.enable = false;
+  # remove custom display-manager
+  gman.display-manager.enable = false;
 
   jovian = {
     steam = {

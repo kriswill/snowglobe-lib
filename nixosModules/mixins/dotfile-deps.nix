@@ -42,28 +42,23 @@ in
         # custom service patch for kde portal
         # services.xdg-desktop-portal-kde.enable = true;
 
-        environment.systemPackages = builtins.attrValues (
-          {
-            inherit (pkgs)
-              libnotify
-              brightnessctl
-              wl-clipboard
-              grim
-              slurp
-              swayidle
-              coreutils-full
-              findutils
-              xdg-utils
-              xdg-user-dirs
+        environment.systemPackages = builtins.attrValues ({
+          inherit (pkgs)
+            libnotify
+            brightnessctl
+            wl-clipboard
+            grim
+            slurp
+            swayidle
+            coreutils-full
+            findutils
+            xdg-utils
+            xdg-user-dirs
 
-              star-pixel-icons
-              ;
-          }
-          // {
-            # gets information regarding xwayland windows
-            inherit (pkgs.xorg) xwininfo;
-          }
-        );
+            star-pixel-icons
+            xwininfo
+            ;
+        });
 
         fonts.packages = builtins.attrValues (
           {
