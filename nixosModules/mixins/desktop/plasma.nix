@@ -39,46 +39,46 @@ in
             esac
           done
       '';
+    };
 
-      gman.display-manager.enable = false; # allow kde to use its own display-manager config
+    gman.display-manager.enable = false; # allow kde to use its own display-manager config
 
-      # make sure plasma can manage the QT configuration independent of nix
-      qt.platformTheme = lib.mkOverride 899 null;
-      qt.style = lib.mkOverride 899 null;
+    # make sure plasma can manage the QT configuration independent of nix
+    qt.platformTheme = lib.mkOverride 899 null;
+    qt.style = lib.mkOverride 899 null;
 
-      services = {
-        blueman.enable = false;
-        desktopManager.plasma6 = {
-          enable = true;
-        };
-
-        # ensure sddm is enabled
-        displayManager.sddm.enable = true;
+    services = {
+      blueman.enable = false;
+      desktopManager.plasma6 = {
+        enable = true;
       };
 
-      environment = {
-        # needed for some scripts and applications
-        systemPackages = [ pkgs.wl-clipboard ];
-        plasma6.excludePackages = builtins.attrValues {
-          inherit (pkgs.kdePackages)
-            elisa
-            khelpcenter
-            kinfocenter
-            ;
-        };
+      # ensure sddm is enabled
+      displayManager.sddm.enable = true;
+    };
+
+    environment = {
+      # needed for some scripts and applications
+      systemPackages = [ pkgs.wl-clipboard ];
+      plasma6.excludePackages = builtins.attrValues {
+        inherit (pkgs.kdePackages)
+          elisa
+          khelpcenter
+          kinfocenter
+          ;
       };
+    };
 
-      # plasma does not come with a calculator
-      programs = {
-        kalk.enable = true;
-        gnome-calculator.enable = lib.mkOverride 899 false;
+    # plasma does not come with a calculator
+    programs = {
+      kalk.enable = true;
+      gnome-calculator.enable = lib.mkOverride 899 false;
 
-        # disable the default gnome frontend in favor of KDE discover
-        gnome-software.enable = lib.mkOverride 899 false;
+      # disable the default gnome frontend in favor of KDE discover
+      gnome-software.enable = lib.mkOverride 899 false;
 
-        # disable pwvucontrol in favor of the default plasma volume control
-        pwvucontrol.enable = lib.mkOverride 899 false;
-      };
+      # disable pwvucontrol in favor of the default plasma volume control
+      pwvucontrol.enable = lib.mkOverride 899 false;
     };
   };
 }
