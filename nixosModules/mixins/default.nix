@@ -156,7 +156,7 @@
       # additionally you can just set these to pkgs.tmux, pkgs.yazi or whatever and it will fully respect your imperative configs in /etc and your home directory.
       yazi-custom.enable = lib.mkDefault true;
       tmux-custom = {
-        package = pkgs.gman.tmux;
+        package = lib.mkDefault pkgs.gman.tmux;
         enable = lib.mkDefault true;
       };
       zsh-custom = {
