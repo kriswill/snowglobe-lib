@@ -88,8 +88,13 @@ in
           selectdefaultapplication.enable = true;
           bat.enable = true;
           rofi.enable = true;
+          # remove fuzzel from niri configuration in favor of rofi
           fuzzel.enable = lib.mkOverride 899 false;
-          password-store.enable = true;
+          fzf.enable = lib.mkDefault true;
+          password-store = {
+            enable = true;
+            package = lib.mkDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
+          };
           # use git auth with pass
           pass-git-helper.enable = true;
           gnupg.agent = {
@@ -110,6 +115,7 @@ in
           waybar.enable = true;
 
           # optional programs
+          starship.enable = lib.mkDefault true;
           cava.enable = lib.mkDefault true;
           cmatrix.enable = lib.mkDefault true;
           cbonsai.enable = lib.mkDefault true;
@@ -123,27 +129,20 @@ in
           # favor neovim
           vim.enable = lib.mkOverride 0 false;
 
-          # install my personal configurations of the following
-          # you can override the .package option of these to be your own derivation or just pkgs.$name for imperative configuration.
-          # additionally you can just disable these in favor of the stock nixos module configuration approach.
           neovim-custom = {
             enable = lib.mkDefault true;
-            package = lib.mkDefault pkgs.gman.nvim;
             viAlias = true;
             vimAlias = true;
             defaultEditor = true;
           };
           yazi-custom = {
             enable = lib.mkDefault true;
-            package = lib.mkDefault pkgs.gman.yazi;
           };
           zsh-custom = {
             enable = lib.mkDefault true;
-            package = lib.mkOverride 899 pkgs.gman.zsh;
           };
           tmux-custom = {
             enable = lib.mkDefault true;
-            package = lib.mkDefault pkgs.gman.tmux;
           };
 
           # other good programs I use

@@ -11,26 +11,18 @@
   options.gman = {
     enable = lib.mkEnableOption "gman's nixos modules";
 
-    ssh-keys = lib.mkOption {
-      description = "gman's public ssh-keys";
-      type = lib.types.attrsOf lib.types.str;
-      default = { };
-    };
   };
 
   config = lib.mkIf config.gman.enable {
     gman = {
-      ssh-keys = {
-        g = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNRHd6NLt4Yd9y5Enu54fJ/a2VCrRgbvfMuom3zn5zg";
-        cypher = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPk0JEmiuM5xR5JlCjU7EdNVZlztCeXOHkTXKVsOKeW8";
-        think-one = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKIkw34vAW/O+Ev1kHG+aLpKxKANzUYGlm//EFELE+lA";
-      };
-
       # default mixins
       # use grub by default as it supports legacy bios
       grub.enable = lib.mkDefault true;
       # improved nixos rebuild
       nh.enable = lib.mkDefault true;
+
+      # secret storage
+      sops.enable = true;
 
       # patch for automatically setting the timezone based on your current geolocation through networkmanager
       dynamic-timezone.enable = lib.mkDefault (
@@ -41,7 +33,6 @@
       # see /modules/nixos/mixins/desktop.nix
       desktop.enable = (config.meta.desktop != "");
       # see /modules/nixos/mixins/sops.nix
-      sops.enable = true;
 
       server.enable = (config.meta.specialization == "server");
 
@@ -133,8 +124,6 @@
         inherit (pkgs)
           file
           zip
-          # custom script for managing tmux sessions
-          tmux-helper
           ;
       };
     };
@@ -146,7 +135,7 @@
       # better firefox
       firefox.package = lib.mkDefault pkgs.librewolf;
       # password store otp plugin
-      password-store.package = lib.mkDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
+      password-store.package = lib.mkOverride 899 (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
 
       # nice tools
       disko.enable = lib.mkDefault true;

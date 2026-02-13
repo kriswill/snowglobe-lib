@@ -27,6 +27,8 @@ in
       })
       {
         programs = {
+          hping.enable = lib.mkDefault true;
+          fping.enable = lib.mkDefault true;
           tcpdump.enable = lib.mkDefault true;
           metasploit.enable = lib.mkDefault true;
           lynx.enable = lib.mkDefault true;
