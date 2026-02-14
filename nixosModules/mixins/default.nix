@@ -44,6 +44,10 @@
       gpu.amd.enable = (config.meta.gpu == "amd");
     };
 
+    meta.ssh-keys = {
+      earthgman = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNRHd6NLt4Yd9y5Enu54fJ/a2VCrRgbvfMuom3zn5zg";
+    };
+
     nix.settings = {
       substituters = [
         "https://nix-store.earthgman.dev/"

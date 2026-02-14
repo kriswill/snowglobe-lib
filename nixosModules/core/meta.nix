@@ -60,5 +60,11 @@
       type = lib.types.str;
       default = "";
     };
+
+    ssh-keys = lib.mkOption {
+      description = "library of public ssh keys";
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+    };
   };
 }
