@@ -100,7 +100,6 @@ in
       neovim-customized.enable = true; # provides unconfigured pkgs.nvim by default
 
       # optional programs. Modify at your own risk.
-      ani-cli.enable = lib.setDefault true;
       awww = {
         enable = lib.setDefault true;
         systemd.enable = lib.setDefault true;
@@ -109,7 +108,6 @@ in
       firefox.enable = lib.setDefault true;
       gnome-calculator.enable = lib.setDefault true;
       gthumb.enable = lib.setDefault true;
-      hstr.enable = lib.setDefault true;
       kitty.enable = lib.setDefault true;
       nautilus.enable = lib.setDefault true;
       nwg-look.enable = lib.setDefault true;

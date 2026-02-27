@@ -1,4 +1,5 @@
-# install configs from https://git.earthgman.dev/earthgman/dotfiles for the root user
+# configure programs and their respective packages
+# install specific packages for root
 {
   pkgs,
   lib,
@@ -9,7 +10,6 @@ let
   cfg = config.earthgman.program-configs;
 in
 {
-
   options.earthgman.program-configs.enable = lib.mkEnableOption ''
     EarthGman's custom program configurations and package modifications
   '';
@@ -25,7 +25,9 @@ in
       nh.flake = lib.setDefault "/etc/nixos";
 
       neovim-customized = {
-        package = lib.setDefault pkgs.earthgman.neovim;
+        installGlobally = lib.setDefault false;
+        installForUsers = [ "root" ];
+        userPackages.root = lib.setDefault pkgs.earthgman.neovim-lite;
         defaultEditor = lib.setDefault true;
       };
 

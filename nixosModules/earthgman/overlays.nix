@@ -24,6 +24,7 @@ in
   config = {
     nixpkgs.overlays =
       let
+        # imported regardless of earthgman.enable, so just pray there are no conflicts
         requiredOverlays = builtins.attrValues {
           inherit (overlays)
             packages

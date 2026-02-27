@@ -16,7 +16,7 @@
   mkGraphicalService = import ./mkGraphicalService.nix { inherit lib; };
 
   # wrapper for lib.nixosSystem
-  mkHost = import ./mkHost.nix { inherit inputs outputs lib; };
+  mkNixosHost = import ./mkNixosHost.nix { inherit inputs outputs lib; };
 
   # lib.mkOverride function but with an even weaker value than lib.mkDefault
   setDefault = object: lib.mkOverride 1337 object;

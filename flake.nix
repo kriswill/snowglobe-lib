@@ -46,7 +46,7 @@
 
       overlays = import ./overlays { inherit inputs; };
 
-      nixosConfigurations = import ./nixosConfigurations { inherit lib inputs; };
+      nixosConfigurations = import ./nixosConfigurations { inherit lib; };
     };
 
   inputs = {

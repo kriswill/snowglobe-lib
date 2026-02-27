@@ -15,6 +15,7 @@ in
 lib.mkMerge [
   (lib.mkIf programcfg.installGlobally ({
     environment.systemPackages = [ programPackage ];
+    programs.${programName}.installForUsers = lib.mkForce [ ];
   }))
 
   (lib.mkIf (programcfg.installForUsers != [ ]) {

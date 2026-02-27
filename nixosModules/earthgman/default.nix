@@ -47,15 +47,35 @@
           zsh-syntax-highlighting-fix.enable = lib.setDefault true;
         };
 
+        # assert config for how the system will start
+        boot-config.enable = lib.setDefault true;
+
+        # enable gpu modules
+        gpu =
+          let
+            gpu-vendors = config.system.gpu-vendors;
+          in
+          {
+            amd.enable = builtins.elem "amd" gpu-vendors;
+            intel.enable = builtins.elem "intel" gpu-vendors;
+            nvidia.enable = builtins.elem "nvidia" gpu-vendors;
+          };
+
+        # extra caches
+        substituters = {
+          "nix-store.earthgman.dev".enable = lib.setDefault true;
+          "yazi.cachix.org".enable = lib.setDefault true;
+        };
+
+        # other stuff
         dynamic-timezone.enable = lib.setDefault (
           config.networking.networkmanager.enable && config.time.timeZone == null
         );
+        hardware-tools.enable = lib.setDefault true;
         headless-debloater.enable = lib.setDefault (!hasDesktop);
         desktop.enable = lib.setDefault hasDesktop;
         program-configs.enable = lib.setDefault true;
-        nix-cache.enable = lib.setDefault true;
         garbage-collector.enable = lib.setDefault true;
-        grub-config.enable = lib.setDefault true;
       };
 
     # populate public keyring (not present in nixpkgs. only used to hold data)
@@ -63,10 +83,14 @@
       ssh = {
         earthgman = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNRHd6NLt4Yd9y5Enu54fJ/a2VCrRgbvfMuom3zn5zg";
       };
-      substitutors = {
-        "nix-store.earthgman.dev" = config.earthgman.nix-cache.publicKey;
-        "yazi.cachix.org" = "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k=";
-      };
+      substitutors =
+        let
+          substituters = config.earthgman.substituters;
+        in
+        {
+          "nix-store.earthgman.dev" = substituters."nix-store.earthgman.dev".publicKey;
+          "yazi.cachix.org" = substituters."yazi.cachix.org".publicKey;
+        };
     };
 
     # patches from other repositories
@@ -77,16 +101,6 @@
 
     # core nixos modules
     # ------------------
-
-    # extra trusted caches
-    nix.settings = {
-      substituters = [
-        "https://yazi.cachix.org"
-      ];
-      trusted-public-keys = [
-        config.keyring.substitutors."yazi.cachix.org"
-      ];
-    };
 
     nix = {
       # prefer to use flakes as channels are basically deprecated at this point
@@ -109,7 +123,7 @@
     # remove nixos documentation
     documentation.nixos.enable = lib.setDefault false;
 
-    # enable the linux-firmware repository if we are not in a virtual machine
+    # enable the linux-firmware repository if not in a virtual machine
     # TODO only qemu is supported
     hardware.enableRedistributableFirmware = lib.setDefault (!config.system.isQemu);
 
@@ -127,8 +141,6 @@
       loader = {
         # allow the installer to change boot order / other important variables for UEFI systems
         efi.canTouchEfiVariables = lib.setDefault true;
-        # give the user more time to select configurations for slower monitors
-        timeout = lib.setDefault 10;
       };
     };
 
@@ -140,6 +152,11 @@
       # use dash as /bin/sh of choice
       # once again, override weights are hardcoded into nixpkgs
       binsh = lib.mkOverride 899 "${pkgs.dash}/bin/dash";
+
+      # these are not set properly on nixos by default for some reason
+      sessionVariables = {
+        SYSTEMD_KEYMAP_DIRECTORIES = lib.setDefault "${pkgs.kbd}/share/keymaps";
+      };
     };
 
     # make sure that the virtual console respects the keymap chosen in the installer
@@ -152,7 +169,7 @@
       nixos-rebuild-helper.enable = lib.setDefault true;
 
       # cat with colorized output
-      bat.enable = lib.setDefault true;
+      bat.enable = lib.setDefault config.programs.tmux.enable;
       # brightness control
       brightnessctl.enable = lib.setDefault true;
       # improved bash shell with plugin support
