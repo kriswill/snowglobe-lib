@@ -274,7 +274,7 @@ _format_disks() {
 			if [ "$LUKS" ]; then
 				SELECTED_DISKO_CONFIG="$DISKO_DEFAULTS_DIR/luks-legacy-ext4.nix"
 			else
-				SELECTED_DISKO_CONFIG="$DISKO_DEFAULTS_DIR/uefi-ext4.nix"
+				SELECTED_DISKO_CONFIG="$DISKO_DEFAULTS_DIR/legacy-ext4.nix"
 			fi
 			;;
 		*)

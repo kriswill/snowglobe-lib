@@ -51,6 +51,10 @@ in
 
     services = {
       blueman.enable = false;
+
+      # make sure sddm is enabled
+      displayManager.sddm.enable = true;
+
       desktopManager.plasma6 = {
         enable = true;
       };
