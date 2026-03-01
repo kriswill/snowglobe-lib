@@ -36,9 +36,9 @@ in
 
     # TODO nixos-facter?
     # enable bluetooth
-    hardware.bluetooth.enable = true;
+    hardware.bluetooth.enable = lib.setDefault true;
     # GTK gui
-    services.blueman.enable = true;
+    services.blueman.enable = lib.setDefault true;
 
     # add a virtual camera for obs
     boot.extraModulePackages = [

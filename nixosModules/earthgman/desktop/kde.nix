@@ -57,7 +57,6 @@ in
     };
 
     environment = {
-      # needed for some scripts and applications
       plasma6.excludePackages = builtins.attrValues {
         inherit (pkgs.kdePackages)
           elisa

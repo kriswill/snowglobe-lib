@@ -153,6 +153,15 @@ _install_nixos() {
 			exit 1
 		}
 	fi
+
+	exit 0
+}
+
+_mv_repo() {
+	for file in "$REPO_DIR"/*; do
+		mv "$file" "/mnt/etc/nixos"
+	done
+	rm -rf "$REPO_DIR"
 }
 
 _format_disks() {
@@ -305,34 +314,97 @@ _format_disks() {
 	_remove_password_file
 }
 
+_clone_repo() {
+	REPO_DIR=/tmp/nix-config
+	if [ -d "$REPO_DIR" ] && [ $(ls -A "$REPO_DIR") ]; then
+		printf "\nFiles were found in the repo destination directory: $REPO_DIR\n"
+		printf "This only occurs if a previous installation attempt was aborted before the files could be moved.\n"
+		y_or_n --msg="Clear the contents of $REPO_DIR and clone your repository again?" || return 0
+		rm -rf "$REPO_DIR"
+	fi
+
+	mkdir -p "$REPO_DIR"
+
+	while :; do
+		printf "Enter the url for your repository: "
+		read -r REPO_URL
+		git ls-remote "$REPO_URL" || {
+			printf "Could not pull repository, Either the url is invalid or you do not have access rights."
+			continue
+		}
+		break
+	done
+
+	git clone "$REPO_URL" --depth 1 "$REPO_DIR" || {
+		printf "\nSomething went wrong while pulling the repository\n"
+		exit 1
+	}
+}
+
 # main
-# if [ "$(whoami)" != "root" ]; then
-# 	printf "You must be root.\n"
-# 	exit 1
-# fi
-#
-# # sometimes the nix daemon may not be running
-# if ! systemctl is-active nix-daemon >/dev/null; then
-# 	systemctl start nix-daemon
-# fi
-#
-# # make sure we are connected to the internet
-# while ! curl -s ifconfig.me >/dev/null; do
-# 	y_or_n --msg="No internet connection detected. Connect Now?" --default="yes" && nmtui
-# done
-#
-# printf "\nIf you have used this installer before, you might have already created a configuration for this host.\n"
-# printf "In this case, assuming you have read access to the remote repository, you can skip directly to the installation phase.\n"
-# printf "This mode can also be used to repair your system if somehow it cannot boot, even after a rollback.\n"
-# y_or_n --msg="Install an existing configuration?" --default="no" && {
-# 	printf "TODO: existing config\n"
-# 	# install_existing_config
-# 	# post_install
-# }
-#
-# printf "\nIf you have used this installer before, you should have an exiting configuration repository.\n"
-# printf "If you wish, the installer allows you to seamlessly integrate your new configuration with the rest of your NixOS hosts and modules.\n"
-# y_or_n --msg="Append to your existing repository?" --default="no" && APPEND_MODE=true
+if [ "$(whoami)" != "root" ]; then
+	printf "You must be root.\n"
+	exit 1
+fi
+
+# sometimes the nix daemon may not be running
+if ! systemctl is-active nix-daemon >/dev/null; then
+	systemctl start nix-daemon
+fi
+
+# make sure we are connected to the internet
+while ! curl -s ifconfig.me >/dev/null; do
+	y_or_n --msg="No internet connection detected. Connect Now?" --default="yes" && nmtui
+done
+
+printf "\nIf you have used this installer before, you might have already created a configuration for this host.\n"
+printf "In this case, assuming you have read access to the remote repository, you can skip directly to the installation phase.\n"
+printf "This mode can also be used to repair your system if somehow it cannot boot, even after a rollback.\n"
+y_or_n --msg="Install an existing configuration?" --default="no" && {
+	_clone_repo
+	CONFIGURATIONS="$(nix eval $REPO_DIR'#'nixosConfigurations --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"')"
+	# TODO creates one extra newline for some reason
+	HOSTNAME=$(printf "%s" "$CONFIGURATIONS" | tr ' ' '\n' | fzf)
+	if [ -z "$HOSTNAME" ]; then
+		printf "No host was selected.\n"
+		exit 0
+	fi
+
+	_format_disks
+
+	mkdir -p /mnt/etc/nixos
+
+	_mv_repo
+	_get_hardware_config
+
+	printf "\nchecking configuration\n"
+	if [ "$(nix eval /mnt/etc/nixos'#'nixosConfigurations."$HOSTNAME".config.sops.secrets)" != "{ }" ]; then
+		SOPS_KEYFILE="$(nix eval /mnt/etc/nixos'#'nixosConfigurations."$HOSTNAME".config.sops.age.keyFile | tr -d '"')"
+		if [ ! -e "/mnt$SOPS_KEYFILE" ]; then
+			printf "\nDetected sops secrets from this configuration.\n"
+			printf "You will need to imperatively place your private age key file at /mnt%s before you continue\n" "$SOPS_KEYFILE"
+			printf "Press any key to continue..."
+			read -r some_key
+			unset some_key
+		fi
+
+		while [ ! -e "/mnt$SOPS_KEYFILE" ]; do
+			printf "Keyfile not found.\nEnsure the file is present in /mnt%s before you continue.\n" "$SOPS_KEYFILE"
+			printf "Press any key to continue..."
+			read -r some_key
+		done
+		unset some_key
+	fi
+
+	printf "\nChecks complete. No further action needed.\n"
+	printf "Installing now.\n"
+
+	_install_nixos
+}
+
+printf "\nIf you have used this installer before, you should have an exiting configuration repository.\n"
+printf "If you wish, the installer allows you to seamlessly integrate your new configuration with the rest of your NixOS hosts and modules.\n"
+y_or_n --msg="Append to your existing repository?" --default="no" && APPEND_MODE=true
 
 # detect hardware
 if [ -d /sys/firmware/efi ]; then
@@ -590,6 +662,14 @@ if [ -z "$APPEND_MODE" ]; then
 			# ghostty-git = inputs.ghostty.overlays.default;
 		}" | install -D /dev/stdin "$CONFIG_ROOT/overlays/default.nix"
 else
+	if [ -z "$REPO_DIR" ]; then
+		printf "Error: Repo not found but append mode was sepcified, this is a bug.\n"
+		exit 1
+	fi
+
+	# get the repo into place
+	_mv_repo
+
 	# when appending, if a config for that hostname already exists, replace it
 	if [ -d "$HOST_CONFIG_DIR" ]; then
 		rm -rf "$HOST_CONFIG_DIR"
@@ -858,7 +938,4 @@ printf "\n}" >>"$HOSTS_CONFIG_FILE"
 _get_hardware_config
 nixfmt.sh "$CONFIG_ROOT"
 
-_install_nixos || {
-	printf "Could not install NixOS.\n"
-	exit 1
-}
+_install_nixos
