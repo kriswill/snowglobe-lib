@@ -25,7 +25,6 @@ in
       nh.flake = lib.setDefault "/etc/nixos";
 
       neovim-customized = {
-        installGlobally = lib.setDefault false;
         installForUsers = [ "root" ];
         userPackages.root = lib.setDefault pkgs.earthgman.neovim-lite;
         defaultEditor = lib.setDefault true;
