@@ -26,10 +26,11 @@ in
         # Fix symlinks in /home/user/Desktop
         DESKTOP_DIR="$HOME/Desktop"
         for file in "$DESKTOP_DIR"/*; do
+          FILE_NAME=$(printf "$file" | rev | cut -d/ -f1 | rev)
           case "$(readlink "$file")" in
             "/nix/store"*)
               rm "$file"
-              ln -s "/run/current-system/sw/share/applications/$file" "$file"
+              ln -s "/run/current-system/sw/share/applications/$FILE_NAME" "$file"
               ;;
             *)
               continue
