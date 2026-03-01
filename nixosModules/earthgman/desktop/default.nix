@@ -21,6 +21,9 @@ in
 
       printing-config.enable = lib.setDefault true;
 
+      # allow imperative installation for sandboxed applications
+      flatpak-config.enable = lib.setDefault true;
+
       desktop =
         let
           activeDesktop = config.system.desktop;
@@ -41,12 +44,7 @@ in
       config.boot.kernelPackages.v4l2loopback
     ];
 
-    # allow imperative installation for sandboxed applications
-    services.flatpak.enable = lib.setDefault true;
-
     programs = {
-      # frontend to flatpak
-      gnome-software.enable = lib.setDefault config.services.flatpak.enable;
       # gtk and gnome software database
       dconf.enable = lib.setDefault true;
       # frontend to manage dconf
