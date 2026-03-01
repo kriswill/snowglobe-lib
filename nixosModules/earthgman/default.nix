@@ -77,6 +77,7 @@
         desktop.enable = lib.setDefault hasDesktop;
         program-configs.enable = lib.setDefault true;
         garbage-collector.enable = lib.setDefault true;
+        sops-config.enable = lib.setDefault true;
       };
 
     # populate public keyring (not present in nixpkgs. only used to hold data)

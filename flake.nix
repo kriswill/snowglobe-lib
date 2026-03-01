@@ -49,7 +49,7 @@
       nixosConfigurations = import ./nixosConfigurations { inherit lib; };
 
       devShells = lib.genAttrs supportedSystems (system: {
-        default = import ./devshells { pkgs = nixpkgs.legacyPackages.${system}; };
+        default = import ./devShells { pkgs = nixpkgs.legacyPackages.${system}; };
       });
     };
 
