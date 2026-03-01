@@ -30,6 +30,7 @@ in
         in
         {
           niri.enable = (activeDesktop == "niri");
+          kde.enable = (activeDesktop == "kde");
         };
     };
 
