@@ -56,12 +56,22 @@ in
   };
 
   # zsh will complain about no config file in the home directory
-  system.userActivationScripts = {
-    create-zshrc = ''
-      if [ ! -e "$HOME/.zshrc" ]; then
-        printf "#" >"$HOME/.zshrc"
-      fi
-    '';
+  system = {
+    userActivationScripts = {
+      create-zshrc = ''
+        if [ ! -e "$HOME/.zshrc" ]; then
+          printf "#" >"$HOME/.zshrc"
+        fi
+      '';
+    };
+    # determinate nixd is not started for some reason?
+    activationScripts = {
+      start-nix-daemon = ''
+        if ! systemctl is-active nix-daemon; then
+          systemctl start nix-daemon
+        fi
+      '';
+    };
   };
 
   boot = {

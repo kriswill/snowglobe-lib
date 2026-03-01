@@ -93,6 +93,7 @@ in
         enable = true;
         systemd.enable = true;
       };
+      zsh.enable = true;
 
       # TODO figure out how to replace programs.neovim so I can use that for custom packages
       neovim.enable = lib.mkForce false;

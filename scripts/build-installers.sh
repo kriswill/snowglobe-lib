@@ -40,4 +40,3 @@ for image in $INSTALLERS; do
 	scp "$ISO_DEST_PATH" "$HASH_DEST_PATH"".gpg" "root@$WEBSITE_IP:/srv/binaries"
 	rm "$HASH_DEST_PATH"
 done
-

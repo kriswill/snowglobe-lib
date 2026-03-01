@@ -4,9 +4,7 @@
 # additionally it will ensure all packages are cached, preventing local builds for these hosts.
 
 # conceal identities of those enrolled for the checks
-REPOSITORIES=$(cat .secrets/repo-urls.txt)
-
-NIX_MODULES_DIR=~/src/git/earthgman.dev/earthgman/nix-modules
+REPOSITORIES=$(cat "$PROJECT_ROOT/.secrets/repo-urls.txt")
 
 y_or_n() {
 	while true; do
@@ -81,7 +79,7 @@ for repo in $REPOSITORIES; do
 	sed -i 's|/EarthGman/nix-modules?ref=dev|/EarthGman/nix-modules|' "$REPO_DIR/flake.nix"
 done
 
-cd "$NIX_MODULES_DIR" || exit 1
+cd "$PROJECT_ROOT" || exit 1
 
 notify-send -a "nix-modules-CI" "ci.sh" "Configuration Checks successful\!"
 
@@ -96,4 +94,3 @@ y_or_n "Configuration checks successful, merge into main?" && {
 }
 
 exit 0
-

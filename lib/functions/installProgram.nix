@@ -15,13 +15,14 @@ in
 lib.mkMerge [
   (lib.mkIf programcfg.installGlobally ({
     environment.systemPackages = [ programPackage ];
-    programs.${programName}.installForUsers = lib.mkForce [ ];
   }))
 
   (lib.mkIf (programcfg.installForUsers != [ ]) {
-    programs.${programName}.userPackages = (
-      lib.genAttrs programcfg.installForUsers (username: lib.mkOverride 1350 programPackage)
-    );
+    programs.${programName} = {
+      userPackages = (
+        lib.genAttrs programcfg.installForUsers (username: lib.mkOverride 1350 programPackage)
+      );
+    };
     users.users = (
       lib.genAttrs programcfg.installForUsers (
         username:

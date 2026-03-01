@@ -23,27 +23,13 @@ in
     lib.installProgram {
       inherit programName config;
       extraModules = {
-        systemd.user.services.syncthingtray = lib.mkIf (cfg.systemd.enable) {
-          wantedBy = [ "graphical-session.target" ];
-          serviceConfig = {
-            Type = "exec";
-            # required to wait for a tray to bind to
-            ExecStart = "${cfg.package}/bin/syncthingtray --wait";
-            Restart = "on-failure";
-            ExitType = "cgroup";
-            RestartSec = 5;
-            Slice = "app.slice";
-          };
-          unitConfig = {
-            Requisite = [
-              "syncthing.service"
-              "graphical-session.target"
-            ];
-            After = "graphical-session.target";
-            Description = "syncthing tray";
-            PartOf = "graphical-session.target";
-          };
-        };
+        systemd.user.services.syncthingtray = lib.mkIf (cfg.systemd.enable) (
+          lib.mkGraphicalService {
+            serviceName = "syncthingtray";
+            programArgs = [ "--wait" ];
+            package = cfg.package;
+          }
+        );
       };
     }
   );

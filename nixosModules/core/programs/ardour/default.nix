@@ -5,15 +5,15 @@
   ...
 }:
 let
-  programName = "gcolor";
+  programName = "ardour";
   cfg = config.programs.${programName};
 in
 {
   options.programs.${programName} = lib.mkProgramOption {
-    description = "color picker written in gtk";
-    programName = programName;
-    packageName = "gcolor3";
     inherit pkgs;
+    description = "open source DAW written in GTK";
+    programName = programName;
+    packageName = programName;
   };
 
   config = lib.mkIf cfg.enable (

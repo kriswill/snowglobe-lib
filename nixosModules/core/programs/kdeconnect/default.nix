@@ -27,7 +27,7 @@ in
     lib.installProgram {
       inherit programName config;
       extraModules = {
-        systemd.user.services.kdeconnect-indicator = lib.mkIf (cfg.indicatorApplet.enable) (
+        systemd.user.services.kdeconnect-indicator = lib.mkIf (cfg.trayApplet.enable) (
           lib.mkGraphicalService {
             serviceName = "kdeconnect-indicator";
             package = cfg.package;

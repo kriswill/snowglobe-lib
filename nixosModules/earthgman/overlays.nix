@@ -12,6 +12,7 @@ in
   options.earthgman.overlays = {
     awww-git.enable = lib.mkEnableOption "rolling release for awww";
     nh-git.enable = lib.mkEnableOption "rolling release for nix helper";
+    disko-git.enable = lib.mkEnableOption "rolling release for disko";
     niri-git.enable = lib.mkEnableOption "rolling release for niri";
     prismlauncher-git.enable = lib.mkEnableOption "rolling release for prismlauncher";
     yazi-git.enable = lib.mkEnableOption "rolling release for yazi";

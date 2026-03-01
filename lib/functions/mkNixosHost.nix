@@ -12,13 +12,13 @@ in
   desktop ? null, # desktop environment?
   sopsFile ? null,
   stateVersion ? "26.05", # initial release of nixos which this machine was installed
-  arch ? "x86_64-linux", # target cpu architecture
+  system ? "x86_64-linux", # target cpu architecture
   modules ? [ ], # send extra modules to the function
   specialArgs ? { }, # send extra special arguments to the function
   configuration ? null, # path to the directory containing this hosts configuration
 }:
 lib.nixosSystem {
-  system = arch; # used for legacy nixos < 22.05, but it doesn't hurt to have it here
+  inherit system; # used for legacy nixos < 22.05, but it doesn't hurt to have it here
   specialArgs = {
     # apply custom lib functions
     inherit lib;
@@ -45,6 +45,7 @@ lib.nixosSystem {
         # populate system options with hardware specific config
         system = {
           name = hostname;
+          arch = system;
           inherit
             stateVersion
             cpu-vendor
@@ -52,7 +53,6 @@ lib.nixosSystem {
             isQemu
             desktop
             firmware
-            arch
             ;
         };
       }

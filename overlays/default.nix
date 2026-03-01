@@ -4,6 +4,10 @@
 
   helper-scripts = inputs.dotfiles.overlays.scripts;
 
+  disko-git = final: prev: {
+    disko = inputs.disko.packages.${prev.stdenv.hostPlatform.system}.default;
+  };
+
   packages =
     final: prev:
     import ../packages {

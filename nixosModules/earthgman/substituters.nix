@@ -35,7 +35,7 @@ in
     (lib.mkIf (cfg."nix-store.earthgman.dev".enable) {
       nix.settings = {
         substituters = [ "https://nix-store.earthgman.dev" ];
-        trusted-public-keys = [ cfg.publicKey ];
+        trusted-public-keys = [ cfg."nix-store.earthgman.dev".publicKey ];
       };
     })
     (lib.mkIf (cfg."yazi.cachix.org".enable) {

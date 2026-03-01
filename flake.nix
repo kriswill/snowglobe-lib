@@ -47,6 +47,10 @@
       overlays = import ./overlays { inherit inputs; };
 
       nixosConfigurations = import ./nixosConfigurations { inherit lib; };
+
+      devShells = lib.genAttrs supportedSystems (system: {
+        default = import ./devshells { pkgs = nixpkgs.legacyPackages.${system}; };
+      });
     };
 
   inputs = {
@@ -72,6 +76,11 @@
 
     disko = {
       url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    jovian-nixos = {
+      url = "github:Jovian-Experiments/Jovian-NixOS";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

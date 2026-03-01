@@ -14,7 +14,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    boot.kernelPackages = pkgs.linuxPackages_hardened;
+    # boot.kernelPackages = pkgs.linuxPackages_hardened;
     # enable firewall and prevent the ping of death
     networking.firewall = {
       enable = true;

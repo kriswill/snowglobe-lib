@@ -14,8 +14,11 @@ in
 
   config = lib.mkIf cfg.enable {
     earthgman = {
+      # uses sddm with astronaut qt6 theme
       display-manager.enable = lib.setDefault true;
+      # sound server
       pipewire-config.enable = lib.setDefault true;
+
       printing-config.enable = lib.setDefault true;
 
       desktop =
@@ -26,6 +29,12 @@ in
           niri.enable = (activeDesktop == "niri");
         };
     };
+
+    # TODO nixos-facter?
+    # enable bluetooth
+    hardware.bluetooth.enable = true;
+    # GTK gui
+    services.blueman.enable = true;
 
     # add a virtual camera for obs
     boot.extraModulePackages = [
@@ -49,7 +58,6 @@ in
     environment.systemPackages = builtins.attrValues {
       inherit (pkgs)
         # ensure a fully functional cursor and icon theme are installed
-        # adwaita-cursors
         adwaita-icon-theme
 
         # extra stuff
@@ -76,6 +84,7 @@ in
 
     hardware.graphics = {
       enable = true;
+      # 32 bit support doesn't exist on other arches
       enable32Bit = lib.mkIf ((builtins.substring 0 3 config.nixpkgs.hostPlatform.system) == "x86") (
         lib.setDefault true
       );
