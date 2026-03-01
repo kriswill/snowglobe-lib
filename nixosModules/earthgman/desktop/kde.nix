@@ -52,6 +52,8 @@ in
     services = {
       blueman.enable = false;
 
+      flatpak.enable = lib.setDefault true;
+
       # make sure sddm is enabled
       displayManager.sddm.enable = true;
 
