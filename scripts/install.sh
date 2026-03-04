@@ -820,51 +820,28 @@ while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 		continue
 	fi
 
-	y_or_n --msg="Set a password for this user?" --default="yes" && {
-		# set PASSWORD to some gibberish so the loop can be entered
-		PASSWORD="bob"
-		while [ "$PASSWORD" != "$PASSWORD2" ]; do
-			unset PASSWORD
-			while [ -z "$PASSWORD" ]; do
-				printf "Password: "
-				stty -echo
-				read -r PASSWORD
-				stty "$stty_default"
-				if [ -z "$PASSWORD" ]; then
-					printf "Password cannot be empty.\n"
-				fi
-			done
-			printf "\nRe-type Password: "
+	# TODO make optional and add openssh keys
+	# set PASSWORD to some gibberish so the loop can be entered
+	PASSWORD="bob"
+	while [ "$PASSWORD" != "$PASSWORD2" ]; do
+		unset PASSWORD
+		while [ -z "$PASSWORD" ]; do
+			printf "Password: "
 			stty -echo
-			read -r PASSWORD2
+			read -r PASSWORD
 			stty "$stty_default"
-			if [ "$PASSWORD" != "$PASSWORD2" ]; then
-				printf "\n\nPasswords do not match! Try again.\n"
+			if [ -z "$PASSWORD" ]; then
+				printf "Password cannot be empty.\n"
 			fi
 		done
-	}
-
-	SSH_KEYS=""
-	y_or_n --msg="Add a public SSH key for authentication over openssh?" --default="no" && {
-		while :; do
-			while [ -z "$SSH_KEY" ]; do
-				printf "Enter your public SSH key: "
-				read -r SSH_KEY
-				if [ -z "$SSH_KEY" ]; then
-					y_or_n --msg="You did not enter an ssh key. Skip this step?" --default="no" || break
-				fi
-			done
-			if [ -n "$SSH_KEY" ]; then
-				# TODO load key into list
-				SSH_KEYS="$SSH_KEYS""$SSH_KEY "
-				unset SSH_KEY
-				y_or_n --msg="Key added. Do you wish to add another key?" && continue
-			fi
-			break
-		done
-	}
-
-	printf "\n"
+		printf "\nRe-type Password: "
+		stty -echo
+		read -r PASSWORD2
+		stty "$stty_default"
+		if [ "$PASSWORD" != "$PASSWORD2" ]; then
+			printf "\n\nPasswords do not match! Try again.\n"
+		fi
+	done
 
 	if [ "$USERNAME" != "root" ]; then
 		NORMAL_USER=true
@@ -889,15 +866,6 @@ while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 	if [ "$NORMAL_USER" ]; then
 		printf "isNormalUser = true;\n" >>"$USER_CONFIG_DIR/default.nix"
 	fi
-
-	# TODO
-	# if [ -n "$SSH_KEYS" ]; then
-	# 	# add ssh keys your nixosModules keyring if it is not present
-	# 	printf ""
-	# 	printf "%s" "$SSH_KEYS" | tr ' ' '\n' | while read -r key do;
-	#
-	# done
-	# fi
 
 	EXTRAGROUPS=''
 	if [ "$WHEEL" ]; then
