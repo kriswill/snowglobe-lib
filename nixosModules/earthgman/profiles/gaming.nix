@@ -6,10 +6,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.gaming;
+  cfg = config.earthgman.profiles.gaming;
 in
 {
-  options.earthgman.gaming = {
+  options.earthgman.profiles.gaming = {
     enable = lib.mkEnableOption "utilities for that OOB Linux gaming experience";
   };
 
@@ -26,11 +26,6 @@ in
           xone.enable = lib.setDefault true;
         };
 
-        earthgman = {
-          # do some hardware benchmarking
-          hardware-tools.enable = lib.setDefault true;
-        };
-
         programs = {
           # emulators
           dolphin-emu.enable = lib.setDefault true;
@@ -45,6 +40,9 @@ in
 
           # install proton versions
           protonup-qt.enable = lib.setDefault true;
+
+          # autoclicker (this works in wayland as most games run in xwayland)
+          xclicker.enable = lib.setDefault true;
 
           # proprietary garbage, but required :(
           steam = {

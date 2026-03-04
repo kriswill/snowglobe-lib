@@ -5,15 +5,15 @@
   ...
 }:
 let
-  programName = "moonlight";
+  programName = "zenmap";
   cfg = config.programs.${programName};
 in
 {
   options.programs.${programName} = lib.mkProgramOption {
-    description = "Game streaming client for lizardbyte sunshine";
-    programName = programName;
-    packageName = "moonlight-qt";
     inherit pkgs;
+    description = "GUI for nmap";
+    programName = programName;
+    packageName = programName;
   };
 
   config = lib.mkIf cfg.enable (

@@ -44,8 +44,11 @@ in
         xdg-user-dirs
         xwininfo
         mpd
+        # TODO
+        waybar
         star-pixel-icons
         adw-gtk3
+        bibata-cursors
         ;
     });
 
@@ -105,12 +108,17 @@ in
         enable = lib.setDefault true;
         systemd.enable = lib.setDefault true;
       };
+      # pdf viewer
       evince.enable = lib.setDefault true;
+      # web browser
       firefox.enable = lib.setDefault true;
       gnome-calculator.enable = lib.setDefault true;
+      # image viewer
       gthumb.enable = lib.setDefault true;
       kitty.enable = lib.setDefault true;
+      # file manager
       nautilus.enable = lib.setDefault true;
+      # gtk theme manager
       nwg-look.enable = lib.setDefault true;
       qutebrowser.enable = lib.setDefault true;
       rmpc.enable = lib.setDefault true;
@@ -120,9 +128,11 @@ in
       # https://github.com/cruegge/pam-gnupg
       swaylock.enable = lib.setDefault true;
       tmux.enable = lib.setDefault true;
+      # media player
       vlc.enable = lib.setDefault true;
-      waybar.enable = lib.setDefault true;
+      # waybar.enable = lib.setDefault true;
       yazi.enable = lib.setDefault true;
+      # required for rmpc to download youtube videos
       yt-dlp.enable = lib.setDefault true;
     };
   };

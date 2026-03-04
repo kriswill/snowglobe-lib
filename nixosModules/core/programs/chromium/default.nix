@@ -5,15 +5,15 @@
   ...
 }:
 let
-  programName = "nixos-generators";
+  programName = "chromium";
   cfg = config.programs.${programName};
 in
 {
   options.programs.${programName} = lib.mkProgramOption {
     inherit pkgs;
-    description = "generate NixOS images";
     programName = programName;
     packageName = programName;
+    excludedOptions = [ "enable" ];
   };
 
   config = lib.mkIf cfg.enable (

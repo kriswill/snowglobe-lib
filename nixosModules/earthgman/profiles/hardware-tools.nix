@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.hardware-tools;
+  cfg = config.earthgman.profiles.hardware-tools;
 in
 {
-  options.earthgman.hardware-tools.enable = lib.mkEnableOption "hardware diagnostic tools";
+  options.earthgman.profiles.hardware-tools.enable = lib.mkEnableOption "hardware diagnostic tools";
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {

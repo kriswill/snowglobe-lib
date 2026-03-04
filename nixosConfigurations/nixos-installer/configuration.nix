@@ -6,7 +6,7 @@
   ...
 }:
 let
-  install-sh = pkgs.writeScriptBin "install.sh" (builtins.readFile ./install.sh);
+  install-sh = pkgs.writeScriptBin "install.sh" (builtins.readFile ../../scripts/install.sh);
   nixfmt-sh = pkgs.writeScriptBin "nixfmt.sh" (builtins.readFile ../../scripts/nixfmt.sh);
 in
 {

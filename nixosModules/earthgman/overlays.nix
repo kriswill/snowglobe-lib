@@ -14,6 +14,7 @@ in
     nh-git.enable = lib.mkEnableOption "rolling release for nix helper";
     disko-git.enable = lib.mkEnableOption "rolling release for disko";
     niri-git.enable = lib.mkEnableOption "rolling release for niri";
+    nixos-anywhere-git.enable = lib.mkEnableOption "rolling release for nixos-anywhere";
     prismlauncher-git.enable = lib.mkEnableOption "rolling release for prismlauncher";
     yazi-git.enable = lib.mkEnableOption "rolling release for yazi";
     zsh-syntax-highlighting-fix.enable = lib.mkEnableOption ''

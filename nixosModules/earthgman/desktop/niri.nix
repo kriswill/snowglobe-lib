@@ -28,6 +28,12 @@ in
         systemd.enable = lib.setDefault true;
       };
 
+      # low battery notifier for laptops
+      batsignal = {
+        enable = lib.setDefault true;
+        systemd.enable = lib.setDefault true;
+      };
+
       # default terminal
       alacritty.enable = lib.setDefault true;
 
@@ -36,6 +42,9 @@ in
 
       # file manager
       nautilus.enable = lib.setDefault config.programs.niri.useNautilus;
+
+      # blue light filter
+      sunsetr.enable = lib.setDefault true;
 
       networkmanagerapplet.enable = true;
 

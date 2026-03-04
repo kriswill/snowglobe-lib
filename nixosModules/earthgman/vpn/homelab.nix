@@ -36,16 +36,9 @@ in
             # this fixes a weird bug where the endpoint gets transformed to a local ip address if you are within the same LAN as the vpn server
             # It will be unable to return to its original state unless manually restarted
             source = pkgs.writeText "wireguard-hook" ''
-              case "$1" in
-                "en"* | "wl"*)
-                  if [ "$2" = "connectivity-change" ]; then
-                    systemctl restart wg-quick-homelab
-                  fi
-                  ;;
-                *)
-                  exit 0
-                  ;;
-              esac
+              if [ "$2" = "connectivity-change" ]; then
+                systemctl restart wg-quick-homelab
+              fi
             '';
           }
         ];

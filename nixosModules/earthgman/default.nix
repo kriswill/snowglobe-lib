@@ -15,6 +15,7 @@
     # core module modifications from nixpkgs
     ../core
 
+    # special case for overlays where outputs needs to be explicitly provided
     (import ./overlays.nix { inherit outputs lib config; })
     # improved nix-daemon
     inputs.determinate.nixosModules.default
@@ -31,7 +32,6 @@
   config = lib.mkIf config.earthgman.enable {
     # my custom patches and configs
     # -----------------------------
-
     earthgman =
       let
         hasDesktop = (!(config.system.desktop == null));
@@ -43,12 +43,13 @@
           nh-git.enable = lib.setDefault true;
           disko-git.enable = lib.setDefault true;
           niri-git.enable = lib.setDefault true;
+          nixos-anywhere-git.enable = lib.setDefault true;
           prismlauncher-git.enable = lib.setDefault true;
           yazi-git.enable = lib.setDefault true;
           zsh-syntax-highlighting-fix.enable = lib.setDefault true;
         };
 
-        # assert config for how the system will start
+        # config for how the system will start
         boot-config.enable = lib.setDefault true;
 
         # enable gpu modules
@@ -72,7 +73,6 @@
         dynamic-timezone.enable = lib.setDefault (
           config.networking.networkmanager.enable && config.time.timeZone == null
         );
-        hardware-tools.enable = lib.setDefault true;
         headless-debloater.enable = lib.setDefault (!hasDesktop);
         desktop.enable = lib.setDefault hasDesktop;
         program-configs.enable = lib.setDefault true;
@@ -163,10 +163,6 @@
       };
     };
 
-    # programs.bash.enable uses lib.mkDefault or lib.mkOverride 900 for this option
-    # note the package option is not provided by nixpkgs, the shell modules are kind of poorly written imo
-    users.defaultUserShell = lib.mkOverride 899 config.programs.zsh.package;
-
     environment = {
       # use dash as /bin/sh of choice
       # once again, override weights are hardcoded into nixpkgs
@@ -205,6 +201,8 @@
       neovim-customized.enable = lib.mkDefault true;
       # system information
       fastfetch.enable = lib.setDefault true;
+      # file info fetcher
+      file.enable = lib.setDefault true;
       # command history finder
       hstr.enable = lib.setDefault true;
       # very good picker tool for CLI
@@ -226,7 +224,9 @@
       # better grep
       ripgrep.enable = lib.setDefault true;
       # tui file manager
-      yazi.enable = lib.mkDefault true;
+      yazi.enable = lib.setDefault true;
+      # cli archive maker
+      zip.enable = lib.setDefault true;
     };
 
     services = {

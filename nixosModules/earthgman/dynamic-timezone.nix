@@ -36,8 +36,11 @@ in
         # https://wiki.archlinux.org/title/NetworkManager#Automatically_set_the_timezone
         source = pkgs.writeText "10-update-timezone" ''
           case "$2" in
-            connectivity-change)
+            "connectivity-change")
               timedatectl set-timezone "$(${pkgs.curlMinimal}/bin/curl --fail ${cfg.server})"
+              ;;
+            *)
+              exit 0
               ;;
           esac
         '';

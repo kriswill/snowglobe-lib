@@ -22,13 +22,17 @@ y_or_n() {
 			;;
 		esac
 	done
-	if [ "$DEFAULT" = "yes" ]; then
+	case "$DEFAULT" in
+	"yes")
 		CONFIRMATION_TEXT="[Y/n]"
-	elif [ "$DEFAULT" = "no" ]; then
+		;;
+	"no")
 		CONFIRMATION_TEXT="[y/N]"
-	else
+		;;
+	*)
 		CONFIRMATION_TEXT="[y/n]"
-	fi
+		;;
+	esac
 
 	while :; do
 		printf "%s %s: " "$MSG" "$CONFIRMATION_TEXT"
@@ -44,18 +48,22 @@ y_or_n() {
 			return 1
 			;;
 		*)
-			if [ "$DEFAULT" = "yes" ]; then
+			case "$DEFAULT" in
+			"yes")
 				yn="y"
 				unset DEFAULT
 				return 0
-			elif [ "$DEFAULT" = "no" ]; then
+				;;
+			"no")
 				yn="n"
 				unset DEFAULT
 				return 1
-			else
+				;;
+			*)
 				printf "Not a valid response\n"
 				continue
-			fi
+				;;
+			esac
 			;;
 		esac
 	done
@@ -68,7 +76,7 @@ _get_hardware_config() {
 	fi
 
 	HARDWARE_CONFIG="$HOST_CONFIG_DIR/hardware-configuration.nix"
-	# nuke old hardware config and regenerate. Its not supposed to be manually modified
+	# nuke old hardware config and regenerate. Its not supposed to be manually modified so assume the user has made no changes to it
 	if [ -e "$HARDWARE_CONFIG" ]; then
 		rm "$HARDWARE_CONFIG"
 	fi
@@ -81,7 +89,7 @@ _get_hardware_config() {
 	mv "$CONFIG_ROOT/hardware-configuration.nix" "$HOST_CONFIG_DIR"
 
 	# enable ZramSwap if the host has 4 GB or less RAM
-	if [ "$(cat /proc/meminfo | grep MemTotal | cut -d: -f2 | tr -d " kB")" -le 5000000 ]; then
+	if [ "$(cat /proc/meminfo | grep MemTotal | cut -d: -f2 | tr -d " kB")" -le 4000000 ]; then
 		printf "\nDetected a small amount of available RAM for this host.\n"
 		printf "The installer will enable a module for compressed zramSwap to assist with RAM management\n"
 
@@ -187,9 +195,21 @@ _format_disks() {
 		exit 0
 	}
 
+	_failed_disko_condition() {
+		[ -z "$SELECTED_DISKO_CONFIG" ] || ! grep -q "disko" "$SELECTED_DISKO_CONFIG"
+	}
+
 	if [ "$REPO_DIR" ]; then
 		y_or_n --msg="Use a disko file from your repo?" && {
-			SELECTED_DISKO_CONFIG=$(fzf --disabled --border --border-label-pos 1:bottom --walker-root "$REPO_DIR" --border-label="Choose a disko file to use for formatting. (Press ESC or Ctrl+C to cancel)")
+			while :; do
+				SELECTED_DISKO_CONFIG=$(fzf --border --border-label-pos 1:bottom --walker-root "$REPO_DIR" --border-label="Choose a disko file to use for formatting. (Press ESC or Ctrl+C to cancel)")
+				if _failed_disko_condition; then
+					printf "\n"
+					y_or_n --msg="No disko file selected, or it is invalid. Do you wish to try again?" || break
+				else
+					break
+				fi
+			done
 		}
 	fi
 
@@ -246,7 +266,7 @@ _format_disks() {
 						printf "Password cannot be empty.\n"
 					fi
 				done
-				printf "\nRetype Password: "
+				printf "\nRe-enter Password: "
 				stty -echo
 				read -r PASSWORD2
 				stty "$stty_default"
@@ -316,8 +336,8 @@ _format_disks() {
 
 _clone_repo() {
 	REPO_DIR=/tmp/nix-config
-	if [ -d "$REPO_DIR" ] && [ $(ls -A "$REPO_DIR") ]; then
-		printf "\nFiles were found in the repo destination directory: $REPO_DIR\n"
+	if [ -d "$REPO_DIR" ] && [ "$(ls -A "$REPO_DIR")" ]; then
+		printf "\nFiles were found in the repo destination directory: %s\n" "$REPO_DIR"
 		printf "This only occurs if a previous installation attempt was aborted before the files could be moved.\n"
 		y_or_n --msg="Clear the contents of $REPO_DIR and clone your repository again?" || return 0
 		rm -rf "$REPO_DIR"
@@ -349,6 +369,7 @@ fi
 
 # sometimes the nix daemon may not be running
 if ! systemctl is-active nix-daemon >/dev/null; then
+	printf "Nix daemon is not running, starting it.\n"
 	systemctl start nix-daemon
 fi
 
@@ -364,7 +385,7 @@ y_or_n --msg="Install an existing configuration?" --default="no" && {
 	_clone_repo
 	CONFIGURATIONS="$(nix eval $REPO_DIR'#'nixosConfigurations --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"')"
 	# TODO creates one extra newline for some reason
-	HOSTNAME=$(printf "%s" "$CONFIGURATIONS" | tr ' ' '\n' | fzf)
+	HOSTNAME=$(printf "%s" "$CONFIGURATIONS" | tr ' ' '\n' | fzf --border --border-label-pos 1:bottom --border-label="Found the following configurations")
 	if [ -z "$HOSTNAME" ]; then
 		printf "No host was selected.\n"
 		exit 0
@@ -494,7 +515,7 @@ y_or_n --msg="Install a desktop envrionment?" --default="yes" && {
 Very similar to Microsoft Windows 11.
 Perfect for beginners."
 
-	NIRI_DESCRIPTION="A high-quality, modern DIY wayland window manager written in Rust.
+	NIRI_DESCRIPTION="A high-quality, modern DIY wayland window manager.
 Uses infinite scrolling windows in a tiled format.
 Recommended for enthusists / advanced users only."
 
@@ -532,7 +553,12 @@ printf "Keyboard - %s\n" "$XKB_LAYOUT"
 if [ -n "$SELECTED_DESKTOP" ]; then
 	printf "Desktop - %s\n" "$SELECTED_DESKTOP"
 fi
-printf "NixOS Version - %s\n" "$NIXOS_VERSION"
+printf "NixOS Version - %s\n\n" "$NIXOS_VERSION"
+
+y_or_n --msg="If this is correct, begin writing config to $CONFIG_ROOT?" || {
+	printf "Aborted\n"
+	exit 1
+}
 
 # Implementation
 
@@ -674,7 +700,17 @@ else
 	if [ -d "$HOST_CONFIG_DIR" ]; then
 		rm -rf "$HOST_CONFIG_DIR"
 	fi
+	# TODO need to use sed to remove the host from "$HOSTS_CONFIG_FILE"
 fi
+
+# Ask user for preferences
+if [ -n "$SELECTED_DESKTOP" ]; then
+	y_or_n --msg="Install modules for gaming? (steam, lutris, hardware diagnostic tools, etc?)" --default="no" && GAMING=true
+	y_or_n --msg="Install programs for office work? (libreoffice, email client, gimp, etc?)" --default="no" && OFFICE=true
+fi
+y_or_n --msg="Install penetration and security testing tools from Kali Linux? (nmap, tor-browser, john-the-ripper, wireshark, etc)" --default="no" && HACKER_MODE=true
+y_or_n --msg="Install additional nix tools? (recommended for developers)" --default="no" && NIX_TOOLS=true
+y_or_n --msg="Would you like to harden your configuration? This disables some features (like password-based ssh authentication) for increased security." --default="yes" && HARDEN=true
 
 # start creation for configuration specific to the host.
 mkdir -p "$HOST_CONFIG_DIR"
@@ -768,45 +804,65 @@ fi
 # ensure secure permissions are set
 chmod 600 "$KEY_FILE_PATH"
 
-# extra stuff
-if [ -n "$SELECTED_DESKTOP" ]; then
-	y_or_n --msg="Install modules for gaming? (steam, lutris, hardware diagnostic tools, etc?)" --default="no" && GAMING=true
-fi
-
-y_or_n --msg="Would you like to harden your configuration? This disables some features for increased security." --default="yes" && HARDEN=true
-
 # user creation
-y_or_n --msg="Add/Configure a user?" --default="yes"
+printf "\nNow you must add and configure user accounts.\n"
+printf "By default, the root user will not be accessible unless configured in this section.\n"
+printf "So if you wish to add a method of authentication for root, simply type \`root\` for username.\n"
+printf "Otherwise a user with the provided username will be created\n\n"
+
+yn="y"
 while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 	printf "Username: "
 	read -r USERNAME
-
-	# TODO validate username
+	# TODO validate username using regex
 	if [ -z "$USERNAME" ]; then
 		printf "Username cannot be empty.\n"
 		continue
 	fi
-	# set PASSWORD to some gibberish so the loop can be entered
-	PASSWORD="bob"
-	while [ "$PASSWORD" != "$PASSWORD2" ]; do
-		unset PASSWORD
-		while [ -z "$PASSWORD" ]; do
-			printf "Password: "
+
+	y_or_n --msg="Set a password for this user?" --default="yes" && {
+		# set PASSWORD to some gibberish so the loop can be entered
+		PASSWORD="bob"
+		while [ "$PASSWORD" != "$PASSWORD2" ]; do
+			unset PASSWORD
+			while [ -z "$PASSWORD" ]; do
+				printf "Password: "
+				stty -echo
+				read -r PASSWORD
+				stty "$stty_default"
+				if [ -z "$PASSWORD" ]; then
+					printf "Password cannot be empty.\n"
+				fi
+			done
+			printf "\nRe-type Password: "
 			stty -echo
-			read -r PASSWORD
+			read -r PASSWORD2
 			stty "$stty_default"
-			if [ -z "$PASSWORD" ]; then
-				printf "Password cannot be empty.\n"
+			if [ "$PASSWORD" != "$PASSWORD2" ]; then
+				printf "\n\nPasswords do not match! Try again.\n"
 			fi
 		done
-		printf "\nRe-type Password: "
-		stty -echo
-		read -r PASSWORD2
-		stty "$stty_default"
-		if [ "$PASSWORD" != "$PASSWORD2" ]; then
-			printf "\n\nPasswords do not match! Try again.\n"
-		fi
-	done
+	}
+
+	SSH_KEYS=""
+	y_or_n --msg="Add a public SSH key for authentication over openssh?" --default="no" && {
+		while :; do
+			while [ -z "$SSH_KEY" ]; do
+				printf "Enter your public SSH key: "
+				read -r SSH_KEY
+				if [ -z "$SSH_KEY" ]; then
+					y_or_n --msg="You did not enter an ssh key. Skip this step?" --default="no" || break
+				fi
+			done
+			if [ -n "$SSH_KEY" ]; then
+				# TODO load key into list
+				SSH_KEYS="$SSH_KEYS""$SSH_KEY "
+				unset SSH_KEY
+				y_or_n --msg="Key added. Do you wish to add another key?" && continue
+			fi
+			break
+		done
+	}
 
 	printf "\n"
 
@@ -834,7 +890,14 @@ while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 		printf "isNormalUser = true;\n" >>"$USER_CONFIG_DIR/default.nix"
 	fi
 
-	printf ''
+	# TODO
+	# if [ -n "$SSH_KEYS" ]; then
+	# 	# add ssh keys your nixosModules keyring if it is not present
+	# 	printf ""
+	# 	printf "%s" "$SSH_KEYS" | tr ' ' '\n' | while read -r key do;
+	#
+	# done
+	# fi
 
 	EXTRAGROUPS=''
 	if [ "$WHEEL" ]; then
@@ -861,6 +924,17 @@ while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 	printf "%s_password: %s" "$USERNAME" "$(mkpasswd -s "$PASSWORD")" >>"$HOST_CONFIG_DIR/secrets.yaml"
 	USERS="$USERS""$USERNAME "
 
+	# make sure variables are cleared for the next user
+	unset USERNAME
+	unset PASSWORD
+	unset PASSWORD2
+	unset NORMAL_USER
+	unset NETWORKMANAGER_ADMIN
+	unset AUTHENTICATION_METHOD
+	unset AUTHENTICATION_METHODS
+	unset WHEEL
+	unset CUPS_ADMIN
+
 	y_or_n --msg="Add/Configure another user?" --default="no"
 done
 
@@ -871,6 +945,7 @@ if [ -e "$CONFIG_ROOT/$SOPS_FILE" ]; then
 	}
 fi
 
+# create configuration.nix
 printf '{ pkgs, lib, config, ... }:
 		{
 			imports = [
@@ -878,6 +953,10 @@ printf '{ pkgs, lib, config, ... }:
 				./hardware-configuration.nix
 				# fstab config using disko modules
 				./disko.nix
+				# your installed applications and programs
+				./programs
+				# services this machine is hosting
+				./services
 				# add users
 				] ++ (lib.optionals (builtins.pathExists ./users) lib.autoImport ./users { });
 
@@ -887,13 +966,34 @@ printf '{ pkgs, lib, config, ... }:
 
 # add optional modules
 if [ -n "$GAMING" ]; then
-	printf "earthgman.gaming.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
+	printf "earthgman.profiles.gaming.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
+fi
+if [ -n "$OFFICE" ]; then
+	printf "earthgman.profiles.office.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
+fi
+if [ -n "$HACKER_MODE" ]; then
+	printf "earthgman.profiles.hacker-mode.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
+fi
+if [ -n "$NIX_TOOLS" ]; then
+	printf "earthgman.profiles.nix-tools.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
 fi
 if [ -n "$HARDEN" ]; then
-	printf "earthgman.harden.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
+	printf "earthgman.profiles.harden.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
 fi
 printf '}' >>"$HOST_CONFIG_DIR/configuration.nix"
 
+# create split host config (programs, services)
+printf "{pkgs, lib, config, ... }:
+{
+  programs = { };
+}" | install -D /dev/stdin "$HOST_CONFIG_DIR/programs/default.nix"
+
+printf "{pkgs, lib, config, ... }:
+{
+  services = { };
+}" | install -D /dev/stdin "$HOST_CONFIG_DIR/services/default.nix"
+
+# write new host to the global hosts configuration file
 if [ "$APPEND_MODE" ]; then
 	# with "append" remove the last character to make way for the new configuration
 	sed -i '$ s/.$//' "$HOSTS_CONFIG_FILE"
@@ -936,6 +1036,7 @@ printf '%s = lib.mkNixosHost {
 printf "\n}" >>"$HOSTS_CONFIG_FILE"
 
 _get_hardware_config
+# custom script to recursively format all nix files
 nixfmt.sh "$CONFIG_ROOT"
 
 _install_nixos

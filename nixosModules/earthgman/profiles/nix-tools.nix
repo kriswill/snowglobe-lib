@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.development-tools;
+  cfg = config.earthgman.profiles.nix-tools;
 in
 {
-  options.earthgman.development-tools = {
+  options.earthgman.profiles.nix-tools = {
     enable = lib.mkEnableOption "EarthGman's choice of tools for development with nix";
   };
 
@@ -16,7 +16,6 @@ in
     programs = {
       nix-output-monitor.enable = true;
       nix-fast-build.enable = true;
-      nixos-generators.enable = true;
       nvd.enable = lib.setDefault true;
       nh.enable = true;
       direnv = {

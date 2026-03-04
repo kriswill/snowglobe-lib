@@ -60,7 +60,7 @@ in
     # copied from nixpkgs
     users.users.minecraft = {
       description = "Minecraft server service user";
-      home = cfg.config.dataDir;
+      home = cfg.dataDir;
       createHome = true;
       isSystemUser = true;
       group = "minecraft";
@@ -81,7 +81,7 @@ in
 
     systemd.services.minecraft-server = {
       # provide javaPackage to the service path so it can call `java -jar` from run.sh using a specific version
-      path = [ cfg.config.javaPackage ];
+      path = [ cfg.javaPackage ];
       description = "Minecraft Server Service";
       wantedBy = [ "multi-user.target" ];
       requires = [ "minecraft-server.socket" ];
@@ -92,12 +92,12 @@ in
 
       serviceConfig = {
         # most server setup tools create a `run.sh` so just hardcode it lol
-        ExecStart = "${cfg.config.dataDir}/run.sh";
+        ExecStart = "${cfg.dataDir}/run.sh";
         ExecStop = "${stopScript} $MAINPID";
         Restart = "on-failure";
         RestartSec = 15;
         User = "minecraft";
-        WorkingDirectory = cfg.config.dataDir;
+        WorkingDirectory = cfg.dataDir;
 
         StandardInput = "socket";
         StandardOutput = "journal";

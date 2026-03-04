@@ -6,24 +6,21 @@
   ...
 }:
 let
-  cfg = config.earthgman.hacker-mode;
+  cfg = config.earthgman.profiles.hacker-mode;
 in
 {
-  options.earthgman.hacker-mode.enable = lib.mkEnableOption "EarthGman's cybersecurity suite";
+  options.earthgman.profiles.hacker-mode.enable =
+    lib.mkEnableOption "EarthGman's cybersecurity suite. Installs a majority of tools present on Kali.";
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       (lib.mkIf (config.system.desktop != null) {
         programs = {
           ghidra.enable = lib.mkDefault true;
           john.package = lib.mkDefault pkgs.johnny;
-          nmap.package = lib.mkDefault pkgs.zenmap;
+          zenmap.enable = lib.mkDefault true;
           tor-browser.enable = lib.mkDefault true;
           wireshark.package = lib.mkDefault pkgs.wireshark; # install gui version if desktop is enabled
         };
-        environment.systemPackages = lib.mkIf config.programs.nmap.enable [
-          # provide CLI with zenmap
-          pkgs.nmap
-        ];
       })
       {
         programs = {

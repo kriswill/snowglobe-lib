@@ -99,6 +99,18 @@
       inputs.rust-overlay.follows = "";
     };
 
+    nixos-anywhere = {
+      url = "github:nix-community/nixos-anywhere";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        disko.follows = "";
+        nixos-stable.follows = "";
+        nixos-images.follows = "";
+        nix-vm-test.follows = "";
+        treefmt-nix.follows = "";
+      };
+    };
+
     prismlauncher = {
       url = "github:PrismLauncher/PrismLauncher";
       inputs.nixpkgs.follows = "nixpkgs";

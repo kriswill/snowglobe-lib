@@ -8,6 +8,10 @@
     disko = inputs.disko.packages.${prev.stdenv.hostPlatform.system}.default;
   };
 
+  nixos-anywhere-git = final: prev: {
+    nixos-anywhere = inputs.nixos-anywhere.packages.${prev.stdenv.hostPlatform.system}.default;
+  };
+
   packages =
     final: prev:
     import ../packages {

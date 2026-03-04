@@ -5,15 +5,15 @@
   ...
 }:
 let
-  programName = "moonlight";
+  programName = "sunsetr";
   cfg = config.programs.${programName};
 in
 {
   options.programs.${programName} = lib.mkProgramOption {
-    description = "Game streaming client for lizardbyte sunshine";
-    programName = programName;
-    packageName = "moonlight-qt";
     inherit pkgs;
+    description = "Blue light filter for wayland";
+    programName = programName;
+    packageName = programName;
   };
 
   config = lib.mkIf cfg.enable (

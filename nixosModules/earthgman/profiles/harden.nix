@@ -5,11 +5,10 @@
   ...
 }:
 let
-  module-name = "harden";
-  cfg = config.earthgman.${module-name};
+  cfg = config.earthgman.profiles.harden;
 in
 {
-  options.earthgman.${module-name} = {
+  options.earthgman.profiles.harden = {
     enable = lib.mkEnableOption "EarthGman's hardening configuration for increased system security";
   };
 
@@ -18,7 +17,7 @@ in
     # enable firewall and prevent the ping of death
     networking.firewall = {
       enable = true;
-      allowPing = false;
+      allowPing = lib.setDefault false;
     };
 
     # prevent users from being imperatively modified

@@ -22,6 +22,10 @@ in
       #   # password store with otp support
       password-store.package = lib.setDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
 
+      libreoffice.package = lib.setDefault pkgs.libreoffice-fresh;
+
+      chromium.package = lib.setDefault pkgs.ungoogled-chromium;
+
       nh.flake = lib.setDefault "/etc/nixos";
 
       neovim-customized = {
