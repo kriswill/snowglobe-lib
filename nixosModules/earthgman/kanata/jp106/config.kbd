@@ -1,0 +1,84 @@
+
+
+(defsrc)
+
+(defvar
+  tap-time 150
+  hold-time 200
+)
+
+(deflocalkeys-linux
+  Convert 92
+  katakanahiragana 93
+  NonConvert 94
+  IntlYen 124
+  IntlRo 89
+)
+
+(deflayermap base
+  caps esc
+  esc (layer-switch norm)
+  katakanahiragana C-b
+  NonConvert (multi f24 (tap-hold $tap-time $hold-time bspc (layer-while-held helper)))
+  Convert (multi f24 (tap-hold $tap-time $hold-time ret (layer-while-held helper)))
+  lsft IntlRo
+  a (multi f24 (tap-hold $tap-time $hold-time a lmet))
+  s (multi f24 (tap-hold $tap-time $hold-time s lalt))
+  d (multi f24 (tap-hold $tap-time $hold-time d lsft))
+  f (multi f24 (tap-hold $tap-time $hold-time f lctl))
+
+  j (multi f24 (tap-hold $tap-time $hold-time j rctl))
+  k (multi f24 (tap-hold $tap-time $hold-time k rsft))
+  l (multi f24 (tap-hold $tap-time $hold-time l ralt))
+  ; (multi f24 (tap-hold $tap-time $hold-time ; rmet))
+)
+
+(deflayermap (norm)
+  a a
+  s s
+  d d
+  f f
+  j j
+  k k
+  l l
+  ; ;
+  esc (layer-switch base)
+  caps esc
+)
+
+(deflayermap (helper)
+  a S-8
+  q S-[
+  w S-2
+  e S--
+  r S-4
+  t S-5
+  s S-9
+  d S-]
+  f S-\
+  g S-'
+  z S-1
+  x S-6
+  c ]
+  v \
+  b S-0
+
+  Convert tab
+  NonConvert C-b
+
+  h left
+  j down
+  k up
+  l right
+  ; S-IntlRo
+  ' S-7 
+  u -
+  i S-,
+  o S-.
+  p S-;
+  n S-IntlYen
+  m C-v
+  , C-c
+  . C-x
+  / C-z
+)
