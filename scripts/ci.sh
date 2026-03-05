@@ -62,7 +62,7 @@ for repo in $REPOSITORIES; do
 	# edit the flake.nix to point to the testing branch
 	sed -i 's|/EarthGman/nix-modules|/EarthGman/nix-modules?ref=dev|' "$REPO_DIR/flake.nix"
 
-	nix flake update gman
+	nix flake update earthgman
 
 	HOSTS=$(nix eval "$REPO_DIR#nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"')
 
