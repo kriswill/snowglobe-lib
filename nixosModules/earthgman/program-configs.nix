@@ -42,5 +42,8 @@ in
     environment.variables = lib.mkIf config.programs.direnv.enable {
       DIRENV_WARN_TIMEOUT = lib.setDefault 0;
     };
+
+    # always use wayland for sddm
+    services.displayMananger.sddm.wayland.enable = lib.setDefault true;
   };
 }
