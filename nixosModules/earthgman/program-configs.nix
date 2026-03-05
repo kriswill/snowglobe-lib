@@ -44,6 +44,6 @@ in
     };
 
     # always use wayland for sddm
-    services.displayMananger.sddm.wayland.enable = lib.setDefault true;
+    services.displayManager.sddm.wayland.enable = lib.setDefault true;
   };
 }
