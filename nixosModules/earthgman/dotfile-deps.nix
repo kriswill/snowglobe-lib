@@ -67,7 +67,6 @@ in
 
     qt = {
       enable = lib.setDefault true;
-      platformTheme = "kde";
       style = lib.setDefault "kvantum";
     };
 

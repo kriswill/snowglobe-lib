@@ -10,7 +10,7 @@
 
   config = lib.mkIf config.earthgman.headless-debloater.enable {
     # disables linux firmware by default since most servers or headless machines, especially vms, dont need firmware from it.
-    hardware.enableRedistributableFirmware = lib.mkDefault false;
+    hardware.enableRedistributableFirmware = lib.mkOverride 899 false;
 
     environment = {
       defaultPackages = [ ];
