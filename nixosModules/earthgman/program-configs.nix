@@ -15,41 +15,23 @@ in
   '';
   config = lib.mkIf cfg.enable {
     programs = {
-      #   # better discord
+      # better discord
       discord.package = lib.setDefault pkgs.vesktop;
-      #   # hardened firefox
+      # hardened firefox
       firefox.package = lib.setDefault pkgs.librewolf;
-      #   # password store with otp support
+      # password store with otp support
       password-store.package = lib.setDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
-
+      # bleeding edge libreoffice
       libreoffice.package = lib.setDefault pkgs.libreoffice-fresh;
-
+      # no spyware chromium
       chromium.package = lib.setDefault pkgs.ungoogled-chromium;
 
       nh.flake = lib.setDefault "/etc/nixos";
 
-      neovim-customized = {
-        installForUsers = [ "root" ];
-        userPackages.root = lib.setDefault pkgs.earthgman.neovim-lite;
-        defaultEditor = lib.setDefault true;
-      };
-
       zsh = {
-        installForUsers = lib.setDefault [ "root" ];
-        userPackages.root = lib.setDefault pkgs.earthgman.zsh;
         setAsDefaultShell = lib.setDefault true;
-        syntaxHighlighting.enable = lib.setDefault true;
-        autosuggestions.enable = lib.setDefault true;
-      };
-
-      tmux = {
-        installForUsers = lib.setDefault [ "root" ];
-        userPackages.root = lib.setDefault pkgs.earthgman.tmux;
-      };
-
-      yazi = {
-        installForUsers = lib.setDefault [ "root" ];
-        userPackages.root = lib.setDefault pkgs.earthgman.yazi;
+        autosuggestions.enable = true;
+        syntaxHighlighting.enable = true;
       };
 
       # make direnv be not annoying
@@ -61,5 +43,4 @@ in
       DIRENV_WARN_TIMEOUT = lib.setDefault 0;
     };
   };
-
 }

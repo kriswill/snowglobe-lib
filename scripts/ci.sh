@@ -88,9 +88,6 @@ y_or_n "Configuration checks successful, merge into main?" && {
 	git merge dev
 	git push -u origin main
 	git checkout dev
-
-	# sync flakes of projects
-	./update-flakes.sh
 }
 
 exit 0
