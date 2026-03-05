@@ -15,7 +15,7 @@ in
   system ? "x86_64-linux", # target cpu architecture
   modules ? [ ], # send extra modules to the function
   specialArgs ? { }, # send extra special arguments to the function
-  configuration ? null, # path to the directory containing this hosts configuration
+  configDir ? null, # path to the directory containing this hosts configuration
 }:
 lib.nixosSystem {
   inherit system; # used for legacy nixos < 22.05, but it doesn't hurt to have it here
@@ -26,11 +26,25 @@ lib.nixosSystem {
   // specialArgs;
   modules =
     let
-      hostConfig =
-        if (configuration != null) then
-          if builtins.pathExists (configuration) then [ configuration ] else [ ]
+      importModules =
+        moduleDir:
+        if (configDir != null) then
+          if (builtins.pathExists (configDir + "/${moduleDir}")) then
+            (lib.autoImport (configDir + "/${moduleDir}") { })
+          else
+            [ ]
         else
           [ ];
+
+      hostConfig =
+        if (configDir != null) then
+          if builtins.pathExists (configDir) then [ (configDir + "/configuration.nix") ] else [ ]
+        else
+          [ ];
+
+      userConfig = importModules "users";
+      programConfig = importModules "programs";
+      serviceConfig = importModules "services";
 
       myModules = [ outputs.nixosModules.earthgman ];
     in
@@ -58,6 +72,9 @@ lib.nixosSystem {
       }
     ]
     ++ hostConfig
+    ++ programConfig
+    ++ serviceConfig
+    ++ userConfig
     ++ myModules
     # extra modules passed to the function
     ++ modules;
