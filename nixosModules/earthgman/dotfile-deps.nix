@@ -103,10 +103,13 @@ in
       neovim-customized.enable = true; # provides unconfigured pkgs.nvim by default
 
       # optional programs. Modify at your own risk.
+      # wallpaper daemon
       awww = {
         enable = lib.setDefault true;
         systemd.enable = lib.setDefault true;
       };
+      # TUI email client
+      neomutt.enable = true;
       # pdf viewer
       evince.enable = lib.setDefault true;
       # web browser

@@ -19,6 +19,10 @@ in
   config = lib.mkIf cfg.enable (
     lib.installProgram {
       inherit programName config;
+      extraModules = {
+        # install lukeSmithXYZ mutt helper
+        programs.mutt-wizard.enable = lib.setDefault true;
+      };
     }
   );
 }
