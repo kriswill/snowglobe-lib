@@ -1,4 +1,5 @@
 #!/bin/sh
+# TODO split me up into multiple scripts
 
 # get default tty config
 stty_default=$(stty -g)
@@ -175,9 +176,12 @@ _mv_repo() {
 _format_disks() {
 	if [ -n "$(ls -A /mnt 2>/dev/null)" ]; then
 		printf "\nFiles were found in the /mnt directory, which is where your system will be installed.\n"
-		printf "If this is due to a failed installation attempt, respond \"No\" and you will not have to format your drives again.\n"
-		printf "Otherwise you should abort the installation and clear the directory first to avoid deletion of those files.\n"
-		y_or_n --msg="Is your disk mounted already?" --default="yes" && return 0
+		printf "You will need to remove the files or unmount the disk before you continue\n."
+		if [ -n "$DEBUG_MODE" ]; then
+			y_or_n --msg="DEBUG: Is your disk mounted already?" --default="yes" && return 0
+		else
+			exit 1
+		fi
 	fi
 
 	printf "\nThe installer will use a nix-community tool called disko to declaratively partition your hard drives or other persistent storage volumes.\n"
@@ -367,6 +371,10 @@ if [ "$(whoami)" != "root" ]; then
 	exit 1
 fi
 
+if [ "$1" = "--debug" ]; then
+	DEBUG_MODE=true
+fi
+
 # sometimes the nix daemon may not be running
 if ! systemctl is-active nix-daemon >/dev/null; then
 	printf "Nix daemon is not running, starting it.\n"
@@ -377,6 +385,39 @@ fi
 while ! curl -s ifconfig.me >/dev/null; do
 	y_or_n --msg="No internet connection detected. Connect Now?" --default="yes" && nmtui
 done
+
+# detect hardware
+if [ -d /sys/firmware/efi ]; then
+	FIRMWARE="UEFI"
+else
+	FIRMWARE="BIOS"
+fi
+
+if lscpu | grep -i "intel" >/dev/null; then
+	CPU_VENDOR="intel"
+elif lscpu | grep -i "amd" >/dev/null; then
+	CPU_VENDOR="amd"
+fi
+
+# detect if VM
+if lscpu | grep 'Hypervisor vendor:' >/dev/null; then
+	QEMU=true
+else
+	QEMU=false
+fi
+
+_check_gpu() {
+	if lspci -nn | grep "VGA" | grep -i "$1" >/dev/null; then
+		GPU_VENDORS="$GPU_VENDORS""$(printf '"%s" ' "$1")"
+	fi
+}
+
+_check_gpu "nvidia"
+_check_gpu "amd"
+_check_gpu "intel"
+
+SYSTEM_ARCH=$(lscpu | grep Arch | tr -d " " | cut -d: -f2)
+NIXOS_VERSION=$(nixos-version | cut -d. -f1-2)
 
 printf "\nIf you have used this installer before, you might have already created a configuration for this host.\n"
 printf "In this case, assuming you have read access to the remote repository, you can skip directly to the installation phase.\n"
@@ -427,39 +468,6 @@ printf "\nIf you have used this installer before, you should have an exiting con
 printf "If you wish, the installer allows you to seamlessly integrate your new configuration with the rest of your NixOS hosts and modules.\n"
 y_or_n --msg="Append to your existing repository?" --default="no" && APPEND_MODE=true
 
-# detect hardware
-if [ -d /sys/firmware/efi ]; then
-	FIRMWARE="UEFI"
-else
-	FIRMWARE="BIOS"
-fi
-
-if lscpu | grep -i "intel" >/dev/null; then
-	CPU_VENDOR="intel"
-elif lscpu | grep -i "amd" >/dev/null; then
-	CPU_VENDOR="amd"
-fi
-
-# detect if VM
-if lscpu | grep 'Hypervisor vendor:' >/dev/null; then
-	QEMU=true
-else
-	QEMU=false
-fi
-
-_check_gpu() {
-	if lspci -nn | grep "VGA" | grep -i "$1" >/dev/null; then
-		GPU_VENDORS="$GPU_VENDORS""$(printf '"%s" ' "$1")"
-	fi
-}
-
-_check_gpu "nvidia"
-_check_gpu "amd"
-_check_gpu "intel"
-
-SYSTEM_ARCH=$(lscpu | grep Arch | tr -d " " | cut -d: -f2)
-NIXOS_VERSION=$(nixos-version | cut -d. -f1-2)
-
 _format_disks
 
 # begin writing configuration repository
@@ -506,7 +514,7 @@ fi
 
 printf "\nChosen xkb keymap: %s\n" "$XKB_LAYOUT"
 printf "Note: This will only apply to window managers under X11 and the Linux Virtual Console.\n"
-printf "For wayland compositors like niri or hyprland, you will have to set the keymap in their respective configuration files.\n\n"
+printf "For Wayland compositors like Niri or Hyprland, you will have to set the keymap in their respective configuration files.\n\n"
 
 y_or_n --msg="Install a desktop envrionment?" --default="yes" && {
 
@@ -555,12 +563,7 @@ if [ -n "$SELECTED_DESKTOP" ]; then
 fi
 printf "NixOS Version - %s\n\n" "$NIXOS_VERSION"
 
-y_or_n --msg="If this is correct, begin writing config to $CONFIG_ROOT?" || {
-	printf "Aborted\n"
-	exit 1
-}
-
-# Implementation
+# Begin config write
 
 if [ -d "$CONFIG_ROOT" ]; then
 	rm -rf "$CONFIG_ROOT"
@@ -703,7 +706,8 @@ else
 	# TODO need to use sed to remove the host from "$HOSTS_CONFIG_FILE"
 fi
 
-# Ask user for preferences
+# Optional modules
+printf "You will now be able to select optional profiles to extend the functionality of your system.\n"
 if [ -n "$SELECTED_DESKTOP" ]; then
 	y_or_n --msg="Install modules for gaming? (steam, lutris, hardware diagnostic tools, etc?)" --default="no" && GAMING=true
 	y_or_n --msg="Install programs for office work? (libreoffice, email client, gimp, etc?)" --default="no" && OFFICE=true
@@ -843,6 +847,8 @@ while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 		fi
 	done
 
+	printf "\n"
+
 	if [ "$USERNAME" != "root" ]; then
 		NORMAL_USER=true
 		y_or_n --msg="Should this user have access to privilege escalation? (such as sudo)" && WHEEL=true
@@ -889,7 +895,7 @@ while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 	printf '};
 }' >>"$USER_CONFIG_DIR/default.nix"
 
-	printf "%s_password: %s" "$USERNAME" "$(mkpasswd -s "$PASSWORD")" >>"$HOST_CONFIG_DIR/secrets.yaml"
+	printf "%s_password: %s\n" "$USERNAME" "$(mkpasswd -s "$PASSWORD")" >>"$HOST_CONFIG_DIR/secrets.yaml"
 	USERS="$USERS""$USERNAME "
 
 	# make sure variables are cleared for the next user
@@ -921,12 +927,7 @@ printf '{ pkgs, lib, config, ... }:
 				./hardware-configuration.nix
 				# fstab config using disko modules
 				./disko.nix
-				# your installed applications and programs
-				./programs
-				# services this machine is hosting
-				./services
-				# add users
-				] ++ (lib.optionals (builtins.pathExists ./users) lib.autoImport ./users { });
+			];
 
 			i18n.defaultLocale = "%s";
 			services.xserver.xkb.layout = "%s";' \
@@ -950,16 +951,17 @@ if [ -n "$HARDEN" ]; then
 fi
 printf '}' >>"$HOST_CONFIG_DIR/configuration.nix"
 
+_create_moduleset() {
+	printf "{pkgs, lib, config, ...}:
+	{
+		%s = { };
+	}" "$1" | install -D /dev/stdin "$HOST_CONFIG_DIR/$1/$2.nix"
+}
 # create split host config (programs, services)
-printf "{pkgs, lib, config, ... }:
-{
-  programs = { };
-}" | install -D /dev/stdin "$HOST_CONFIG_DIR/programs/default.nix"
-
-printf "{pkgs, lib, config, ... }:
-{
-  services = { };
-}" | install -D /dev/stdin "$HOST_CONFIG_DIR/services/default.nix"
+_create_moduleset "programs" "enabled"
+_create_moduleset "programs" "disabled"
+_create_moduleset "services" "enabled"
+_create_moduleset "services" "disabled"
 
 # write new host to the global hosts configuration file
 if [ "$APPEND_MODE" ]; then
@@ -978,7 +980,7 @@ printf '%s = lib.mkNixosHost {
 	firmware = "%s";
 	isQemu = %s;
 	%s
-	configuration = ./%s/configuration.nix;
+	configDir = ./%s;
 	sopsFile = ./%s/secrets.yaml;
 	specialArgs = { inherit inputs; };
 	modules = [ outputs.nixosModules.default ];
