@@ -45,13 +45,6 @@ in
       flatpak-config.enable = false; # let kde take care of this too
     };
 
-    # make sure all parts of the networkmanager GUI work
-    networking.networkmanager.plugins = builtins.attrValues {
-      inherit (pkgs)
-        networkmanager-openvpn
-        ;
-    };
-
     # make sure plasma can manage the QT configuration independent of nix
     qt.platformTheme = lib.mkOverride 899 null;
     qt.style = lib.mkOverride 899 null;

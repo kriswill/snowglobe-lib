@@ -34,6 +34,13 @@ in
         };
     };
 
+    # make sure all parts of the networkmanager GUI work
+    networking.networkmanager.plugins = builtins.attrValues {
+      inherit (pkgs)
+        networkmanager-openvpn
+        ;
+    };
+
     # TODO nixos-facter?
     # enable bluetooth
     hardware.bluetooth.enable = lib.setDefault true;

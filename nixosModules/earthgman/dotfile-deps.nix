@@ -95,7 +95,12 @@ in
         enable = true;
         systemd.enable = true;
       };
-      zsh.enable = true;
+      sunsetr.enable = true;
+      zsh = {
+        enable = true;
+        autosuggestions.enable = true;
+        syntaxHighlighting.enable = true;
+      };
 
       # TODO figure out how to replace programs.neovim so I can use that for custom packages
       neovim.enable = lib.mkForce false;
