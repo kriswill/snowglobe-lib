@@ -660,9 +660,20 @@ if [ -z "$APPEND_MODE" ]; then
 			# };
 	}" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/default.nix"
 
+	# nixosModules/profile.nix
+	printf "{ pkgs, lib, config, ... }:
+		{
+			# enable all your your toggleable modules
+			# your-name-here.enable = true;
+			
+			# you can add any configuration you want shared among all your hosts
+			# Example
+			# programs.ghostty.enable = true;
+		}
+	" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/profile.nix"
+
 	# nixosModules/core
-	printf "
-    # reserved for any modifications you wish to make to the core NixOS module tree from nixpkgs
+	printf "# reserved for any modifications you wish to make to the core NixOS module tree from nixpkgs
 		{ pkgs, lib, config, ... }:
 		{
 			imports = lib.autoImport ./. { };
@@ -824,26 +835,54 @@ while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 		continue
 	fi
 
-	# TODO make optional and add openssh keys
-	# set PASSWORD to some gibberish so the loop can be entered
-	PASSWORD="bob"
-	while [ "$PASSWORD" != "$PASSWORD2" ]; do
-		unset PASSWORD
-		while [ -z "$PASSWORD" ]; do
-			printf "Password: "
-			stty -echo
-			read -r PASSWORD
-			stty "$stty_default"
-			if [ -z "$PASSWORD" ]; then
-				printf "Password cannot be empty.\n"
+	while :; do
+		if [ -z "$PASSWORD_SET" ]; then
+			y_or_n --msg="Set a password for this user?" --default="yes" && {
+				# set PASSWORD to some gibberish so the loop can be entered
+				PASSWORD="bob"
+				while [ "$PASSWORD" != "$PASSWORD2" ]; do
+					unset PASSWORD
+					printf "Password: "
+					stty -echo
+					read -r PASSWORD
+					stty "$stty_default"
+					if [ -z "$PASSWORD" ]; then
+						printf "No password was set.\n"
+						break
+					fi
+					printf "\nRe-type Password: "
+					stty -echo
+					read -r PASSWORD2
+					stty "$stty_default"
+					if [ "$PASSWORD" != "$PASSWORD2" ]; then
+						printf "\n\nPasswords do not match! Try again.\n"
+						continue
+					fi
+					PASSWORD_SET=true
+				done
+			}
+		fi
+
+		printf "\n"
+
+		y_or_n --msg="Add a public key for authentication with this user over SSH?" --default="yes"
+		while [ "$yn" = "y" ] || [ "$yn" = "Y" ]; do
+			printf "Enter your public SSH key: "
+			read -r SSH_KEY
+			if [ -z "$SSH_KEY" ]; then
+				printf "No ssh key was entered.\n"
+				break
 			fi
+			SSH_KEYS="$SSH_KEYS""$(printf "%s" "$SSH_KEY")
+"
+			SSH_KEY_SET=true
+			y_or_n --msg="Add another key?"
 		done
-		printf "\nRe-type Password: "
-		stty -echo
-		read -r PASSWORD2
-		stty "$stty_default"
-		if [ "$PASSWORD" != "$PASSWORD2" ]; then
-			printf "\n\nPasswords do not match! Try again.\n"
+
+		if [ -z "$PASSWORD_SET" ] && [ -z "$SSH_KEY_SET" ]; then
+			printf "Error: Neither a password nor SSH key was set for this user. You will not be able to log into it unless you set one!\n"
+		else
+			break
 		fi
 	done
 
@@ -871,6 +910,14 @@ while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 
 	if [ "$NORMAL_USER" ]; then
 		printf "isNormalUser = true;\n" >>"$USER_CONFIG_DIR/default.nix"
+	fi
+
+	if [ -n "$SSH_KEYS" ]; then
+		printf "openssh.authorizedKeys.keys = [\n" >>"$USER_CONFIG_DIR/default.nix"
+		printf "%s" "$SSH_KEYS" | while IFS="$(printf "\n")" read -r key; do
+			printf "\"%s\"\n" "$key" >>"$USER_CONFIG_DIR/default.nix"
+		done
+		printf "];\n" >>"$USER_CONFIG_DIR/default.nix"
 	fi
 
 	EXTRAGROUPS=''

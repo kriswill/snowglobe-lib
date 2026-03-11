@@ -26,15 +26,12 @@ in
         let
           aliasPackage =
             if (cfg.pavucontrolAlias) then
-              (pkgs.symlinkJoin {
-                name = "pwvucontrol-alias";
-                paths = [ cfg.package ];
-
-                postBuild = ''
-                  rm -f $out/bin/pwvucontrol-alias
-                  ln -s $out/bin/pwvucontrol $out/bin/pavucontrol
-                '';
-              })
+              lib.mkPackageAlias {
+                program = "pwvucontrol";
+                alias = "pavucontrol";
+                package = cfg.package;
+                inherit pkgs;
+              }
             else
               null;
         in

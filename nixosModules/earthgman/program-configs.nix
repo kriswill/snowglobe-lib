@@ -25,18 +25,25 @@ in
       libreoffice.package = lib.setDefault pkgs.libreoffice-fresh;
       # no spyware chromium
       chromium.package = lib.setDefault pkgs.ungoogled-chromium;
+      # alias pavucontrol to pwvucontrol
+      pwvucontrol.pavucontrolAlias = lib.setDefault true;
+
+      neovim = {
+        viAlias = lib.setDefault true;
+        vimAlias = lib.setDefault true;
+      };
 
       nh.flake = lib.setDefault "/etc/nixos";
 
       zsh = {
         setAsDefaultShell = lib.setDefault true;
-        autosuggestions.enable = true;
-        syntaxHighlighting.enable = true;
+        autosuggestions.enable = lib.setDefault true;
+        syntaxHighlighting.enable = lib.setDefault true;
       };
 
       # make direnv be not annoying
       direnv = {
-        silent = true;
+        silent = lib.setDefault true;
       };
     };
     environment.variables = lib.mkIf config.programs.direnv.enable {

@@ -102,10 +102,8 @@ in
         syntaxHighlighting.enable = true;
       };
 
-      # TODO figure out how to replace programs.neovim so I can use that for custom packages
-      neovim.enable = lib.mkForce false;
       vim.enable = lib.mkForce false;
-      neovim-customized.enable = true; # provides unconfigured pkgs.nvim by default
+      neovim.enable = true;
 
       # optional programs. Modify at your own risk.
       # wallpaper daemon

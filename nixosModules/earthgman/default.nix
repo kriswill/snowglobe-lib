@@ -11,6 +11,11 @@
   ...
 }:
 {
+  # disable and override nixpkgs modules
+  disabledModules = [
+    "programs/neovim.nix"
+  ];
+
   imports = lib.autoImport ./. { exceptions = [ "overlays.nix" ]; } ++ [
     # core module modifications from nixpkgs
     ../core
@@ -179,6 +184,8 @@
 
     # enable tools
     programs = {
+      # alias to neovim
+      vim.enable = lib.mkForce false;
       # custom wrapper scripts
       tmux-helper.enable = lib.setDefault true;
       nixos-rebuild-helper.enable = lib.setDefault true;
@@ -198,7 +205,7 @@
       # terminal multiplexer
       tmux.enable = lib.setDefault true;
       # editor
-      neovim-customized.enable = lib.mkDefault true;
+      neovim.enable = lib.mkDefault true;
       # system information
       fastfetch.enable = lib.setDefault true;
       # file info fetcher

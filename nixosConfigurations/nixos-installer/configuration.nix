@@ -101,7 +101,7 @@ in
   };
 
   programs = {
-    neovim-customized = {
+    neovim = {
       enable = true;
       defaultEditor = true;
       # custom build of neovim with only nix lsp
