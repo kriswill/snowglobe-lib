@@ -44,8 +44,6 @@ in
         xdg-user-dirs
         xwininfo
         mpd
-        # TODO
-        waybar
         star-pixel-icons
         adw-gtk3
         bibata-cursors
@@ -135,7 +133,7 @@ in
       tmux.enable = lib.setDefault true;
       # media player
       vlc.enable = lib.setDefault true;
-      # waybar.enable = lib.setDefault true;
+      waybar.enable = lib.setDefault true;
       yazi.enable = lib.setDefault true;
       # required for rmpc to download youtube videos
       yt-dlp.enable = lib.setDefault true;

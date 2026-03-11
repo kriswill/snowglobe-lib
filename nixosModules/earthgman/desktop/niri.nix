@@ -48,12 +48,9 @@ in
 
       networkmanagerapplet.enable = true;
 
-      # TODO
-      # status bar
       waybar = {
-        # enable = lib.setDefault true;
-        # will spawn 2 waybars with default config.kdl, so disable
-        # systemd.enable = lib.setDefault ;
+        enable = lib.setDefault true;
+        systemd.enable = lib.setDefault true;
       };
 
       # volume control
@@ -94,9 +91,6 @@ in
           libnotify
           grim
           slurp
-
-          # TODO
-          waybar
           ;
       };
     };

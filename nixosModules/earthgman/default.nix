@@ -14,6 +14,7 @@
   # disable and override nixpkgs modules
   disabledModules = [
     "programs/neovim.nix"
+    "programs/wayland/waybar.nix"
   ];
 
   imports = lib.autoImport ./. { exceptions = [ "overlays.nix" ]; } ++ [
