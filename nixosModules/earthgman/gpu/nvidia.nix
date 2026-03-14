@@ -29,7 +29,7 @@ in
       open = lib.setDefault true;
       # Enable the Nvidia settings menu,
       # accessible via `nvidia-settings`.
-      nvidiaSettings = lib.mkIf (config.system.desktop != null) lib.setDefault true;
+      nvidiaSettings = lib.mkIf (config.system.desktop != null) (lib.setDefault true);
 
       # latest nvidia drivers
       # nvidia loves dropping support for old cards, a manual override might be required
