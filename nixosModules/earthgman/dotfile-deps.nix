@@ -23,6 +23,8 @@ in
       };
     };
 
+    earthgman.pipewire-config.enable = true;
+
     xdg.portal = {
       enable = true;
       wlr.enable = true;
@@ -118,7 +120,7 @@ in
       gnome-calculator.enable = lib.setDefault true;
       # image viewer
       gthumb.enable = lib.setDefault true;
-      kitty.enable = lib.setDefault true;
+      foot.enable = lib.setDefault true;
       # file manager
       nautilus.enable = lib.setDefault true;
       # gtk theme manager

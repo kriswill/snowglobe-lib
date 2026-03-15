@@ -8,6 +8,8 @@
     disko = inputs.disko.packages.${prev.stdenv.hostPlatform.system}.default;
   };
 
+  ghostty-git = inputs.ghostty.overlays.default;
+
   nixos-anywhere-git = final: prev: {
     nixos-anywhere = inputs.nixos-anywhere.packages.${prev.stdenv.hostPlatform.system}.default;
   };

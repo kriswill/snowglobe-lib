@@ -8,7 +8,7 @@ let
   cfg = config.earthgman.pipewire-config;
 in
 {
-  options.earthgman.pipewire-config.enable = lib.mkEnableOption "gman's pipewire configuration";
+  options.earthgman.pipewire-config.enable = lib.mkEnableOption "EarthGman's pipewire configuration";
   config = lib.mkIf cfg.enable {
     security.rtkit.enable = true; # hands out realtime scheduling priority to user processes on demand. Improves performance of pulse
 

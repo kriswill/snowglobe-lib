@@ -10,8 +10,8 @@ in
 {
   options.earthgman.printing-config = {
     enable = lib.mkEnableOption "EarthGman's CUPS printing configuration";
-    installDrivers = lib.mkOption {
-      description = "Whether to install additional printer drivers";
+    installCommonDrivers = lib.mkOption {
+      description = "Whether to install common printer drivers";
       type = lib.types.bool;
       default = true;
     };
@@ -26,7 +26,7 @@ in
       printing = {
         enable = lib.mkDefault true;
         browsed.enable = lib.mkDefault false;
-        drivers = lib.mkIf cfg.installDrivers (
+        drivers = lib.mkIf cfg.installCommonDrivers (
           builtins.attrValues {
             inherit (pkgs)
               # hp printers

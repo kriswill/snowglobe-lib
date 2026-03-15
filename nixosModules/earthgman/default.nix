@@ -15,6 +15,7 @@
   disabledModules = [
     "programs/neovim.nix"
     "programs/wayland/waybar.nix"
+    "programs/foot"
   ];
 
   imports = lib.autoImport ./. { exceptions = [ "overlays.nix" ]; } ++ [
@@ -48,6 +49,7 @@
           awww-git.enable = lib.setDefault true;
           nh-git.enable = lib.setDefault true;
           disko-git.enable = lib.setDefault true;
+          ghostty-git.enable = lib.setDefault true;
           niri-git.enable = lib.setDefault true;
           nixos-anywhere-git.enable = lib.setDefault true;
           prismlauncher-git.enable = lib.setDefault true;
@@ -182,6 +184,16 @@
 
     # make sure that the virtual console respects the keymap chosen in the installer
     console.useXkbConfig = lib.setDefault true;
+
+    # make sure terminfo for popular terminals is installed
+    environment.systemPackages = [
+      pkgs.kitty.terminfo
+      pkgs.alacritty.terminfo
+      pkgs.foot.terminfo
+      pkgs.ghostty.terminfo
+      pkgs.wezterm.terminfo
+      pkgs.st.terminfo
+    ];
 
     # enable tools
     programs = {
