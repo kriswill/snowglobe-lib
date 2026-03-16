@@ -218,7 +218,11 @@
       # terminal multiplexer
       tmux.enable = lib.setDefault true;
       # editor
-      neovim.enable = lib.mkDefault true;
+      neovim = {
+        enable = lib.setDefault true;
+        viAlias = lib.setDefault true;
+        vimAlias = lib.setDefault true;
+      };
       # system information
       fastfetch.enable = lib.setDefault true;
       # file info fetcher
