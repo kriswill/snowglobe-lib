@@ -17,6 +17,7 @@ in
     niri-git.enable = lib.mkEnableOption "rolling release for niri";
     nixos-anywhere-git.enable = lib.mkEnableOption "rolling release for nixos-anywhere";
     prismlauncher-git.enable = lib.mkEnableOption "rolling release for prismlauncher";
+    rmpc-git.enable = lib.mkEnableOption "rolling release for rmpc";
     yazi-git.enable = lib.mkEnableOption "rolling release for yazi";
     zsh-syntax-highlighting-fix.enable = lib.mkEnableOption ''
       a patch to allow zsh-syntax-highlighting package to be installed via environment.systemPackages

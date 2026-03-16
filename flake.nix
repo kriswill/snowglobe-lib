@@ -126,6 +126,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    rmpc = {
+      url = "github:mierak/rmpc";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     yazi = {
       url = "github:sxyazi/yazi";
       inputs.nixpkgs.follows = "nixpkgs";

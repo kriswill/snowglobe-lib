@@ -53,6 +53,7 @@
           niri-git.enable = lib.setDefault true;
           nixos-anywhere-git.enable = lib.setDefault true;
           prismlauncher-git.enable = lib.setDefault true;
+          rmpc-git.enable = lib.setDefault true;
           yazi-git.enable = lib.setDefault true;
           zsh-syntax-highlighting-fix.enable = lib.setDefault true;
         };
