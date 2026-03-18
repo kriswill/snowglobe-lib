@@ -167,21 +167,18 @@ _install_nixos() {
 }
 
 _mv_repo() {
-	for file in "$REPO_DIR"/*; do
-		mv "$file" "/mnt/etc/nixos"
+	for file in $(ls -A "$REPO_DIR"); do
+		mv "$REPO_DIR/$file" "/mnt/etc/nixos"
 	done
-	rm -rf "$REPO_DIR"
 }
 
 _format_disks() {
 	if [ -n "$(ls -A /mnt 2>/dev/null)" ]; then
 		printf "\nFiles were found in the /mnt directory, which is where your system will be installed.\n"
-		printf "You will need to remove the files or unmount the disk before you continue\n."
-		if [ -n "$DEBUG_MODE" ]; then
-			y_or_n --msg="DEBUG: Is your disk mounted already?" --default="yes" && return 0
-		else
-			exit 1
-		fi
+		printf "This could be due to a mounted drive or a failed installation attempt.\n"
+		printf "If this is due to a failed installation, you should not have to format the disks again.\n"
+		printf "Otherwise, you should abort the installation and ensure that the disk is unmounted to prevent deletion of files.\n"
+		y_or_n --msg="Skip formatting?" --default="yes" && return 0
 	fi
 
 	printf "\nThe installer will use a nix-community tool called disko to declaratively partition your hard drives or other persistent storage volumes.\n"
@@ -466,7 +463,10 @@ y_or_n --msg="Install an existing configuration?" --default="no" && {
 
 printf "\nIf you have used this installer before, you should have an exiting configuration repository.\n"
 printf "If you wish, the installer allows you to seamlessly integrate your new configuration with the rest of your NixOS hosts and modules.\n"
-y_or_n --msg="Append to your existing repository?" --default="no" && APPEND_MODE=true
+y_or_n --msg="Append to your existing repository?" --default="no" && {
+	APPEND_MODE=true
+	_clone_repo
+}
 
 _format_disks
 
@@ -865,7 +865,7 @@ while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 
 		printf "\n"
 
-		y_or_n --msg="Add a public key for authentication with this user over SSH?" --default="yes"
+		y_or_n --msg="Add a public key for authentication with this user over SSH?" --default="no"
 		while [ "$yn" = "y" ] || [ "$yn" = "Y" ]; do
 			printf "Enter your public SSH key: "
 			read -r SSH_KEY
@@ -890,7 +890,7 @@ while [ "$yn" = "Y" ] || [ "$yn" = "y" ]; do
 
 	if [ "$USERNAME" != "root" ]; then
 		NORMAL_USER=true
-		y_or_n --msg="Should this user have access to privilege escalation? (such as sudo)" && WHEEL=true
+		y_or_n --msg="Should this user have access to privilege escalation? (such as sudo)" --default="yes" && WHEEL=true
 		if [ -n "$SELECTED_DESKTOP" ]; then
 			y_or_n --msg="Should this user be allowed to manage network connections?" --default="yes" && NETWORKMANAGER_ADMIN=true
 			y_or_n --msg="Should this user be allowed to configure the CUPS printing server?" --default="yes" && CUPS_ADMIN=true
