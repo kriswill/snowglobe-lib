@@ -433,6 +433,9 @@ y_or_n --msg="Install an existing configuration?" --default="no" && {
 
 	mkdir -p /mnt/etc/nixos
 
+	CONFIG_ROOT="/mnt/etc/nixos"
+	HOST_CONFIG_DIR="$CONFIG_ROOT/nixosConfigurations/$HOSTNAME"
+
 	_mv_repo
 	_get_hardware_config
 

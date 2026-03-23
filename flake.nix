@@ -64,7 +64,7 @@
     };
 
     dotfiles = {
-      url = "git+https://git.earthgman.dev/earthgman/dotfiles?ref=dev";
+      url = "git+https://git.earthgman.dev/earthgman/dotfiles";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.yazi.follows = "yazi";
     };

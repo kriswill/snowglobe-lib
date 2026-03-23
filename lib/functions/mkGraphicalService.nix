@@ -7,6 +7,8 @@
   binName ? serviceName, # name of executable
   programArgs ? [ ],
   waylandDependent ? false,
+  extraServiceConfig ? { },
+  extraUnitConfig ? { },
   extraDescription ? "",
   ...
 }:
@@ -20,7 +22,8 @@
     Restart = lib.mkDefault "on-failure";
     RestartSec = lib.mkDefault 5;
     Slice = lib.mkDefault "app.slice";
-  };
+  }
+  // extraServiceConfig;
 
   unitConfig = {
     After = [ "graphical-session.target" ];
@@ -28,5 +31,6 @@
     Description = serviceName + extraDescription;
     Requisite = [ "graphical-session.target" ];
     PartOf = [ "graphical-session.target" ];
-  };
+  }
+  // extraUnitConfig;
 }

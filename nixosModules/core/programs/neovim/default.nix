@@ -30,7 +30,7 @@ in
             let
               viAlias =
                 if (cfg.viAlias) then
-                  lib.mkPackageAlias {
+                  lib.mkProgramAlias {
                     program = "nvim";
                     alias = "vi";
                     package = cfg.package;
@@ -41,7 +41,7 @@ in
 
               vimAlias =
                 if (cfg.vimAlias) then
-                  lib.mkPackageAlias {
+                  lib.mkProgramAlias {
                     program = "nvim";
                     alias = "vim";
                     package = cfg.package;

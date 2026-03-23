@@ -107,22 +107,20 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "quickshell": "quickshell",
         "yazi": [
           "yazi"
         ]
       },
       "locked": {
-        "lastModified": 1773075432,
-        "narHash": "sha256-gTXRPklqfYX9zk2OayUtWl72/E9Q5mVA127qjpeQwbo=",
-        "ref": "dev",
-        "rev": "31c37fea13fbc9b8763e70f471952c53697c7f8a",
-        "revCount": 157,
+        "lastModified": 1774231102,
+        "narHash": "sha256-6I8lmUIe9jLPe5rYQjDrdMjtZ0oVjHUM88oaNSMBUfY=",
+        "ref": "refs/heads/main",
+        "rev": "6d128b17536d32d2342387529187c3951913131b",
+        "revCount": 172,
         "type": "git",
         "url": "https://git.earthgman.dev/earthgman/dotfiles"
       },
       "original": {
-        "ref": "dev",
         "type": "git",
         "url": "https://git.earthgman.dev/earthgman/dotfiles"
       }
@@ -224,11 +222,11 @@
         "nixpkgs-lib": "nixpkgs-lib"
       },
       "locked": {
-        "lastModified": 1769996383,
-        "narHash": "sha256-AnYjnFWgS49RlqX7LrC4uA+sCCDBj0Ry/WOJ5XWAsa0=",
+        "lastModified": 1772408722,
+        "narHash": "sha256-rHuJtdcOjK7rAHpHphUb1iCvgkU3GpfvicLMwwnfMT0=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
+        "rev": "f20dc5d9b8027381c474144ecabc9034d6a839a3",
         "type": "github"
       },
       "original": {
@@ -580,11 +578,11 @@
     },
     "nixpkgs-lib": {
       "locked": {
-        "lastModified": 1769909678,
-        "narHash": "sha256-cBEymOf4/o3FD5AZnzC3J9hLbiZ+QDT/KDuyHXVJOpM=",
+        "lastModified": 1772328832,
+        "narHash": "sha256-e+/T/pmEkLP6BHhYjx6GmwP5ivonQQn0bJdH9YrRB+Q=",
         "owner": "nix-community",
         "repo": "nixpkgs.lib",
-        "rev": "72716169fe93074c333e8d0173151350670b824c",
+        "rev": "c185c7a5e5dd8f9add5b2f8ebeff00888b070742",
         "type": "github"
       },
       "original": {
@@ -644,27 +642,6 @@
         "owner": "PrismLauncher",
         "repo": "PrismLauncher",
         "type": "github"
-      }
-    },
-    "quickshell": {
-      "inputs": {
-        "nixpkgs": [
-          "dotfiles",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1769593411,
-        "narHash": "sha256-WW00FaBiUmQyxvSbefvgxIjwf/WmRrEGBbwMHvW/7uQ=",
-        "ref": "refs/heads/master",
-        "rev": "1e4d804e7f3fa7465811030e8da2bf10d544426a",
-        "revCount": 732,
-        "type": "git",
-        "url": "https://git.outfoxxed.me/quickshell/quickshell"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.outfoxxed.me/quickshell/quickshell"
       }
     },
     "rmpc": {

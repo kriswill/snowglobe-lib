@@ -19,7 +19,7 @@
   mkNixosHost = import ./mkNixosHost.nix { inherit inputs outputs lib; };
 
   # making aliases for programs
-  mkPackageAlias = import ./mkPackageAlias.nix { inherit lib; };
+  mkProgramAlias = import ./mkProgramAlias.nix { inherit lib; };
 
   # lib.mkOverride function but with an even weaker value than lib.mkDefault
   setDefault = object: lib.mkOverride 1337 object;

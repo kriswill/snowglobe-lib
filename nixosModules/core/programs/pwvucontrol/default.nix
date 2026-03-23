@@ -26,7 +26,7 @@ in
         let
           aliasPackage =
             if (cfg.pavucontrolAlias) then
-              lib.mkPackageAlias {
+              lib.mkProgramAlias {
                 program = "pwvucontrol";
                 alias = "pavucontrol";
                 package = cfg.package;
