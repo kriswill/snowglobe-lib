@@ -89,6 +89,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    manga-tui = {
+      url = "github:josueBarretogit/manga-tui";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixos-hardware = {
       url = "https://flakehub.com/f/NixOS/nixos-hardware/*.tar.gz";
     };

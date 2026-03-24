@@ -14,6 +14,7 @@ in
     nh-git.enable = lib.mkEnableOption "rolling release for nix helper";
     disko-git.enable = lib.mkEnableOption "rolling release for disko";
     ghostty-git.enable = lib.mkEnableOption "rolling release for ghostty";
+    manga-tui-git.enable = lib.mkEnableOption "rolling release for manga-tui";
     niri-git.enable = lib.mkEnableOption "rolling release for niri";
     nixos-anywhere-git.enable = lib.mkEnableOption "rolling release for nixos-anywhere";
     prismlauncher-git.enable = lib.mkEnableOption "rolling release for prismlauncher";

@@ -8,6 +8,10 @@
     disko = inputs.disko.packages.${prev.stdenv.hostPlatform.system}.default;
   };
 
+  manga-tui-git = final: prev: {
+    manga-tui = inputs.manga-tui.packages.${prev.stdenv.hostPlatform.system}.default;
+  };
+
   nixos-anywhere-git = final: prev: {
     nixos-anywhere = inputs.nixos-anywhere.packages.${prev.stdenv.hostPlatform.system}.default;
   };
