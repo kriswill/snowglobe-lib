@@ -146,7 +146,14 @@
 
     nixpkgs = {
       hostPlatform = config.system.arch;
-      config.allowUnfree = lib.setDefault true;
+      config = {
+        allowUnfree = lib.setDefault true;
+        permittedInsecurePackages = [
+          # TODO remove me later
+          # needed for stoat-desktop
+          "electron-38.8.4"
+        ];
+      };
     };
 
     # remove nixos documentation
