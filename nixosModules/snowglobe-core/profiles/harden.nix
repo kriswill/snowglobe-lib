@@ -5,11 +5,11 @@
   ...
 }:
 let
-  cfg = config.earthgman.profiles.harden;
+  cfg = config.snowglobe-core.profiles.harden;
 in
 {
-  options.earthgman.profiles.harden = {
-    enable = lib.mkEnableOption "EarthGman's hardening configuration for increased system security";
+  options.snowglobe-core.profiles.harden = {
+    enable = lib.mkEnableOption "Snowglobe-Core's hardening configuration for increased system security";
   };
 
   config = lib.mkIf cfg.enable {

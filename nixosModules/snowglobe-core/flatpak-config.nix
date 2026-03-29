@@ -6,11 +6,11 @@
 }:
 let
   module-name = "flatpak-config";
-  cfg = config.earthgman.${module-name};
+  cfg = config.snowglobe-core.${module-name};
 in
 {
-  options.earthgman.${module-name} = {
-    enable = lib.mkEnableOption "EarthGman's flatpak configuration";
+  options.snowglobe-core.${module-name} = {
+    enable = lib.mkEnableOption "Snowglobe-Core's flatpak configuration";
     frontend = lib.mkOption {
       description = "Flatpak frontend to use";
       type = lib.types.str;
@@ -32,7 +32,7 @@ in
           '';
         };
       }
-      (lib.mkIf (config.earthgman.desktop.enable) {
+      (lib.mkIf (config.snowglobe-core.desktop.enable) {
         programs.${cfg.frontend}.enable = lib.setDefault true;
       })
     ]

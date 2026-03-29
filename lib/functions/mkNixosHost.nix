@@ -46,12 +46,13 @@ lib.nixosSystem {
       programConfig = importModules "programs";
       serviceConfig = importModules "services";
 
-      myModules = [ outputs.nixosModules.earthgman ];
+      snowglobeCore = [ outputs.nixosModules.snowglobe-core ];
+
+      extras = [ outputs.nixosModules.earthgman ];
     in
     [
       {
-        # enable my modules
-        earthgman.enable = lib.setDefault true;
+        snowglobe-core.enable = lib.setDefault true;
 
         # set secrets file
         sops.defaultSopsFile = lib.mkIf (sopsFile != null) sopsFile;
@@ -75,7 +76,8 @@ lib.nixosSystem {
     ++ programConfig
     ++ serviceConfig
     ++ userConfig
-    ++ myModules
+    ++ snowglobeCore
+    ++ extras
     # extra modules passed to the function
     ++ modules;
 }

@@ -5,16 +5,16 @@
   ...
 }:
 let
-  cfg = config.earthgman.profiles.office;
+  cfg = config.snowglobe-core.profiles.office;
 in
 {
-  options.earthgman.profiles.office = {
+  options.snowglobe-core.profiles.office = {
     enable = lib.mkEnableOption "tools and programs typically found in an office setting";
   };
 
   config = lib.mkIf cfg.enable {
     # autodiscovery and configuration of printers and printing drivers
-    earthgman.printing-config.enable = true;
+    snowglobe-core.printing-config.enable = true;
 
     programs = {
       # email

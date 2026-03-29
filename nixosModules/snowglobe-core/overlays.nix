@@ -6,10 +6,10 @@
 }:
 let
   overlays = outputs.overlays;
-  cfg = config.earthgman.overlays;
+  cfg = config.snowglobe-core.overlays;
 in
 {
-  options.earthgman.overlays = {
+  options.snowglobe-core.overlays = {
     awww-git.enable = lib.mkEnableOption "rolling release for awww";
     nh-git.enable = lib.mkEnableOption "rolling release for nix helper";
     disko-git.enable = lib.mkEnableOption "rolling release for disko";
@@ -29,7 +29,7 @@ in
   config = {
     nixpkgs.overlays =
       let
-        # imported regardless of earthgman.enable, so just pray there are no conflicts
+        # imported regardless of snowglobe-core.enable, so just pray there are no conflicts
         requiredOverlays = builtins.attrValues {
           inherit (overlays)
             packages

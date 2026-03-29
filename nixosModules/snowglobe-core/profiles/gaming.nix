@@ -6,10 +6,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.profiles.gaming;
+  cfg = config.snowglobe-core.profiles.gaming;
 in
 {
-  options.earthgman.profiles.gaming = {
+  options.snowglobe-core.profiles.gaming = {
     enable = lib.mkEnableOption "utilities for that OOB Linux gaming experience";
   };
 

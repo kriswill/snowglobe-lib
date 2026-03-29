@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.profiles.hardware-tools;
+  cfg = config.snowglobe-core.profiles.hardware-tools;
 in
 {
-  options.earthgman.profiles.hardware-tools.enable = lib.mkEnableOption "hardware diagnostic tools";
+  options.snowglobe-core.profiles.hardware-tools.enable = lib.mkEnableOption "hardware diagnostic tools";
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {

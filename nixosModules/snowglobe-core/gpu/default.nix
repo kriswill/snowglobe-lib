@@ -5,7 +5,7 @@
   ...
 }:
 let
-  cfg = config.earthgman.gpu;
+  cfg = config.snowglobe-core.gpu;
   moduleEnabled = (cfg.amd.enable || cfg.nvidia.enable || cfg.intel.enable);
 in
 {

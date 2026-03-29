@@ -6,15 +6,15 @@
   ...
 }:
 let
-  cfg = config.earthgman.display-manager;
+  cfg = config.snowglobe-core.display-manager;
   sddm-astronaut-theme = pkgs.sddm-astronaut.override {
     themeConfig = cfg.sddm.themeConfig;
     embeddedTheme = cfg.sddm.embeddedTheme;
   };
 in
 {
-  options.earthgman.display-manager = {
-    enable = lib.mkEnableOption "EarthGman's display-manager configurations";
+  options.snowglobe-core.display-manager = {
+    enable = lib.mkEnableOption "Snowglobe-Core's display-manager configurations";
     display-manager = lib.mkOption {
       description = "display-manager program and configuration to use";
       type = lib.types.str;
@@ -71,7 +71,7 @@ in
           cfg.sddm.themePackage
         ];
 
-        earthgman.display-manager.sddm.themeConfig = {
+        snowglobe-core.display-manager.sddm.themeConfig = {
           AllowUppercaseLettersInUsernames = lib.mkDefault "true";
           FullBlur = lib.mkDefault "false";
           PartialBlur = lib.mkDefault "false";

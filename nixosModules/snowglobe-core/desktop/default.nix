@@ -5,15 +5,15 @@
   ...
 }:
 let
-  cfg = config.earthgman.desktop;
+  cfg = config.snowglobe-core.desktop;
 in
 {
   imports = lib.autoImport ./. { };
 
-  options.earthgman.desktop.enable = lib.mkEnableOption "EarthGman's modules for systems with a desktop environment";
+  options.snowglobe-core.desktop.enable = lib.mkEnableOption "Snowglobe-Core's modules for systems with a desktop environment";
 
   config = lib.mkIf cfg.enable {
-    earthgman = {
+    snowglobe-core = {
       # uses sddm with astronaut qt6 theme
       display-manager.enable = lib.setDefault true;
       # sound server

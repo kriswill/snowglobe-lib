@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.desktop.kde;
+  cfg = config.snowglobe-core.desktop.kde;
 in
 {
-  options.earthgman.desktop.kde.enable = lib.mkEnableOption "EarthGman's KDE plasma module";
+  options.snowglobe-core.desktop.kde.enable = lib.mkEnableOption "Snowglobe-Core's KDE plasma module";
 
   config = lib.mkIf cfg.enable {
     # script which will repair imperative icons pinned to taskbar and desktop by users
@@ -40,7 +40,7 @@ in
       '';
     };
 
-    earthgman = {
+    snowglobe-core = {
       display-manager.enable = false; # allow kde to use its own display-manager config
       flatpak-config.enable = false; # let kde take care of this too
     };

@@ -5,11 +5,11 @@
   ...
 }:
 let
-  cfg = config.earthgman.gpu.nvidia;
+  cfg = config.snowglobe-core.gpu.nvidia;
 in
 {
-  options.earthgman.gpu.nvidia = {
-    enable = lib.mkEnableOption "EarthGman's nvidia gpu configuration";
+  options.snowglobe-core.gpu.nvidia = {
+    enable = lib.mkEnableOption "Snowglobe-Core's nvidia gpu configuration";
   };
   config = lib.mkIf cfg.enable {
     services.xserver.videoDrivers = [ "nvidia" ];

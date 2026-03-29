@@ -9,15 +9,15 @@ let
 in
 {
   options.snowglobe-core.substituters = {
-    "nix-store.earthgman.dev" = {
+    "nix-store.snowglobe-core.dev" = {
       enable = lib.mkEnableOption ''
-        trust for https://nix-store.earthgman.dev as a source for prebuilt packages.
+        trust for https://nix-store.snowglobe-core.dev as a source for prebuilt packages.
         This is a personally owned server and thus you have the option to disable it if you are paranoid
       '';
       publicKey = lib.mkOption {
         description = "public key of the server";
         type = lib.types.str;
-        default = "nix-store.earthgman.dev:2Qrw9kS+K2c00ikcgaz5Y0M7j5XmkhFJz3d7oNgJdLw=";
+        default = "nix-store.snowglobe-core.dev:2Qrw9kS+K2c00ikcgaz5Y0M7j5XmkhFJz3d7oNgJdLw=";
       };
     };
 
@@ -32,10 +32,10 @@ in
   };
 
   config = lib.mkMerge [
-    (lib.mkIf (cfg."nix-store.earthgman.dev".enable) {
+    (lib.mkIf (cfg."nix-store.snowglobe-core.dev".enable) {
       nix.settings = {
-        substituters = [ "https://nix-store.earthgman.dev" ];
-        trusted-public-keys = [ cfg."nix-store.earthgman.dev".publicKey ];
+        substituters = [ "https://nix-store.snowglobe-core.dev" ];
+        trusted-public-keys = [ cfg."nix-store.snowglobe-core.dev".publicKey ];
       };
     })
     (lib.mkIf (cfg."yazi.cachix.org".enable) {

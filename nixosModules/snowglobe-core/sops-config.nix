@@ -6,10 +6,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.sops-config;
+  cfg = config.snowglobe-core.sops-config;
 in
 {
-  options.earthgman.sops-config.enable = lib.mkEnableOption "EarthGman's sops-nix configuration";
+  options.snowglobe-core.sops-config.enable = lib.mkEnableOption "Snowglobe-Core's sops-nix configuration";
   config = lib.mkIf cfg.enable {
     environment.systemPackages = builtins.attrValues {
       inherit (pkgs)

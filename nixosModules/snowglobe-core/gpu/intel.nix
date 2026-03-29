@@ -6,10 +6,10 @@
 }:
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.earthgman.gpu.intel;
+  cfg = config.snowglobe-core.gpu.intel;
 in
 {
-  options.earthgman.gpu.intel.enable = mkEnableOption "EarthGman's intel gpu configuration";
+  options.snowglobe-core.gpu.intel.enable = mkEnableOption "Snowglobe-Core's intel gpu configuration";
   config = mkIf cfg.enable {
     # provide hardware acceleration to most GPUs
     hardware.graphics.extraPackages = builtins.attrValues {

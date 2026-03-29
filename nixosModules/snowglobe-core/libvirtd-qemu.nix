@@ -6,11 +6,11 @@
 }:
 let
   module-name = "libvirtd-qemu";
-  cfg = config.earthgman.${module-name};
+  cfg = config.snowglobe-core.${module-name};
 in
 {
-  options.earthgman.${module-name} = {
-    enable = lib.mkEnableOption "EarthGman's ${module-name} configuration";
+  options.snowglobe-core.${module-name} = {
+    enable = lib.mkEnableOption "Snowglobe-Core's ${module-name} configuration";
   };
 
   config = lib.mkIf cfg.enable (

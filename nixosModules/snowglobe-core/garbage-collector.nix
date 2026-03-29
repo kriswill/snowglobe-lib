@@ -6,11 +6,11 @@
   ...
 }:
 let
-  cfg = config.earthgman.garbage-collector;
+  cfg = config.snowglobe-core.garbage-collector;
 in
 {
-  options.earthgman.garbage-collector = {
-    enable = lib.mkEnableOption "EarthGman's nix garbage collector configuration";
+  options.snowglobe-core.garbage-collector = {
+    enable = lib.mkEnableOption "Snowglobe-Core's nix garbage collector configuration";
     numGenerations = lib.mkOption {
       description = "Number of generations to keep";
       type = lib.types.int;

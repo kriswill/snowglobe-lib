@@ -6,9 +6,9 @@
   ...
 }:
 {
-  options.earthgman.headless-debloater.enable = lib.mkEnableOption "EarthGman's nixos debloater for headless systems";
+  options.snowglobe-core.headless-debloater.enable = lib.mkEnableOption "Snowglobe-Core's nixos debloater for headless systems";
 
-  config = lib.mkIf config.earthgman.headless-debloater.enable {
+  config = lib.mkIf config.snowglobe-core.headless-debloater.enable {
     # disables linux firmware by default since most servers or headless machines, especially vms, dont need firmware from it.
     hardware.enableRedistributableFirmware = lib.mkOverride 899 false;
 

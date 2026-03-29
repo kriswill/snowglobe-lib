@@ -207,6 +207,50 @@ _get_nixos_hardware_config() {
 
 }
 
+_select_disk() {
+	_get_disk_info() {
+		DISK_PATH=$1
+		printf "Associated Serials\n"
+		printf "__________________\n\n"
+		for serial in $(ls -A /dev/disk/by-id); do
+			if [ "$(readlink -f "/dev/disk/by-id/$serial")" = "$DISK_PATH" ]; then
+				printf "%s\n" "$serial"
+			fi
+		done
+		printf "\n\nBlock-Device contents\n"
+		printf "____________________\n\n"
+		lsblk -f "$DISK_PATH"
+	}
+	# export is required for sub-processes, such as fzf's preview to see the custom function
+	export -f _get_disk_info
+
+	while :; do
+		SELECTED_DISK=$(
+			# prevent unwriteable cdrom of loop devices from appearing
+			for disk in $(lsblk -do name | grep -ve NAME -e 'sr' -e 'loop'); do
+				DEVICE_PATH="/dev/$disk"
+				printf "%s\n" "$DEVICE_PATH"
+			done |
+				fzf --border \
+					--border-label-pos 1:top \
+					--reverse \
+					--border-label="Select a disk to install NixOS" \
+					--preview='bash -c "_get_disk_info {}"' \
+					--preview-window 'right,75%,border-left'
+		)
+
+		if [ -z "$SELECTED_DISK" ]; then
+			y_or_n --msg="No disk was selected. Would you like to abort the installation" --default="no" && {
+				printf "Aborted\n"
+				exit 1
+			}
+		else
+			printf "Selected Disk: %s\n" "$SELECTED_DISK"
+			break
+		fi
+	done
+}
+
 _format_disks() {
 	DISKO_CONFIG_PATH="/tmp/selected-disko-config.nix"
 	# edge case where it is unknown what is mounted so the user's input is required
@@ -295,47 +339,7 @@ _format_disks() {
 			fi
 		fi
 
-		_get_disk_info() {
-			DISK_PATH=$1
-			printf "Associated Serials\n"
-			printf "__________________\n\n"
-			for serial in $(ls -A /dev/disk/by-id); do
-				if [ "$(readlink -f "/dev/disk/by-id/$serial")" = "$DISK_PATH" ]; then
-					printf "%s\n" "$serial"
-				fi
-			done
-			printf "\n\nBlock-Device contents\n"
-			printf "____________________\n\n"
-			lsblk -f "$DISK_PATH"
-		}
-		# export is required for sub-processes, such as fzf's preview to see the custom function
-		export -f _get_disk_info
-
-		while :; do
-			SELECTED_DISK=$(
-				# prevent unwriteable cdrom of loop devices from appearing
-				for disk in $(lsblk -do name | grep -ve NAME -e 'sr' -e 'loop'); do
-					DEVICE_PATH="/dev/$disk"
-					printf "%s\n" "$DEVICE_PATH"
-				done |
-					fzf --border \
-						--border-label-pos 1:top \
-						--reverse \
-						--border-label="Select a disk to install NixOS" \
-						--preview='bash -c "_get_disk_info {}"' \
-						--preview-window 'right,75%,border-left'
-			)
-
-			if [ -z "$SELECTED_DISK" ]; then
-				y_or_n --msg="No disk was selected. Would you like to abort the installation" --default="no" && {
-					printf "Aborted\n"
-					exit 1
-				}
-			else
-				printf "Selected Disk: %s\n" "$SELECTED_DISK"
-				break
-			fi
-		done
+		_select_disk
 
 		printf "\nTo protect your persistent storage volume from theft, you can use the Linux Unified Key Setup (LUKS) to encrypt it\n"
 		printf "By default the installer will set up a passphrase that you will have to enter to boot.\n"
@@ -464,22 +468,25 @@ printf "You can also use this mode to auto-detect and propagate hardware changes
 
 y_or_n --msg="Install an existing configuration?" --default="no" && {
 	_clone_repo
-	while [ -z "$SELECTED_CONFIG" ]; do
-		CONFIGURATIONS=$(nix eval "$REPO_DIR'#'nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"')
+	unset HOSTNAME
+	while [ -z "$HOSTNAME" ]; do
+		CONFIGURATIONS=$(nix eval $REPO_DIR'#'nixosConfigurations --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"')
 		HOSTNAME="$(for config in $CONFIGURATIONS; do
 			printf "%s\n" "$config"
 		done | fzf \
 			--border \
 			--border-label-pos 1:bottom \
-			--border-label="Found the following configurations")"
+			--border-label="Found the following configurations. Which would you like to install?")"
 		if [ -z "$HOSTNAME" ]; then
 			printf "\nNo host was selected\n"
-			y_or_n --msg="Would you like to try the selection again?" || {
+			y_or_n --msg="Would you like to try the selection again?" --default="yes" || {
 				print "Aborted"
 				exit 1
 			}
 		fi
 	done
+
+	printf "\nSelected Host: $HOSTNAME\n"
 
 	printf "\nIf you are reinstalling due to hardware changes, you will not have to re-format your hard drive.\n"
 	printf "In this mode, the installer will simply regenerate configuration relevent to this host's hardware.\n"
@@ -489,7 +496,13 @@ y_or_n --msg="Install an existing configuration?" --default="no" && {
 		_format_disks
 		mkdir -p "$CONFIG_ROOT"
 		;;
-	"Y" | "y") ;;
+	"Y" | "y")
+		HARDWARE_PROPAGATION_MODE=true
+		_select_disk
+
+		lsblk "$SELECTED_DISK"
+		exit 0
+		;;
 	esac
 	HOST_CONFIG_DIR="$CONFIG_ROOT/nixosConfigurations/$HOSTNAME"
 	_mv_repo
@@ -527,7 +540,7 @@ y_or_n --msg="Append to your existing repository?" --default="no" && {
 	_clone_repo
 }
 
-# _format_disks
+_format_disks
 
 # Gather various information from the user
 _set_hostname() {

@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.pipewire-config;
+  cfg = config.snowglobe-core.pipewire-config;
 in
 {
-  options.earthgman.pipewire-config.enable = lib.mkEnableOption "EarthGman's pipewire configuration";
+  options.snowglobe-core.pipewire-config.enable = lib.mkEnableOption "Snowglobe-Core's pipewire configuration";
   config = lib.mkIf cfg.enable {
     security.rtkit.enable = true; # hands out realtime scheduling priority to user processes on demand. Improves performance of pulse
 

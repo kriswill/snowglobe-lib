@@ -24,7 +24,8 @@
       inherit lib;
 
       nixosModules = rec {
-        earthgman = import ./nixosModules/earthgman { inherit inputs outputs lib; };
+        snowglobe-core = import ./nixosModules/snowglobe-core { inherit lib inputs outputs; };
+        earthgman = import ./nixosModules/earthgman;
         # jovian configuration
         jovian = import ./nixosModules/jovian { inherit inputs lib; };
         # expose the modules from nixos-hardware because they do not wrap them with options for some reason

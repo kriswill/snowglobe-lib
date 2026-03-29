@@ -20,7 +20,7 @@
 
   imports = lib.autoImport ./. { exceptions = [ "overlays.nix" ]; } ++ [
     # core module modifications from nixpkgs
-    ../core
+    ../nixos
 
     # special case for overlays where outputs needs to be explicitly provided
     (import ./overlays.nix { inherit outputs lib config; })
@@ -32,14 +32,14 @@
     inputs.sops-nix.nixosModules.default
   ];
 
-  options.earthgman = {
-    enable = lib.mkEnableOption "EarthGman's nixos modules and configurations";
+  options.snowglobe-core = {
+    enable = lib.mkEnableOption "Snowglobe-Core's nixos modules and configurations";
   };
 
-  config = lib.mkIf config.earthgman.enable {
-    # my custom patches and configs
+  config = lib.mkIf config.snowglobe-core.enable {
+    # custom patches and configs
     # -----------------------------
-    earthgman =
+    snowglobe-core =
       let
         hasDesktop = (!(config.system.desktop == null));
       in
@@ -62,7 +62,7 @@
         # config for how the system will start
         boot-config.enable = lib.setDefault true;
 
-        # enable gpu modules
+        # enable gpu configurations
         gpu =
           let
             gpu-vendors = config.system.gpu-vendors;
@@ -75,7 +75,7 @@
 
         # extra caches
         substituters = {
-          "nix-store.earthgman.dev".enable = lib.setDefault true;
+          "nix-store.snowglobe-core.dev".enable = lib.setDefault true;
           "yazi.cachix.org".enable = lib.setDefault true;
         };
 
@@ -93,18 +93,18 @@
     # populate public keyring (not present in nixpkgs. only used to hold data)
     keyring = {
       ssh = {
-        earthgman = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNRHd6NLt4Yd9y5Enu54fJ/a2VCrRgbvfMuom3zn5zg";
+        snowglobe-core = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKNRHd6NLt4Yd9y5Enu54fJ/a2VCrRgbvfMuom3zn5zg";
       };
       substitutors =
         let
-          substituters = config.earthgman.substituters;
+          substituters = config.snowglobe-core.substituters;
         in
         {
-          "nix-store.earthgman.dev" = substituters."nix-store.earthgman.dev".publicKey;
+          "nix-store.snowglobe-core.dev" = substituters."nix-store.snowglobe-core.dev".publicKey;
           "yazi.cachix.org" = substituters."yazi.cachix.org".publicKey;
         };
       openpgp = {
-        earthgman = ''
+        snowglobe-core = ''
           -----BEGIN PGP PUBLIC KEY BLOCK-----
 
           mDMEaLTOMBYJKwYBBAHaRw8BAQdAC1fsH2BhYY9VCMqkJwPekT32bcroQ+gBMe9N

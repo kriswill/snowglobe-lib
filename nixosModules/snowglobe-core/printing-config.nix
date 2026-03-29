@@ -5,11 +5,11 @@
   ...
 }:
 let
-  cfg = config.earthgman.printing-config;
+  cfg = config.snowglobe-core.printing-config;
 in
 {
-  options.earthgman.printing-config = {
-    enable = lib.mkEnableOption "EarthGman's CUPS printing configuration";
+  options.snowglobe-core.printing-config = {
+    enable = lib.mkEnableOption "Snowglobe-Core's CUPS printing configuration";
     installCommonDrivers = lib.mkOption {
       description = "Whether to install common printer drivers";
       type = lib.types.bool;

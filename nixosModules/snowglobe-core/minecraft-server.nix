@@ -7,7 +7,7 @@
   ...
 }:
 let
-  cfg = config.earthgman.minecraft-server;
+  cfg = config.snowglobe-core.minecraft-server;
 
   stopScript = pkgs.writeShellScript "minecraft-server-stop" ''
     echo stop > ${config.systemd.sockets.minecraft-server.socketConfig.ListenFIFO}
@@ -20,8 +20,8 @@ let
   '';
 in
 {
-  options.earthgman.minecraft-server = {
-    enable = lib.mkEnableOption "EarthGman's configuration for a minecraft server";
+  options.snowglobe-core.minecraft-server = {
+    enable = lib.mkEnableOption "Snowglobe-Core's configuration for a minecraft server";
     # TODO future expansion, allow multiple servers on one machine?
     # name = lib.mkOption {
     #   description = "name of the minecraft server";

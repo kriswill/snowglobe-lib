@@ -6,11 +6,11 @@
   ...
 }:
 let
-  cfg = config.earthgman.desktop.niri;
+  cfg = config.snowglobe-core.desktop.niri;
 in
 {
-  options.earthgman.desktop.niri = {
-    enable = lib.mkEnableOption "EarthGman's niri configuration.";
+  options.snowglobe-core.desktop.niri = {
+    enable = lib.mkEnableOption "Snowglobe-Core's niri configuration.";
   };
 
   config = lib.mkIf cfg.enable {

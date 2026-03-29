@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.gpu.amd;
+  cfg = config.snowglobe-core.gpu.amd;
 in
 {
-  options.earthgman.gpu.amd.enable = lib.mkEnableOption "EarthGman's amdgpu configuration";
+  options.snowglobe-core.gpu.amd.enable = lib.mkEnableOption "Snowglobe-Core's amdgpu configuration";
   config = lib.mkIf cfg.enable {
     services = {
       xserver.videoDrivers = [ "amdgpu" ];

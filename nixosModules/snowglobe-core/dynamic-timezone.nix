@@ -6,10 +6,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.dynamic-timezone;
+  cfg = config.snowglobe-core.dynamic-timezone;
 in
 {
-  options.earthgman.dynamic-timezone = {
+  options.snowglobe-core.dynamic-timezone = {
     enable = lib.mkEnableOption "geolocation based time synchronization";
     server = lib.mkOption {
       description = "URL of the server to use";
@@ -22,12 +22,12 @@ in
       lib.optionals (!config.networking.networkmanager.enable) [
         ''
           Networkmanager is not enabled, The geolocation timesync module will not work properly. 
-          You can enable networkmanager with networking.networkmanager.enable = true or disable the module with earthgman.dynamic-timezone.enable = false.
+          You can enable networkmanager with networking.networkmanager.enable = true or disable the module with snowglobe-core.dynamic-timezone.enable = false.
         ''
       ]
       ++ (lib.optionals (config.time.timeZone != null) [
         ''
-          the time.timeZone option must be `null` for the earthgman.dynamic-timezone module to work.
+          the time.timeZone option must be `null` for the snowglobe-core.dynamic-timezone module to work.
         ''
       ]);
 

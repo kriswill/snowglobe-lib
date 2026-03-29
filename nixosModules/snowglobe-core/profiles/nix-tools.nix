@@ -5,11 +5,11 @@
   ...
 }:
 let
-  cfg = config.earthgman.profiles.nix-tools;
+  cfg = config.snowglobe-core.profiles.nix-tools;
 in
 {
-  options.earthgman.profiles.nix-tools = {
-    enable = lib.mkEnableOption "EarthGman's choice of tools for development with nix";
+  options.snowglobe-core.profiles.nix-tools = {
+    enable = lib.mkEnableOption "Snowglobe-Core's choice of tools for development with nix";
   };
 
   config = lib.mkIf cfg.enable {

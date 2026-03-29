@@ -23,8 +23,6 @@ in
       };
     };
 
-    earthgman.pipewire-config.enable = true;
-
     xdg.portal = {
       enable = true;
       wlr.enable = true;

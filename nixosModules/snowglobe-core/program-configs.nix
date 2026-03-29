@@ -7,11 +7,11 @@
   ...
 }:
 let
-  cfg = config.earthgman.program-configs;
+  cfg = config.snowglobe-core.program-configs;
 in
 {
-  options.earthgman.program-configs.enable = lib.mkEnableOption ''
-    EarthGman's custom program configurations and package modifications
+  options.snowglobe-core.program-configs.enable = lib.mkEnableOption ''
+    Snowglobe-Core's custom program configurations and package modifications
   '';
   config = lib.mkIf cfg.enable {
     programs = {

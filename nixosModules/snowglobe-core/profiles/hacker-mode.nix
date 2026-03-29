@@ -6,11 +6,11 @@
   ...
 }:
 let
-  cfg = config.earthgman.profiles.hacker-mode;
+  cfg = config.snowglobe-core.profiles.hacker-mode;
 in
 {
-  options.earthgman.profiles.hacker-mode.enable =
-    lib.mkEnableOption "EarthGman's cybersecurity suite. Installs a majority of tools present on Kali.";
+  options.snowglobe-core.profiles.hacker-mode.enable =
+    lib.mkEnableOption "Snowglobe-Core's cybersecurity suite. Installs a majority of tools present on Kali.";
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       (lib.mkIf (config.system.desktop != null) {

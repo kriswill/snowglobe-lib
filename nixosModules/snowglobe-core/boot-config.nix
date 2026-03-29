@@ -5,9 +5,9 @@
   ...
 }:
 {
-  options.earthgman.boot-config.enable = lib.mkEnableOption "EarthGman's grub configuration";
+  options.snowglobe-core.boot-config.enable = lib.mkEnableOption "Snowglobe-Core's grub configuration";
 
-  config = lib.mkIf config.earthgman.boot-config.enable {
+  config = lib.mkIf config.snowglobe-core.boot-config.enable {
     boot = {
       # TODO look into this
       # plymouth.enable = lib.mkIf (config.system.desktop != null) lib.setDefault true;
