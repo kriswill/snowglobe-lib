@@ -6,8 +6,10 @@
   ...
 }:
 let
-  install-sh = pkgs.writeScriptBin "install.sh" (builtins.readFile ../../scripts/install.sh);
-  nixfmt-sh = pkgs.writeScriptBin "nixfmt.sh" (builtins.readFile ../../scripts/nixfmt.sh);
+  install-sh = pkgs.writeScriptBin "snowglobe-install" (
+    builtins.readFile ../../lib/scripts/snowglobe-install.sh
+  );
+  nixfmt-sh = pkgs.writeScriptBin "nixfmt.sh" (builtins.readFile ../../lib/scripts/nixfmt.sh);
 in
 {
   imports = [ (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix") ];
@@ -22,11 +24,11 @@ in
   };
 
   services.getty.helpLine = lib.mkForce ''
-    Welcome to EarthGman's NixOS installer.
+    Welcome to the Snowglobe NixOS installer.
 
     To log in over ssh, set a password for the root user with `sudo passwd`
 
-    Begin install by running `install.sh` as root.
+    Begin install by running `snowglobe-install` as root.
   '';
 
   environment = {
@@ -48,10 +50,8 @@ in
       "locales.txt".source = ../../lib/mixins/locales.txt;
 
       # provide disko configurations for the installer
-      "disko/defaults/luks-legacy-ext4.nix".source = ../../lib/mixins/disko/luks-legacy-ext4.nix;
-      "disko/defaults/luks-uefi-ext4.nix".source = ../../lib/mixins/disko/luks-uefi-ext4.nix;
-      "disko/defaults/legacy-ext4.nix".source = ../../lib/mixins/disko/legacy-ext4.nix;
-      "disko/defaults/uefi-ext4.nix".source = ../../lib/mixins/disko/uefi-ext4.nix;
+      "disko/defaults/default-ext4-luks.nix".source = ../../lib/mixins/disko/default-ext4-luks.nix;
+      "disko/defaults/default-ext4.nix".source = ../../lib/mixins/disko/default-ext4.nix;
     };
   };
 
@@ -64,18 +64,19 @@ in
         fi
       '';
     };
+    # TODO this doesn't work
     # determinate nixd is not started for some reason?
-    activationScripts = {
-      start-nix-daemon =
-        let
-          systemctl = "${pkgs.systemd}/bin/systemctl";
-        in
-        ''
-          if ! ${systemctl} is-active nix-daemon; then
-            ${systemctl} start nix-daemon
-          fi
-        '';
-    };
+    # activationScripts = {
+    #   start-nix-daemon =
+    #     let
+    #       systemctl = "${pkgs.systemd}/bin/systemctl";
+    #     in
+    #     ''
+    #       if ! ${systemctl} is-active nix-daemon; then
+    #         ${systemctl} start nix-daemon
+    #       fi
+    #     '';
+    # };
   };
 
   boot = {

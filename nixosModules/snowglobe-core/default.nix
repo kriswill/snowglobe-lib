@@ -161,7 +161,7 @@
 
     # enable the linux-firmware repository if not in a virtual machine
     # TODO only qemu is supported
-    hardware.enableRedistributableFirmware = lib.setDefault (!config.system.isQemu);
+    hardware.enableRedistributableFirmware = lib.setDefault (!config.system.isVM);
 
     networking = {
       networkmanager.enable = lib.setDefault true;

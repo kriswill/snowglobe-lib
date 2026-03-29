@@ -1,9 +1,9 @@
 { pkgs }:
 let
-  ci-sh = pkgs.writeScriptBin "ci.sh" (builtins.readFile ../scripts/ci.sh);
-  nixfmt-sh = pkgs.writeScriptBin "nixfmt.sh" (builtins.readFile ../scripts/nixfmt.sh);
+  ci-sh = pkgs.writeScriptBin "ci.sh" (builtins.readFile ../lib/scripts/ci.sh);
+  nixfmt-sh = pkgs.writeScriptBin "nixfmt.sh" (builtins.readFile ../lib/scripts/nixfmt.sh);
   build-installers-sh = pkgs.writeScriptBin "build-installers.sh" (
-    builtins.readFile ../scripts/build-installers.sh
+    builtins.readFile ../lib/scripts/build-installers.sh
   );
 in
 pkgs.mkShell {

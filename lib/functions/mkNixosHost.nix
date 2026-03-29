@@ -8,7 +8,7 @@ in
   firmware ? "UEFI", # firmware implementation, one of UEFI or BIOS
   cpu-vendor ? null, # cpu vendor, "intel" or "amd"
   gpu-vendors ? [ ], # list of gpu vendors, "intel" "nvidia" "amd"
-  isQemu ? false, # are we in a VM?
+  isVM ? false, # are we in a VM?
   desktop ? null, # desktop environment?
   sopsFile ? null,
   stateVersion ? "26.05", # initial release of nixos which this machine was installed
@@ -64,7 +64,7 @@ lib.nixosSystem {
             stateVersion
             cpu-vendor
             gpu-vendors
-            isQemu
+            isVM
             desktop
             firmware
             ;

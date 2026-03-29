@@ -35,18 +35,11 @@
 
     desktop = lib.mkOption {
       description = "The desktop environment.";
-      type = lib.types.nullOr (
-        lib.types.oneOf [
-          lib.types.str
-          "niri"
-          lib.types.str
-          "kde"
-        ]
-      );
+      type = lib.types.nullOr (lib.types.str);
       default = null;
     };
 
-    isQemu = lib.mkOption {
+    isVM = lib.mkOption {
       description = "Whether this host is a qemu virtual machine.";
       type = lib.types.bool;
       example = true;

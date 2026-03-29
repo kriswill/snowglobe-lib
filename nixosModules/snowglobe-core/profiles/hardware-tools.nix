@@ -16,6 +16,7 @@ in
           inherit (pkgs)
             usbutils
             hdparm
+            nvme-cli
             pciutils
             lshw
             hwinfo

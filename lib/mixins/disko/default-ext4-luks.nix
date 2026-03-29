@@ -1,4 +1,4 @@
-# password based luks encryption for uefi bios
+# password based luks encryption for legacy bios
 {
   disko.devices = {
     disk = {
@@ -7,16 +7,24 @@
         # CHANGE BEFORE FORMATTING
         device = "/dev/sda";
         content = {
+          # use a GPT disk for all systems
           type = "gpt";
           partitions = {
+            # required for legacy bios / CSM mode to boot drives with GPT via grub
+            bios-boot = {
+              name = "bios-boot";
+              type = "EF02";
+              size = "1M";
+            };
             esp = {
               name = "ESP";
-              size = "256M";
+              size = "512M";
               type = "EF00";
               content = {
                 type = "filesystem";
                 format = "vfat";
                 mountpoint = "/boot";
+                # prevent a security hole warning for /dev/urandom
                 mountOptions = [ "umask=0077" ];
               };
             };
@@ -24,10 +32,10 @@
               size = "100%";
               content = {
                 type = "luks";
-                name = "nixos";
+                name = "root";
                 settings.allowDiscards = true;
-                # text file containing the password (only needed for formatting, handled by installer)
-                passwordFile = "/tmp/secret.key";
+                # text file containing the password (only needed when formatting, handled by installer)
+                passwordFile = "/tmp/luks-password";
                 content = {
                   type = "filesystem";
                   format = "ext4";

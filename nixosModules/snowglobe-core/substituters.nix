@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.earthgman.substituters;
+  cfg = config.snowglobe-core.substituters;
 in
 {
-  options.earthgman.substituters = {
+  options.snowglobe-core.substituters = {
     "nix-store.earthgman.dev" = {
       enable = lib.mkEnableOption ''
         trust for https://nix-store.earthgman.dev as a source for prebuilt packages.
