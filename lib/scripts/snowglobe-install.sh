@@ -139,6 +139,8 @@ _get_hardware_info() {
 
 	if lscpu | grep 'Hypervisor vendor:' >/dev/null; then
 		IS_VM=true
+	else
+		IS_VM=false
 	fi
 
 	GPU_VENDORS=()
@@ -310,9 +312,7 @@ _format_disks() {
 		}
 	fi
 
-	# default disko deployment
 	if [ -z "$CUSTOM_DISKO" ]; then
-		DISKO_DEFAULTS_DIR="/etc/disko/defaults"
 		CUSTOM_DISKO_CONFIGURATIONS=$(find /etc/disko -type f | sed 's|\/etc\/disko\/||' | grep -v 'defaults')
 		if [ "$CUSTOM_DISKO_CONFIGURATIONS" ]; then
 			SELECTED_DISKO_CONFIG=$(
@@ -334,10 +334,16 @@ _format_disks() {
 			)
 			if [ "$SELECTED_DISKO_CONFIG" ]; then
 				SELECTED_DISKO_CONFIG="/etc/disko/""$SELECTED_DISKO_CONFIG"
+				CUSTOM_DISKO=true
 			else
 				printf "\nNo custom disko configuration file selected, proceeding with defaults.\n"
 			fi
 		fi
+	fi
+
+	# default disko deployment
+	if [ -z "$CUSTOM_DISKO" ]; then
+		DISKO_DEFAULTS_DIR="/etc/disko/defaults"
 
 		_select_disk
 
@@ -389,28 +395,28 @@ _format_disks() {
 			done
 			sed -i "s|device = \"\/dev\/sda\"|device = \"\/dev\/disk\/by-id\/$ASSOCIATED_DISK_SERIAL\"|" "$DISKO_CONFIG_PATH"
 		fi
-	fi
 
-	# will nuke any file in /mnt
-	# the user has already been asked about this so just go ahead and do it
-	for file in /mnt/*; do
-		rm -rf "$file"
-	done
+		# will nuke any file in /mnt
+		# the user has already been asked about this so just go ahead and do it
+		for file in /mnt/*; do
+			rm -rf "$file"
+		done
 
-	disko --mode destroy,format,mount "$DISKO_CONFIG_PATH" || {
-		printf "Error: Disko was unable to format the request drives\n"
-		DISKO_ERROR=true
-	}
+		disko --mode destroy,format,mount "$DISKO_CONFIG_PATH" || {
+			printf "Error: Disko was unable to format the request drives\n"
+			DISKO_ERROR=true
+		}
 
-	# cleanup
-	unset SELECTED_DISKO_CONFIG
-	unset SELECTED_DISK
-	if [ -e "/tmp/luks-password" ]; then
-		rm "/tmp/luks-password"
-	fi
+		# cleanup
+		unset SELECTED_DISKO_CONFIG
+		unset SELECTED_DISK
+		if [ -e "/tmp/luks-password" ]; then
+			rm "/tmp/luks-password"
+		fi
 
-	if [ "$DISKO_ERROR" ]; then
-		exit 1
+		if [ "$DISKO_ERROR" ]; then
+			exit 1
+		fi
 	fi
 }
 
@@ -544,8 +550,8 @@ _format_disks
 
 # Gather various information from the user
 _set_hostname() {
+	printf "Note: Hostname will be cleansed of characters that are not [a-z][A-Z][0-9], -, or _\n"
 	while :; do
-		printf "Note: Hostname will be cleansed of characters that are not [a-z][A-Z][0-9], -, or _\n"
 		read -rp "Set your system hostname: " HOSTNAME
 		if [ -z "$HOSTNAME" ]; then
 			printf "Hostname cannot be empty.\n"
@@ -561,6 +567,7 @@ _set_hostname() {
 	HOSTS_CONFIG_FILE="$CONFIG_ROOT/nixosConfigurations/default.nix"
 }
 
+clear
 printf "\nNote: for the next few steps, if you happen to enter information incorrectly, you do not have to abort.\n"
 printf "The installer will let you modify any configuration before installing.\n\n"
 
@@ -646,10 +653,6 @@ Recommended for enthusists / advanced users only."
 			break
 		done
 	}
-
-	if [ -z "$SELECTED_DESKTOP" ]; then
-		SELECTED_DESKTOP="None"
-	fi
 }
 
 _select_optional_profiles() {
@@ -689,7 +692,11 @@ while :; do
 	printf "Hostname - %s\n" "$HOSTNAME"
 	printf "Locale - %s\n" "$LOCALE"
 	printf "Keyboard Layout - %s\n" "$XKB_LAYOUT"
-	printf "Desktop - %s\n" "$SELECTED_DESKTOP"
+	if [ -z "$SELECTED_DESKTOP" ]; then
+		printf "Desktop - None\n"
+	else
+		printf "Desktop - %s\n" "$SELECTED_DESKTOP"
+	fi
 	if [ ${#ENABLED_PROFILES[@]} -gt 0 ]; then
 		printf "Optional profile - %s\n" "${ENABLED_PROFILES[@]}"
 	fi
@@ -1005,9 +1012,9 @@ if [ "$ENABLED_PROFILES" ]; then
 			printf "snowglobe-core.profiles.harden.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
 			;;
 		esac
-		printf "}" >>"$HOST_CONFIG_DIR/configuration.nix"
 	done
 fi
+printf "}" >>"$HOST_CONFIG_DIR/configuration.nix"
 
 _create_moduleset() {
 	printf "{pkgs, lib, config, ...}:
@@ -1075,8 +1082,8 @@ _set_username() {
 	unset USERNAME
 	unset NORMAL_USER
 
+	printf "Note: Username will be cleansed of characters that are not [a-z][A-Z][0-9], -, or _\n"
 	while :; do
-		printf "Note: Username will be cleansed of characters that are not [a-z][A-Z][0-9], -, or _\n"
 		read -rp "Username: " USERNAME
 		# cleanse username of problematic characters
 		USERNAME=$(printf "%s" "$USERNAME" | tr -d '[`"=$%#^<>+(){}*!&[]~|][:blank:][:cntrl:]')
@@ -1137,8 +1144,26 @@ _set_permissions() {
 	fi
 }
 
+USERS=()
 while :; do
 	_set_username
+	TMP_USERS=()
+	for username in "${USERS[@]}"; do
+		if [ "$USERNAME" = "$username" ]; then
+			PASSWORD_ENTRY="$USERNAME""_password"
+			# remove the password entry from the secrets file if this username already has configuration
+			sed -i -e "s|$PASSWORD_ENTRY.*||g" -e '/^[[:space:]]*$/d' "$CONFIG_ROOT/$SOPS_FILE"
+			# remove entry from the array
+		else
+			TMP_USERS+=("$username")
+		fi
+	done
+
+	USERS=()
+	for user in "${TMP_USERS[@]}"; do
+		USERS+=("$user")
+	done
+	TMP_USERS=()
 
 	# loop until a PASSWORD or authorized key is set for this user
 	while :; do
@@ -1248,8 +1273,19 @@ while :; do
 	printf "};
 }" >>"$USER_CONFIG_DIR/default.nix"
 
+	USERS+=("$USERNAME")
+	printf "\nConfigured Users:\n"
+	for user in "${USERS[@]}"; do
+		printf "%s\n" "$user"
+	done
+	printf "\n"
 	# write to sops secrets
 	printf "%s_password: %s\n" "$USERNAME" "$(mkpasswd -s "$PASSWORD")" >>"$HOST_CONFIG_DIR/secrets.yaml"
+
+	unset USERNAME
+	unset PASSWORD
+	unset PASSWORD2
+	unset NORMAL_USER
 
 	y_or_n --msg="Add/Configure another user?" --default="no" || break
 done
