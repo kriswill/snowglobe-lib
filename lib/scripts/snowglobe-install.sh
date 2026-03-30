@@ -94,7 +94,7 @@ _clone_repo() {
 	if [ -d "$REPO_DIR" ] && [ "$(ls -A "$REPO_DIR")" ]; then
 		printf "\nFiles were found in the repo destination directory: %s\n" "$REPO_DIR"
 		printf "This only occurs if a previous installation attempt was aborted before the files could be moved.\n"
-		y_or_n --msg="Clear the contents of $REPO_DIR and clone your repository again?" || return 0
+		y_or_n --msg="Clear the contents of $REPO_DIR and clone your repository again?" --default="no" || return 0
 		rm -rf "$REPO_DIR"
 	fi
 
@@ -209,22 +209,24 @@ _get_nixos_hardware_config() {
 
 }
 
+_get_disk_info() {
+	DISK_PATH=$1
+	printf "Associated Serials\n"
+	printf "__________________\n\n"
+	for serial in $(ls -A /dev/disk/by-id); do
+		if [ "$(readlink -f "/dev/disk/by-id/$serial")" = "$DISK_PATH" ]; then
+			printf "%s\n" "$serial"
+		fi
+	done
+	printf "\n\nBlock-Device contents\n"
+	printf "____________________\n\n"
+	lsblk -f "$DISK_PATH"
+}
+# export is required for sub-processes, such as fzf's preview to see the custom function
+export -f _get_disk_info
+
 _select_disk() {
-	_get_disk_info() {
-		DISK_PATH=$1
-		printf "Associated Serials\n"
-		printf "__________________\n\n"
-		for serial in $(ls -A /dev/disk/by-id); do
-			if [ "$(readlink -f "/dev/disk/by-id/$serial")" = "$DISK_PATH" ]; then
-				printf "%s\n" "$serial"
-			fi
-		done
-		printf "\n\nBlock-Device contents\n"
-		printf "____________________\n\n"
-		lsblk -f "$DISK_PATH"
-	}
-	# export is required for sub-processes, such as fzf's preview to see the custom function
-	export -f _get_disk_info
+	FZF_PROMPT="$1"
 
 	while :; do
 		SELECTED_DISK=$(
@@ -236,7 +238,7 @@ _select_disk() {
 				fzf --border \
 					--border-label-pos 1:top \
 					--reverse \
-					--border-label="Select a disk to install NixOS" \
+					--border-label="$FZF_PROMPT" \
 					--preview='bash -c "_get_disk_info {}"' \
 					--preview-window 'right,75%,border-left'
 		)
@@ -345,7 +347,7 @@ _format_disks() {
 	if [ -z "$CUSTOM_DISKO" ]; then
 		DISKO_DEFAULTS_DIR="/etc/disko/defaults"
 
-		_select_disk
+		_select_disk "Select a disk to install NixOS"
 
 		printf "\nTo protect your persistent storage volume from theft, you can use the Linux Unified Key Setup (LUKS) to encrypt it\n"
 		printf "By default the installer will set up a passphrase that you will have to enter to boot.\n"
@@ -492,24 +494,12 @@ y_or_n --msg="Install an existing configuration?" --default="no" && {
 		fi
 	done
 
-	printf "\nSelected Host: $HOSTNAME\n"
+	printf "\nSelected Host: %s\n" "$HOSTNAME"
 
-	printf "\nIf you are reinstalling due to hardware changes, you will not have to re-format your hard drive.\n"
-	printf "In this mode, the installer will simply regenerate configuration relevent to this host's hardware.\n"
-	y_or_n --msg="Do you wish to install via hardware propagation mode?" --default="no"
-	case $yn in
-	"N" | "n")
-		_format_disks
-		mkdir -p "$CONFIG_ROOT"
-		;;
-	"Y" | "y")
-		HARDWARE_PROPAGATION_MODE=true
-		_select_disk
+	# TODO add hardware regeneration mode
+	_format_disks
+	mkdir -p "$CONFIG_ROOT"
 
-		lsblk "$SELECTED_DISK"
-		exit 0
-		;;
-	esac
 	HOST_CONFIG_DIR="$CONFIG_ROOT/nixosConfigurations/$HOSTNAME"
 	_mv_repo
 	_get_nixos_hardware_config
@@ -1070,6 +1060,9 @@ printf '%s = lib.mkNixosHost {
 
 printf "\n}" >>"$HOSTS_CONFIG_FILE"
 
+# generate hardware-configuration.nix and move disko.nix into place
+_get_nixos_hardware_config
+
 # user creation
 printf "\nNow you must add and configure user accounts.\n"
 printf "By default, the root user will not be accessible unless configured in this section.\n"
@@ -1202,7 +1195,6 @@ while :; do
 			printf "Password - =*Redacted*=\n"
 		fi
 		# TODO ssh keys
-		#&&
 		if [ -z "$NORMAL_USER" ]; then
 			printf "Permission - System Administrator\n\n"
 		elif [ "$USER_PERMISSIONS" ]; then
@@ -1296,8 +1288,6 @@ if [ -e "$CONFIG_ROOT/$SOPS_FILE" ]; then
 		exit 1
 	}
 fi
-
-_get_nixos_hardware_config
 
 nixfmt.sh "$CONFIG_ROOT"
 
