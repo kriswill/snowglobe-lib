@@ -75,7 +75,7 @@
 
         # extra caches
         substituters = {
-          "nix-store.snowglobe-core.dev".enable = lib.setDefault true;
+          "nix-store.earthgman.dev".enable = lib.setDefault true;
           "yazi.cachix.org".enable = lib.setDefault true;
         };
 
@@ -97,7 +97,7 @@
           substituters = config.snowglobe-core.substituters;
         in
         {
-          "nix-store.snowglobe-core.dev" = substituters."nix-store.snowglobe-core.dev".publicKey;
+          "nix-store.earthgman.dev" = substituters."nix-store.earthgman.dev".publicKey;
           "yazi.cachix.org" = substituters."yazi.cachix.org".publicKey;
         };
     };
