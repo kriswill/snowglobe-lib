@@ -29,6 +29,9 @@ in
             programArgs = [ "--wait" ];
             package = cfg.package;
           }
+          // {
+            wantedBy = [ "syncthing.service" ];
+          }
         );
       };
     }

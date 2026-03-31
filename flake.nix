@@ -1,5 +1,5 @@
 {
-  description = "EarthGman's hub for all things Nix and NixOS";
+  description = "Core modules for the NixOS snowglobes framework.";
 
   outputs =
     { nixpkgs, self, ... }@inputs:

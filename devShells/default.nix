@@ -14,6 +14,6 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    export PROJECT_ROOT="$HOME/src/git/earthgman.dev/earthgman/nix-modules"
+    export PROJECT_ROOT="$HOME/src/git/earthgman.dev/earthgman/snowglobe-core"
   '';
 }

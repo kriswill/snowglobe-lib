@@ -33,13 +33,15 @@ if ! git status | grep -q 'nothing to commit, working tree clean'; then
 	}
 fi
 
+nix flake check
+
 for repo in $REPOSITORIES; do
 	REPO_OWNER=$(echo "$repo" | rev | cut -d "/" -f2 | rev)
 	REPO_NAME=$(echo "$repo" | rev | cut -d "/" -f1 | rev)
 	if [ -z "$XDG_CACHE_HOME" ]; then
-		REPO_DIR="/tmp/nix-modules-CI/repos/$REPO_OWNER/$REPO_NAME"
+		REPO_DIR="/tmp/snowglobe-CI/repos/$REPO_OWNER/$REPO_NAME"
 	else
-		REPO_DIR="$XDG_CACHE_HOME/nix-modules-CI/repos/$REPO_OWNER/$REPO_NAME"
+		REPO_DIR="$XDG_CACHE_HOME/snowglobe-CI/repos/$REPO_OWNER/$REPO_NAME"
 	fi
 
 	if [ ! -d "$REPO_DIR" ]; then
@@ -60,7 +62,7 @@ for repo in $REPOSITORIES; do
 	cd "$REPO_DIR" || exit 1
 
 	# edit the flake.nix to point to the testing branch
-	sed -i 's|/EarthGman/nix-modules|/EarthGman/nix-modules?ref=dev|' "$REPO_DIR/flake.nix"
+	sed -i 's|/EarthGman/snowglobe-core?ref=testing|/EarthGman/snowglobe-core?ref=dev|' "$REPO_DIR/flake.nix"
 
 	nix flake update earthgman
 
@@ -70,23 +72,23 @@ for repo in $REPOSITORIES; do
 		nh os build ".#nixosConfigurations.$host" || {
 			msg="build for $host from repo: $REPO_OWNER/$REPO_NAME has failed"
 			echo "$msg"
-			notify-send -a "nix-modules-CI" "test-update.sh" "$msg"
-			sed -i 's|/EarthGman/nix-modules?ref=dev|/EarthGman/nix-modules|' "$REPO_DIR/flake.nix"
+			notify-send -a "snowglobe-CI" "ci.sh" "$msg"
+			sed -i 's|/EarthGman/snowglobe-core?ref=dev|/EarthGman/snowglobe-core?ref=testing|' "$REPO_DIR/flake.nix"
 			exit 1
 		}
 	done
 	# return the flake to its original state
-	sed -i 's|/EarthGman/nix-modules?ref=dev|/EarthGman/nix-modules|' "$REPO_DIR/flake.nix"
+	sed -i 's|/EarthGman/snowglobe-core?ref=dev|/EarthGman/snowglobe-core?ref=testing|' "$REPO_DIR/flake.nix"
 done
 
 cd "$PROJECT_ROOT" || exit 1
 
-notify-send -a "nix-modules-CI" "ci.sh" "Configuration Checks successful\!"
+notify-send -a "snowglobe-CI" "ci.sh" "Configuration Checks successful\!"
 
-y_or_n "Configuration checks successful, merge into main?" && {
-	git checkout main
+y_or_n "Configuration checks successful, merge into testing?" && {
+	git checkout testing
 	git merge dev
-	git push -u origin main
+	git push -u origin testing
 	git checkout dev
 }
 
