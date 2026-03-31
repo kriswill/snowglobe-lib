@@ -8,7 +8,8 @@ let
   cfg = config.snowglobe-core.profiles.hardware-tools;
 in
 {
-  options.snowglobe-core.profiles.hardware-tools.enable = lib.mkEnableOption "hardware diagnostic tools";
+  options.snowglobe-core.profiles.hardware-tools.enable =
+    lib.mkEnableOption "hardware diagnostic tools";
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
