@@ -62,8 +62,12 @@ for repo in $REPOSITORIES; do
 	cd "$REPO_DIR" || exit 1
 
 	# edit the flake.nix to point to the development branch
-	sed -i 's|/EarthGman/snowglobe-core?ref=testing|/EarthGman/snowglobe-core?ref=dev|' "$REPO_DIR/flake.nix"
-
+	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'https://git.earthgman.dev/EarthGman/snowglobe-core' | grep 'testing')" ]; then
+		# if the repo is on the testing branch
+		sed -i 's|/EarthGman/snowglobe-core?ref=testing|/EarthGman/snowglobe-core?ref=dev|' "$REPO_DIR/flake.nix"
+	else
+		sed -i 's|/EarthGman/snowglobe-core|/EarthGman/snowglobe-core?ref=dev|' "$REPO_DIR/flake.nix"
+	fi
 	nix flake update snowglobe-core
 
 	HOSTS=$(nix eval "$REPO_DIR#nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"')

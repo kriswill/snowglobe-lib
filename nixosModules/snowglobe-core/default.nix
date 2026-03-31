@@ -52,7 +52,8 @@
           ghostty-git.enable = lib.setDefault true;
           niri-git.enable = lib.setDefault true;
           nixos-anywhere-git.enable = lib.setDefault true;
-          manga-tui-git.enable = lib.setDefault true;
+          # TODO this flake is broken
+          # manga-tui-git.enable = lib.setDefault true;
           prismlauncher-git.enable = lib.setDefault true;
           rmpc-git.enable = lib.setDefault true;
           yazi-git.enable = lib.setDefault true;
