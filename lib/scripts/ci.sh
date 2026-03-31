@@ -61,10 +61,10 @@ for repo in $REPOSITORIES; do
 
 	cd "$REPO_DIR" || exit 1
 
-	# edit the flake.nix to point to the testing branch
+	# edit the flake.nix to point to the development branch
 	sed -i 's|/EarthGman/snowglobe-core?ref=testing|/EarthGman/snowglobe-core?ref=dev|' "$REPO_DIR/flake.nix"
 
-	nix flake update earthgman
+	nix flake update snowglobe-core
 
 	HOSTS=$(nix eval "$REPO_DIR#nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"')
 
