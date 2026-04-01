@@ -1,4 +1,4 @@
 { pkgs, ... }:
 {
-  lutris = pkgs.callPackage ./package.nix { };
+  lutris-unwrapped = pkgs.callPackage ./package.nix { };
 }
