@@ -49,7 +49,10 @@
           awww-git.enable = lib.setDefault true;
           nh-git.enable = lib.setDefault true;
           disko-git.enable = lib.setDefault true;
+          # TODO figure out how to patch electron apps
+          # freetube-git.enable = lib.setDefault true;
           ghostty-git.enable = lib.setDefault true;
+          lutris-git.enable = lib.setDefault true;
           niri-git.enable = lib.setDefault true;
           nixos-anywhere-git.enable = lib.setDefault true;
           # TODO this flake is broken

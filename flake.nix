@@ -35,14 +35,14 @@
 
       packages = lib.genAttrs supportedSystems (
         system:
-        import ./packages {
-          inherit inputs;
+        let
           pkgs = import nixpkgs {
             config.allowUnfree = true;
             inherit system;
             overlays = builtins.attrValues self.outputs.overlays;
           };
-        }
+        in
+        import ./packages { inherit pkgs; } // import ./packages/self-maintained/lutris { inherit pkgs; }
       );
 
       overlays = import ./overlays { inherit inputs; };

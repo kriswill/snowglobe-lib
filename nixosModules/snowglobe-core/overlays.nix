@@ -10,10 +10,12 @@ let
 in
 {
   options.snowglobe-core.overlays = {
+    # TODO automatically create git overlays by reading outputs.overlays
     awww-git.enable = lib.mkEnableOption "rolling release for awww";
     nh-git.enable = lib.mkEnableOption "rolling release for nix helper";
     disko-git.enable = lib.mkEnableOption "rolling release for disko";
     ghostty-git.enable = lib.mkEnableOption "rolling release for ghostty";
+    lutris-git.enable = lib.mkEnableOption "rolling release for lutris";
     manga-tui-git.enable = lib.mkEnableOption "rolling release for manga-tui";
     niri-git.enable = lib.mkEnableOption "rolling release for niri";
     nixos-anywhere-git.enable = lib.mkEnableOption "rolling release for nixos-anywhere";
