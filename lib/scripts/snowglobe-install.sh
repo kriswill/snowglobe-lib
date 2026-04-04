@@ -801,7 +801,7 @@ if [ -z "$APPEND_MODE" ]; then
 		}:
 		{
 			# automatically wraps up module files present in this directory
-			imports = lib.autoImport ./. { } ++ [
+			imports = lib.importModules ./. { } ++ [
 				# EXAMPLE
 				# inputs.home-manager.nixosModules.default
 			];
@@ -837,7 +837,7 @@ if [ -z "$APPEND_MODE" ]; then
 	printf "# reserved for any modifications you wish to make to the core NixOS module tree from nixpkgs
 		{ pkgs, lib, config, ... }:
 		{
-			imports = lib.autoImport ./. { };
+			imports = lib.importModules ./. { };
 		}" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/nixos/default.nix"
 
 	# packages

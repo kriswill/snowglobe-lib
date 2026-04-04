@@ -11,14 +11,7 @@
   ...
 }:
 {
-  # disable and override nixpkgs modules
-  disabledModules = [
-    "programs/neovim.nix"
-    "programs/wayland/waybar.nix"
-    "programs/foot"
-  ];
-
-  imports = lib.autoImport ./. { exceptions = [ "overlays.nix" ]; } ++ [
+  imports = lib.importModules ./. { exceptions = [ "overlays.nix" ]; } ++ [
     # core module modifications from nixpkgs
     ../nixos
 
@@ -44,25 +37,6 @@
         hasDesktop = (!(config.system.desktop == null));
       in
       {
-        # apply optional overlays
-        overlays = {
-          awww-git.enable = lib.setDefault true;
-          nh-git.enable = lib.setDefault true;
-          disko-git.enable = lib.setDefault true;
-          # TODO figure out how to patch electron apps
-          # freetube-git.enable = lib.setDefault true;
-          ghostty-git.enable = lib.setDefault true;
-          lutris-git.enable = lib.setDefault true;
-          niri-git.enable = lib.setDefault true;
-          nixos-anywhere-git.enable = lib.setDefault true;
-          # TODO this flake is broken
-          # manga-tui-git.enable = lib.setDefault true;
-          prismlauncher-git.enable = lib.setDefault true;
-          rmpc-git.enable = lib.setDefault true;
-          yazi-git.enable = lib.setDefault true;
-          zsh-syntax-highlighting-fix.enable = lib.setDefault true;
-        };
-
         # config for how the system will start
         boot-config.enable = lib.setDefault true;
 

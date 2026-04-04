@@ -9,7 +9,7 @@ let
   moduleEnabled = (cfg.amd.enable || cfg.nvidia.enable || cfg.intel.enable);
 in
 {
-  imports = lib.autoImport ./. { };
+  imports = lib.importModules ./. { };
 
   config = lib.mkIf moduleEnabled {
     hardware.graphics.enable = true;

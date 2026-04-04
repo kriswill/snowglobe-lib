@@ -5,8 +5,9 @@
   ...
 }:
 {
-  # automatically wrap your modules into a list that can be passed to imports
-  autoImport = import ./autoImport.nix { inherit lib; };
+  # return a list of files not named default.nix or included in the exceptions parameter
+  # used for the `imports` array within lib.nixosSystem
+  importModules = import ./importModules.nix { inherit lib; };
 
   # custom program option framework
   mkProgramOption = import ./mkProgramOption.nix { inherit lib; };

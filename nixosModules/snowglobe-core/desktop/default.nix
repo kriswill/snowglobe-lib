@@ -8,7 +8,7 @@ let
   cfg = config.snowglobe-core.desktop;
 in
 {
-  imports = lib.autoImport ./. { };
+  imports = lib.importModules ./. { };
 
   options.snowglobe-core.desktop.enable = lib.mkEnableOption "Snowglobe-Core's modules for systems with a desktop environment";
 

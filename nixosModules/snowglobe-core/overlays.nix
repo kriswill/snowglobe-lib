@@ -7,26 +7,54 @@
 let
   overlays = outputs.overlays;
   cfg = config.snowglobe-core.overlays;
+  overlayNames = builtins.attrNames overlays;
+
+  getRollingReleaseOverlays =
+    overlayNames:
+    (lib.remove null (
+      lib.forEach (overlayNames) (
+        name:
+        let
+          splitName = lib.splitString "-" "${name}";
+          numWords = builtins.length splitName;
+          lastWordIndex = numWords - 1;
+          lastWord = builtins.elemAt splitName lastWordIndex;
+        in
+        if ((lastWord) == "git") then "${name}" else null
+      )
+    ));
+
+  buildProgramName =
+    splitWordsList: wordsRemaining:
+    let
+      splitWordsLength = builtins.length splitWordsList;
+      currentWord = builtins.elemAt splitWordsList (splitWordsLength - wordsRemaining);
+    in
+    if (wordsRemaining == 1) then
+      "${currentWord}"
+    else
+      "${currentWord}" + "-" + "${buildProgramName splitWordsList (wordsRemaining - 1)}";
 in
 {
-  options.snowglobe-core.overlays = {
-    # TODO automatically create git overlays by reading outputs.overlays
-    awww-git.enable = lib.mkEnableOption "rolling release for awww";
-    nh-git.enable = lib.mkEnableOption "rolling release for nix helper";
-    disko-git.enable = lib.mkEnableOption "rolling release for disko";
-    ghostty-git.enable = lib.mkEnableOption "rolling release for ghostty";
-    lutris-git.enable = lib.mkEnableOption "rolling release for lutris";
-    manga-tui-git.enable = lib.mkEnableOption "rolling release for manga-tui";
-    niri-git.enable = lib.mkEnableOption "rolling release for niri";
-    nixos-anywhere-git.enable = lib.mkEnableOption "rolling release for nixos-anywhere";
-    prismlauncher-git.enable = lib.mkEnableOption "rolling release for prismlauncher";
-    rmpc-git.enable = lib.mkEnableOption "rolling release for rmpc";
-    yazi-git.enable = lib.mkEnableOption "rolling release for yazi";
-    zsh-syntax-highlighting-fix.enable = lib.mkEnableOption ''
-      a patch to allow zsh-syntax-highlighting package to be installed via environment.systemPackages
-      and will ensure that plugins correctly end up in /run/current-system/sw/share/zsh/plugins.
-    '';
-  };
+  options.snowglobe-core.overlays =
+    # assume rolling release overlays are named as ${program}-git
+    lib.genAttrs (getRollingReleaseOverlays overlayNames) (
+      name:
+      let
+        splitName = lib.splitString "-" "${name}";
+        numWords = builtins.length splitName;
+        programName = "${buildProgramName splitName (numWords - 1)}";
+      in
+      {
+        enable = lib.mkEnableOption "rolling release for ${programName}";
+      }
+    )
+    // {
+      zsh-syntax-highlighting-fix.enable = lib.mkEnableOption ''
+        a patch to allow zsh-syntax-highlighting package to be installed via environment.systemPackages
+        and will ensure that plugins correctly end up in /run/current-system/sw/share/zsh/plugins.
+      '';
+    };
 
   config = {
     nixpkgs.overlays =
@@ -42,11 +70,23 @@ in
         optionalOverlays =
           [ ]
           ++ lib.remove null (
-            lib.forEach (builtins.attrNames overlays) (
+            lib.forEach (overlayNames) (
               overlay: if (cfg ? ${overlay} && cfg.${overlay}.enable) then overlays.${overlay} else null
             )
           );
       in
       optionalOverlays ++ requiredOverlays;
+
+    # automatically enable overlays if the main module set is enabled
+    snowglobe-core.overlays = lib.mkIf config.snowglobe-core.enable (
+      # rolling releases
+      lib.genAttrs (getRollingReleaseOverlays overlayNames) (name: {
+        enable = lib.setDefault true;
+      })
+      # other optional overlays
+      // {
+        zsh-syntax-highlighting-fix.enable = lib.setDefault true;
+      }
+    );
   };
 }

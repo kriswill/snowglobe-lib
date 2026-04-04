@@ -25,12 +25,11 @@
 
       nixosModules = rec {
         snowglobe-core = import ./nixosModules/snowglobe-core { inherit lib inputs outputs; };
-        earthgman = import ./nixosModules/earthgman;
         # jovian configuration
         jovian = import ./nixosModules/jovian { inherit inputs lib; };
         # expose the modules from nixos-hardware because they do not wrap them with options for some reason
         nixos-hardware = inputs.nixos-hardware.nixosModules;
-        default = earthgman;
+        default = snowglobe-core;
       };
 
       packages = lib.genAttrs supportedSystems (
@@ -42,10 +41,10 @@
             overlays = builtins.attrValues self.outputs.overlays;
           };
         in
-        import ./packages { inherit pkgs; } // import ./packages/self-maintained/lutris { inherit pkgs; }
+        import ./packages { inherit pkgs; } // import ./packages/self-maintained { inherit pkgs lib; }
       );
 
-      overlays = import ./overlays { inherit inputs; };
+      overlays = import ./overlays { inherit inputs lib; };
 
       nixosConfigurations = import ./nixosConfigurations { inherit lib; };
 

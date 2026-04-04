@@ -30,7 +30,7 @@ lib.nixosSystem {
         moduleDir:
         if (configDir != null) then
           if (builtins.pathExists (configDir + "/${moduleDir}")) then
-            (lib.autoImport (configDir + "/${moduleDir}") { })
+            (lib.importModules (configDir + "/${moduleDir}") { })
           else
             [ ]
         else
@@ -47,8 +47,6 @@ lib.nixosSystem {
       serviceConfig = importModules "services";
 
       snowglobeCore = [ outputs.nixosModules.snowglobe-core ];
-
-      extras = [ outputs.nixosModules.earthgman ];
     in
     [
       {
@@ -77,7 +75,6 @@ lib.nixosSystem {
     ++ serviceConfig
     ++ userConfig
     ++ snowglobeCore
-    ++ extras
     # extra modules passed to the function
     ++ modules;
 }

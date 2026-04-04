@@ -1,4 +1,3 @@
-# EarthGman's custom installer ISO
 {
   pkgs,
   lib,
