@@ -738,6 +738,7 @@ if [ -z "$APPEND_MODE" ]; then
 			description = \"my NixOS configurations\";
 
 			inputs = {
+				nixpkgs.follows = \"snowglobe-core/nixpkgs\"
 				# Uncomment to lock your own nixpkgs revision in the flake.lock.
 				# Could cause instabilities, use only if you know what you are doing.
 				# nixpkgs = {
@@ -815,18 +816,21 @@ if [ -z "$APPEND_MODE" ]; then
 			# options.your-name-here.enable = lib.mkEnableOption \"your-name-here's NixOS modules\";
 
 			# apply only if your modules are enabled
-			# config = lib.mkIf config.your-name-here.enable {
-			#   your-name-here.module1.enable = true;
-			#   your-name-here.module2.enable = true;
-			# };
+			# config = lib.mkMerge [
+			#		{
+			#			your-name-here.enable = lib.mkDefault true;
+			#		}
+			#		(lib.mkIf config.your-name-here.enable {
+			#		  your-name-here.your-module-1.enable = true;
+			#		  your-name-here.your-module-2.enable = true;
+			#		  ...
+			#		})
+			# ];
 	}" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/default.nix"
 
 	# nixosModules/profile.nix
 	printf "{ pkgs, lib, config, ... }:
 		{
-			# enable all your your toggleable modules
-			# your-name-here.enable = true;
-
 			# you can add any configuration you want shared among all your hosts
 			# Example
 			# programs.ghostty.enable = true;
