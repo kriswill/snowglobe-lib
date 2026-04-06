@@ -93,6 +93,8 @@
       # prefer to use flakes as channels are basically deprecated at this point
       channel.enable = lib.setDefault false;
       settings = {
+        # allow fallbacks if a substitutor is down
+        fallback = lib.setDefault true;
         experimental-features = [
           "nix-command"
           "flakes"
