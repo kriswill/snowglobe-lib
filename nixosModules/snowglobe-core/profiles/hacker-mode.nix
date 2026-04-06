@@ -36,7 +36,6 @@ in
 
         environment.systemPackages = builtins.attrValues {
           inherit (pkgs)
-            python3
             binutils
             busybox
             dig

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+clear
+
 if [ "$(whoami)" != "root" ]; then
 	printf "You must be root.\n"
 	exit 1

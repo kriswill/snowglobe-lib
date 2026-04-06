@@ -148,11 +148,11 @@
         "rev": "3f85979b095feb8a3b5fedb8389e29f88240dc17",
         "revCount": 177,
         "type": "git",
-        "url": "https://git.earthgman.dev/earthgman/dotfiles"
+        "url": "https://codeberg.org/earthgman/dotfiles"
       },
       "original": {
         "type": "git",
-        "url": "https://git.earthgman.dev/earthgman/dotfiles"
+        "url": "https://codeberg.org/earthgman/dotfiles"
       }
     },
     "flake-compat": {
