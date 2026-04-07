@@ -106,7 +106,7 @@ _clone_repo() {
 		printf "Enter the url for your repository: "
 		read -r REPO_URL
 		git ls-remote "$REPO_URL" || {
-			printf "Could not pull repository, Either the url is invalid or you do not have access rights."
+			printf "Could not pull repository, Either the url is invalid or you do not have access rights.\n"
 			continue
 		}
 		break

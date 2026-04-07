@@ -8,3 +8,4 @@ in
   _8-bit-operator-font = callPackage ./8-bit-operator-font { };
   star-pixel-icons = callPackage ./star-pixel-icons { };
 }
+// import ./snowglobe-rebuild { inherit pkgs; }
