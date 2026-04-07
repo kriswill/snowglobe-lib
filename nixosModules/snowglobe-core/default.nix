@@ -210,6 +210,8 @@
       btop.enable = lib.setDefault true;
       # fuzzy finder and manager for systemd units
       sysz.enable = lib.setDefault true;
+      # wrapper script for nixos-rebuild
+      snowglobe-rebuild.enable = lib.setDefault true;
       # open source version control system
       git.enable = lib.setDefault true;
       # TUI for managing git operations
