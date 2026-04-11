@@ -113,17 +113,15 @@ if [ "$GIT_REPO_PRESENT" ]; then
 			read -r COMMIT_MSG
 			git commit -m "$COMMIT_MSG"
 		fi
-	fi
-
-	git pull || {
-		printf "Warning: your local branch has conflicting changes with the remote repository\n"
-		printf "Attempting to rebase.\n"
-		git pull --rebase || {
-			printf "Could not rebase automatically, you will need to manually resolve all conflicts"
-			exit 1
+		git pull || {
+			printf "Warning: your local branch has conflicting changes with the remote repository\n"
+			printf "Attempting to rebase.\n"
+			git pull --rebase || {
+				printf "Could not rebase automatically, you will need to manually resolve all conflicts"
+				exit 1
+			}
 		}
-	}
-
+	fi
 fi
 
 # use _notify so a desktop notification is sent when the rebuild fails or succeeds.
