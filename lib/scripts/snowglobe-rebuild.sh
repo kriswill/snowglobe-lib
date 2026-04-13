@@ -16,7 +16,7 @@ y_or_n() {
 _notify() {
 	STATUS=$1
 	MSG=$2
-	notify-send -a "nixos-rebuild-helper" "$STATUS" "$MSG" || printf "%s\n" "$MSG"
+	notify-send -a "snowglobe-rebuild" "$STATUS" "$MSG" || printf "%s\n" "$MSG"
 	[ "$STATUS" = "Error" ] && exit 1
 }
 
@@ -135,6 +135,7 @@ fi
 
 if [ "$PERSISTENT_UPDATE" ]; then
 	# keep a log file of your system updates
+	# TODO cannot create if owned by root
 	UPDATE_LOG="/etc/nixos/updates.log"
 	HOSTNAME="$(cat /etc/hostname)"
 	if [ ! -e "$UPDATE_LOG" ]; then

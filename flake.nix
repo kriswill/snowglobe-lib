@@ -63,12 +63,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    dotfiles = {
-      url = "git+https://codeberg.org/earthgman/dotfiles";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.yazi.follows = "yazi";
-    };
-
     determinate = {
       url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
       inputs.nixpkgs.follows = "nixpkgs";

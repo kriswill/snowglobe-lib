@@ -63,8 +63,6 @@ in
         requiredOverlays = builtins.attrValues {
           inherit (overlays)
             packages
-            packaged-configs
-            helper-scripts
             ;
         };
         optionalOverlays =

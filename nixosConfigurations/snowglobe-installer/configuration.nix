@@ -101,29 +101,6 @@ in
   };
 
   programs = {
-    neovim = {
-      enable = true;
-      defaultEditor = true;
-      # custom build of neovim with only nix lsp
-      installGlobally = true;
-      package = pkgs.earthgman.neovim-nix;
-    };
-
-    yazi = {
-      installForUsers = [ "root" ];
-      userPackages.root = pkgs.earthgman.yazi;
-    };
-
-    zsh = {
-      installForUsers = [ "root" ];
-      userPackages.root = pkgs.earthgman.zsh;
-    };
-
-    tmux = {
-      installForUsers = [ "root" ];
-      userPackages.root = pkgs.earthgman.tmux;
-    };
-
     # allow signing in to git for private repositories
     gh.enable = true;
 

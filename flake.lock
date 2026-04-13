@@ -131,30 +131,6 @@
         "type": "github"
       }
     },
-    "dotfiles": {
-      "inputs": {
-        "flake-parts": "flake-parts_2",
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "yazi": [
-          "yazi"
-        ]
-      },
-      "locked": {
-        "lastModified": 1775315369,
-        "narHash": "sha256-0UM2MDDVKOwAcH0NnyzLLkQI7fnpvvP1edzdhOjCiKU=",
-        "ref": "refs/heads/main",
-        "rev": "3f85979b095feb8a3b5fedb8389e29f88240dc17",
-        "revCount": 177,
-        "type": "git",
-        "url": "https://codeberg.org/earthgman/dotfiles"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://codeberg.org/earthgman/dotfiles"
-      }
-    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -225,24 +201,6 @@
       }
     },
     "flake-parts_2": {
-      "inputs": {
-        "nixpkgs-lib": "nixpkgs-lib"
-      },
-      "locked": {
-        "lastModified": 1772408722,
-        "narHash": "sha256-rHuJtdcOjK7rAHpHphUb1iCvgkU3GpfvicLMwwnfMT0=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "f20dc5d9b8027381c474144ecabc9034d6a839a3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
-    "flake-parts_3": {
       "inputs": {
         "nixpkgs-lib": [
           "nixos-anywhere",
@@ -536,7 +494,7 @@
     "nixos-anywhere": {
       "inputs": {
         "disko": [],
-        "flake-parts": "flake-parts_3",
+        "flake-parts": "flake-parts_2",
         "nix-vm-test": [],
         "nixos-images": [],
         "nixos-stable": [],
@@ -600,21 +558,6 @@
         "owner": "NixOS",
         "repo": "nixpkgs",
         "rev": "a62e6edd6d5e1fa0329b8653c801147986f8d446",
-        "type": "github"
-      }
-    },
-    "nixpkgs-lib": {
-      "locked": {
-        "lastModified": 1772328832,
-        "narHash": "sha256-e+/T/pmEkLP6BHhYjx6GmwP5ivonQQn0bJdH9YrRB+Q=",
-        "owner": "nix-community",
-        "repo": "nixpkgs.lib",
-        "rev": "c185c7a5e5dd8f9add5b2f8ebeff00888b070742",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "nixpkgs.lib",
         "type": "github"
       }
     },
@@ -698,7 +641,6 @@
         "awww": "awww",
         "determinate": "determinate",
         "disko": "disko",
-        "dotfiles": "dotfiles",
         "ghostty": "ghostty",
         "jovian-nixos": "jovian-nixos",
         "manga-tui": "manga-tui",

@@ -168,10 +168,6 @@
     programs = {
       # alias to neovim
       vim.enable = lib.mkForce false;
-      # custom wrapper scripts
-      tmux-helper.enable = lib.setDefault true;
-      nixos-rebuild-helper.enable = lib.setDefault true;
-
       # cat with colorized output
       bat.enable = lib.setDefault config.programs.tmux.enable;
       # brightness control

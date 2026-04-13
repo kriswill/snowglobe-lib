@@ -740,7 +740,7 @@ if [ -z "$APPEND_MODE" ]; then
 			description = \"my NixOS configurations\";
 
 			inputs = {
-				nixpkgs.follows = \"snowglobe-core/nixpkgs\"
+				nixpkgs.follows = \"snowglobe-core/nixpkgs\";
 				# Uncomment to lock your own nixpkgs revision in the flake.lock.
 				# Could cause instabilities, use only if you know what you are doing.
 				# nixpkgs = {
@@ -790,7 +790,7 @@ if [ -z "$APPEND_MODE" ]; then
 					}
 				);
 			};
-		}" "$SYSTEM_ARCH" >$CONFIG_ROOT/flake.nix
+		}" "$CPU_ARCH" >$CONFIG_ROOT/flake.nix
 
 	# nixosModules/default.nix
 	printf "
@@ -809,9 +809,7 @@ if [ -z "$APPEND_MODE" ]; then
 				# inputs.home-manager.nixosModules.default
 			];
 
-			# import your overlays to all hosts
-			nixpkgs.overlays = builtins.attrValues outputs.overlays;
-
+			
 			# contain and enable your custom modules
 			# If you wish to let your modules be consumable by other flakes, be sure to segment them to avoid conflicts.
 
@@ -820,6 +818,8 @@ if [ -z "$APPEND_MODE" ]; then
 			# apply only if your modules are enabled
 			# config = lib.mkMerge [
 			#		{
+						# import your overlays to all hosts
+						nixpkgs.overlays = builtins.attrValues outputs.overlays;
 			#			your-name-here.enable = lib.mkDefault true;
 			#		}
 			#		(lib.mkIf config.your-name-here.enable {
@@ -838,6 +838,11 @@ if [ -z "$APPEND_MODE" ]; then
 			# programs.ghostty.enable = true;
 		}
 	" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/profile.nix"
+
+	# nixosMOdules/keyring.nix
+	printf "{
+	keyring = { };
+}" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/keyring.nix"
 
 	# nixosModules/nixos
 	printf "# reserved for any modifications you wish to make to the core NixOS module tree from nixpkgs
