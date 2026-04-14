@@ -63,19 +63,6 @@ in
         fi
       '';
     };
-    # TODO this doesn't work
-    # determinate nixd is not started for some reason?
-    # activationScripts = {
-    #   start-nix-daemon =
-    #     let
-    #       systemctl = "${pkgs.systemd}/bin/systemctl";
-    #     in
-    #     ''
-    #       if ! ${systemctl} is-active nix-daemon; then
-    #         ${systemctl} start nix-daemon
-    #       fi
-    #     '';
-    # };
   };
 
   boot = {
