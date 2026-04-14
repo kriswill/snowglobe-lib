@@ -54,17 +54,10 @@
     };
 
   inputs = {
-    nixpkgs = {
-      url = "github:nixos/nixpkgs/nixos-unstable"; # Stable Nixpkgs (use 0.1 for unstable
-    };
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     awww = {
       url = "git+https://codeberg.org/LGFae/awww";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    determinate = {
-      url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -101,18 +94,6 @@
       url = "github:niri-wm/niri";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.rust-overlay.follows = "";
-    };
-
-    nixos-anywhere = {
-      url = "github:nix-community/nixos-anywhere";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        disko.follows = "";
-        nixos-stable.follows = "";
-        nixos-images.follows = "";
-        nix-vm-test.follows = "";
-        treefmt-nix.follows = "";
-      };
     };
 
     prismlauncher = {

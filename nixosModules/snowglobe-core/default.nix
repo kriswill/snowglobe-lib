@@ -17,8 +17,6 @@
 
     # special case for overlays where outputs needs to be explicitly provided
     (import ./overlays.nix { inherit outputs lib config; })
-    # improved nix-daemon
-    inputs.determinate.nixosModules.default
     # improved disk partition management
     inputs.disko.nixosModules.default
     # secrets storage and key management
@@ -80,16 +78,12 @@
         };
     };
 
-    # patches from other repositories
-    # -------------------------------
-
-    # improved nix-daemon
-    determinate.enable = lib.setDefault true;
-
     # core nixos modules
     # ------------------
 
     nix = {
+      # improved nix daemon
+      package = lib.setDefault pkgs.lix;
       # prefer to use flakes as channels are basically deprecated at this point
       channel.enable = lib.setDefault false;
       settings = {
