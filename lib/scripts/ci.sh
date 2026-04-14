@@ -44,14 +44,14 @@ for repo in $REPOSITORIES; do
 		REPO_DIR="$XDG_CACHE_HOME/snowglobe-CI/repos/$REPO_OWNER/$REPO_NAME"
 	fi
 
-	if [ ! -d "$REPO_DIR" ]; then
+	if [ ! -d "$REPO_DIR/.git" ]; then
 		mkdir -p "$REPO_DIR"
-		git clone "$repo" --depth 1 "$REPO_DIR"
+		git clone "$repo" --depth 1 "$REPO_DIR" || exit 1
 	else
 		cd "$REPO_DIR" || exit 1
 		git stash
 		git config pull.rebase true
-		git pull
+		git pull || exit 1
 	fi
 
 	if [ ! -e "$REPO_DIR/flake.nix" ]; then
@@ -62,7 +62,7 @@ for repo in $REPOSITORIES; do
 	cd "$REPO_DIR" || exit 1
 
 	# edit the flake.nix to point to the development branch
-	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'https://git.earthgman.dev/earthgman/snowglobe-core' | grep 'testing')" ]; then
+	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-core' | grep 'testing')" ]; then
 		# if the repo is on the testing branch
 		sed -i 's|/earthgman/snowglobe-core?ref=testing|/earthgman/snowglobe-core?ref=dev|' "$REPO_DIR/flake.nix"
 	else
