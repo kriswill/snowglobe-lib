@@ -1,7 +1,4 @@
 # function to install custom program options created by mkProgramOption globally or for specified users
-
-# programs installed by this function must have all options defined in mkProgramOption.nix to function properly
-# unfortuately this means default program options from nixpkgs will have to be patched to work with it.
 { lib }:
 {
   programName,

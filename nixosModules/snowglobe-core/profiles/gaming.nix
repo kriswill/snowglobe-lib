@@ -27,13 +27,7 @@ in
         };
 
         programs = {
-          # emulators
-          dolphin-emu.enable = lib.setDefault true;
-          # TODO doesn't build
-          # cemu.enable = lib.setDefault true;
-          ryubing.enable = lib.setDefault true;
-
-          # open source frontend for managing your games
+          # open source frontend for managing your games and emulators
           lutris.enable = lib.setDefault true;
 
           # performance overlay
