@@ -18,6 +18,7 @@ in
             usbutils
             hdparm
             nvme-cli
+            lm_sensors
             pciutils
             lshw
             hwinfo
