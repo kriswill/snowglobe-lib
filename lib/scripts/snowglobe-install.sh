@@ -884,7 +884,7 @@ else
 	if [ -d "$HOST_CONFIG_DIR" ]; then
 		rm -rf "$HOST_CONFIG_DIR"
 	fi
-	# TODO remove host from "$HOSTS_CONFIG_FILE"
+	sed -i "/$HOSTNAME/,/^$/p" "$HOSTS_CONFIG_FILE"
 fi
 
 # sops setup

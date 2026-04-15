@@ -130,6 +130,7 @@ ERRORMSG="Rebuild failed or sudo timed out."
 if type nh >/dev/null && [ "$(whoami)" != "root" ] >/dev/null; then
 	nh os "$1" "$CONFIG_DIR" || _notify "Error" "$ERRORMSG"
 else
+	# TODO build functionality
 	nixos-rebuild "$1" --flake "$CONFIG_DIR" || _notify "Error" "$ERRORMSG"
 fi
 

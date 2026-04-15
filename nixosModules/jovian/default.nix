@@ -20,8 +20,8 @@
       autoStart = lib.setDefault true;
     };
 
-    # IMPERATIVE ACTION: touch ~/.steam/steam/.cef-enable-remote-debugging
     # TODO add to a user activation script
+    # IMPERATIVE ACTION: touch ~/.steam/steam/.cef-enable-remote-debugging
     decky-loader.enable = lib.setDefault true;
   };
 }

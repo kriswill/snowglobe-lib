@@ -37,7 +37,6 @@ in
         environment.systemPackages = builtins.attrValues {
           inherit (pkgs)
             binutils
-            busybox
             dig
             ;
         };

@@ -166,6 +166,8 @@
       bat.enable = lib.setDefault config.programs.tmux.enable;
       # brightness control
       brightnessctl.enable = lib.setDefault true;
+      # many useful unix utilities
+      busybox.enable = lib.setDefault true;
       # improved bash shell with plugin support
       zsh.enable = lib.setDefault true;
       # wrapper around several nixos tools
