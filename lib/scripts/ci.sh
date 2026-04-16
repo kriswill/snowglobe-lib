@@ -4,7 +4,12 @@
 # additionally it will ensure all packages are cached, preventing local builds for these hosts.
 
 # conceal identities of those enrolled for the checks
-REPOSITORIES=$(cat "$PROJECT_ROOT/.secrets/repo-urls.txt")
+if [ ! -e .secrets/repo-urls.txt ]; then
+	printf "Error: repo-urls were not found or you are not in the project root.\n"
+	exit 1
+fi
+REPOSITORIES=$(cat ".secrets/repo-urls.txt")
+PROJECT_ROOT="$PWD"
 
 y_or_n() {
 	while true; do

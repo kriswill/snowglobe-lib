@@ -12,8 +12,4 @@ pkgs.mkShell {
     nixfmt-sh
     build-installers-sh
   ];
-
-  shellHook = ''
-    export PROJECT_ROOT="$HOME/src/git/earthgman.dev/earthgman/snowglobe-core"
-  '';
 }
