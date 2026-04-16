@@ -21,6 +21,8 @@
     inputs.disko.nixosModules.default
     # secrets storage and key management
     inputs.sops-nix.nixosModules.default
+    # queue system for nix post-build-hook when uploading to binary caches
+    inputs.nix-post-build-hook-queue.nixosModules.default
   ];
 
   options.snowglobe-core = {

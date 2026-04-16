@@ -85,6 +85,12 @@
       url = "https://flakehub.com/f/NixOS/nixos-hardware/*.tar.gz";
     };
 
+    nix-post-build-hook-queue = {
+      url = "github:newam/nix-post-build-hook-queue";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.treefmt.follows = "";
+    };
+
     nh = {
       url = "github:nix-community/nh";
       inputs.nixpkgs.follows = "nixpkgs";
