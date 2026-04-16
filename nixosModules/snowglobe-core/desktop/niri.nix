@@ -50,13 +50,14 @@ in
 
       waybar = {
         enable = lib.setDefault true;
-        systemd.enable = lib.setDefault true;
+        # prevent 2 waybars from showing up due to niri's default config
+        systemd.enable = lib.setDefault false;
       };
 
       # volume control
       pwvucontrol = lib.mkIf (config.services.pipewire.enable) {
         enable = lib.setDefault true;
-        # some programs like waybar hardcode pavucontrol in their default config
+        # waybar hardcodes 'pavucontrol' in its default config
         pavucontrolAlias = lib.setDefault true;
       };
 
