@@ -16,10 +16,6 @@
 
   niri-git = inputs.niri.overlays.default;
 
-  nixos-anywhere-git = final: prev: {
-    nixos-anywhere = inputs.nixos-anywhere.packages.${prev.stdenv.hostPlatform.system}.default;
-  };
-
   prismlauncher-git = inputs.prismlauncher.overlays.default;
 
   rmpc-git = final: prev: {
