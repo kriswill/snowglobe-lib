@@ -102,6 +102,7 @@
 
     nixpkgs = {
       hostPlatform = config.system.arch;
+      overlays = builtins.attrValues outputs.overlays;
       config = {
         allowUnfree = lib.setDefault true;
         permittedInsecurePackages = [

@@ -748,7 +748,7 @@ if [ -z "$APPEND_MODE" ]; then
 				# };
 
 				snowglobe-core = {
-					url = \"git+https://git.earthgman.dev/EarthGman/snowglobe-core\";
+					url = \"git+https://git.earthgman.dev/earthgman/snowglobe-core\";
 					# Be sure to also uncomment this if you use your own nixpkgs input. Mismatched system dependencies are not good.
 					# inputs.nixpkgs.follows = \"nixpkgs\";
 				};
