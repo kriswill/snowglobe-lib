@@ -41,9 +41,9 @@ in
       };
 
       # make direnv be not annoying
-      direnv = {
-        silent = lib.setDefault true;
-      };
+      # direnv = {
+      #   silent = lib.setDefault true;
+      # };
     };
     environment.variables = lib.mkIf config.programs.direnv.enable {
       DIRENV_WARN_TIMEOUT = lib.setDefault 0;

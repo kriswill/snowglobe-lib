@@ -8,6 +8,11 @@ if [ ! -e .secrets/repo-urls.txt ]; then
 	printf "Error: repo-urls were not found or you are not in the project root.\n"
 	exit 1
 fi
+
+if [ "$1" = "--check-only" ]; then
+	CHECK_ONLY=1
+fi
+
 REPOSITORIES=$(cat ".secrets/repo-urls.txt")
 PROJECT_ROOT="$PWD"
 
@@ -74,6 +79,11 @@ for repo in $REPOSITORIES; do
 		sed -i 's|/earthgman/snowglobe-core|/earthgman/snowglobe-core?ref=dev|' "$REPO_DIR/flake.nix"
 	fi
 	nix flake update snowglobe-core
+
+	if [ "$CHECK_ONLY" ]; then
+		nix flake check || exit 1
+		continue
+	fi
 
 	HOSTS=$(nix eval "$REPO_DIR#nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"')
 

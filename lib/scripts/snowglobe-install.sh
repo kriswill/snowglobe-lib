@@ -542,18 +542,16 @@ _format_disks
 
 # Gather various information from the user
 _set_hostname() {
-	printf "Note: Hostname will be cleansed of characters that are not [a-z][A-Z][0-9], -, or _\n"
+	printf "Warning: Hostname will be cleansed of characters that are not [a-z][A-Z][0-9], -, or _\n"
 	while :; do
 		read -rp "Set your system hostname: " HOSTNAME
+		HOSTNAME=$(printf "%s" "$HOSTNAME" | tr -d '[`"=;:$%#^<>+(){}*!&[]~|][:blank:][:cntrl:]')
 		if [ -z "$HOSTNAME" ]; then
 			printf "Hostname cannot be empty.\n"
 			continue
 		fi
 		break
 	done
-
-	# trim problematic characters from the hostname
-	HOSTNAME=$(printf "%s" "$HOSTNAME" | tr -d '[`"=$%#^<>+(){}*!&[]~|][:blank:][:cntrl:]')
 
 	HOST_CONFIG_DIR="$CONFIG_ROOT/nixosConfigurations/$HOSTNAME"
 	HOSTS_CONFIG_FILE="$CONFIG_ROOT/nixosConfigurations/default.nix"
@@ -839,9 +837,14 @@ if [ -z "$APPEND_MODE" ]; then
 		}
 	" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/profile.nix"
 
-	# nixosMOdules/keyring.nix
+	# nixosModules/keyring.nix
 	printf "{
-	keyring = { };
+	keyring = { 
+		ssh = { };
+		openpgp = { };
+		age = { };
+		substitutors = { };
+	};
 }" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/keyring.nix"
 
 	# nixosModules/nixos
@@ -1082,15 +1085,17 @@ printf "Otherwise a user with the provided username will be created.\n"
 
 printf "Similar to the base system configuration, you will be asked if you want to correct any mistakes you made.\n\n"
 
+# evaluate saved ssh keys
+SSH_KEYS_STRING=$(nix eval $CONFIG_ROOT'#'nixosConfigurations.cypher.config.keyring.ssh | tr -d '{} ')
+
 _set_username() {
 	unset USERNAME
 	unset NORMAL_USER
 
-	printf "Note: Username will be cleansed of characters that are not [a-z][A-Z][0-9], -, or _\n"
+	printf "Warning: Username will be cleansed of characters that are not [a-z][A-Z][0-9], -, or _\n"
 	while :; do
 		read -rp "Username: " USERNAME
-		# cleanse username of problematic characters
-		USERNAME=$(printf "%s" "$USERNAME" | tr -d '[`"=$%#^<>+(){}*!&[]~|][:blank:][:cntrl:]')
+		USERNAME=$(printf "%s" "$USERNAME" | tr -d '[`"=;:$%#^<>+(){}*!&[]~|][:blank:][:cntrl:]')
 		if [ -z "$USERNAME" ]; then
 			printf "Username cannot be empty.\n"
 			continue
@@ -1128,16 +1133,50 @@ _set_password() {
 }
 
 # TODO
-# _add_keys() {
-# 	unset SSH_KEY
-# 	while :; do
-# 		read -rp "Enter a public SSH key: " SSH_KEY
-# 		if [ -z "$SSH_KEY" ]; then
-# 			printf "No SSH key was entered\n"
-# 			break
-# 		fi
-# 	done
-# }
+_add_key() {
+	unset SSH_KEY
+	if [ "$SSH_KEYS_STIRNG" ]; then
+		IFS=';'
+		SSH_KEY=$(for keypair in $SSH_KEYS_STRING; do
+			printf "%s" "$keypair" | cut -d= -f1
+		done | fzf \
+			--border \
+			--border-label-pos 1:bottom \
+			--border-label="Found these ssh public keys on your keyring. Use one of these? (esc or ctrl+c to cancel)")
+	fi
+
+	# assume that all keys that made it onto the keyring are valid
+	if [ "$SSH_KEY" ]; then
+		return 0
+	fi
+
+	while :; do
+		read -rp "Enter a public SSH key: " SSH_KEY
+		if [ -z "$SSH_KEY" ]; then
+			y_or_n --msg="No SSH key was entered. Would you like to try again?" || break
+		else
+			if ! ssh-keygen -l -f <(printf "%s" "$SSH_KEY"); then
+				printf "That ssh key does not seem valid. Try again.\n"
+			fi
+			break
+		fi
+	done
+
+	while :; do
+		printf "Warning: key name will be stripped of numbers and special characters. (excluding - and _)\n"
+		read -rp "Give an name to this key for your keyring: " SSH_KEY_NAME
+		SSH_KEY_NAME="$(printf "%s" "$SSH_KEY_NAME" | tr -d '[`"=;:$%#^<>+(){}*!&[]~|][:blank:][:cntrl:][:digit:]')"
+		if [ -z "$SSH_KEY_NAME" ]; then
+			printf "Key name cannot be empty. Try again.\n"
+		fi
+		break
+	done
+
+	# write to the keyring
+	sed -i "/ssh = {/&$SSH_KEY_NAME = \"$SSH_KEY\";" "$CONFIG_ROOT/nixosModules/keyring.nix"
+
+	SSH_KEY="$SSH_KEY_NAME"
+}
 
 _set_permissions() {
 	USER_PERMISSIONS=()
@@ -1182,7 +1221,7 @@ while :; do
 		# TODO
 		# while [ -z "$AUTHORIZED_SSH_KEYS" ]; do
 		# 	y_or_n --msg="Add an authorized public key to access this user over SSH?" --default="no" && {
-		# 		_add_keys
+		# 		_add_key
 		# 		continue
 		# 	}
 		# 	break
