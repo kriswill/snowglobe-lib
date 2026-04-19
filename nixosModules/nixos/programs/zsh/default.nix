@@ -14,16 +14,12 @@ in
     excludedOptions = [
       "enable"
     ];
-    extraOptions = {
-      setAsDefaultShell = lib.mkEnableOption "zsh as the default shell";
-    };
   };
 
   config = lib.mkIf cfg.enable (
     lib.installProgram {
       inherit programName config;
       extraModules = {
-        users.defaultUserShell = lib.mkIf (cfg.setAsDefaultShell) cfg.package;
         environment.systemPackages =
           [ ]
           ++ lib.optionals (cfg.syntaxHighlighting.enable) [
@@ -32,11 +28,6 @@ in
           ++ lib.optionals (cfg.autosuggestions.enable) [
             pkgs.zsh-autosuggestions
           ];
-        users.users = lib.mkIf cfg.setAsDefaultShell (
-          lib.genAttrs cfg.installForUsers (username: {
-            shell = "${cfg.userPackages.${username}}/bin/zsh";
-          })
-        );
       };
     }
   );

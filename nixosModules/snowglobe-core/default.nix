@@ -148,6 +148,8 @@
       };
     };
 
+    users.defaultUserShell = lib.mkOverride 899 config.programs.zsh.package;
+
     # make sure that the virtual console respects the keymap chosen in the installer
     console.useXkbConfig = lib.setDefault true;
 
@@ -171,8 +173,6 @@
       brightnessctl.enable = lib.setDefault true;
       # many useful unix utilities
       busybox.enable = lib.setDefault true;
-      # improved bash shell with plugin support
-      zsh.enable = lib.setDefault true;
       # wrapper around several nixos tools
       nh.enable = lib.setDefault true;
       # declarative disk partitioning tool
@@ -217,6 +217,8 @@
       yazi.enable = lib.setDefault true;
       # cli archive maker
       zip.enable = lib.setDefault true;
+      # improved bash shell with plugin support
+      zsh.enable = lib.setDefault true;
     };
 
     services = {

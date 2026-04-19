@@ -36,7 +36,6 @@ in
       nh.flake = lib.setDefault "/etc/nixos";
 
       zsh = {
-        setAsDefaultShell = lib.setDefault true;
         autosuggestions.enable = lib.setDefault true;
         syntaxHighlighting.enable = lib.setDefault true;
       };
