@@ -197,6 +197,8 @@
       fzf.enable = lib.setDefault true;
       # make ls output prettier
       eza.enable = lib.setDefault true;
+      # json query tool
+      jq.enable = lib.setDefault true;
       # make your shell prompt prettier
       starship.enable = lib.setDefault true;
       # jump to visited directories
