@@ -148,7 +148,7 @@
       };
     };
 
-    users.defaultUserShell = lib.mkOverride 899 config.programs.zsh.package;
+    # users.defaultUserShell = lib.mkOverride 899 pkgs.zsh;
 
     # make sure that the virtual console respects the keymap chosen in the installer
     console.useXkbConfig = lib.setDefault true;
@@ -191,18 +191,12 @@
       fastfetch.enable = lib.setDefault true;
       # file info fetcher
       file.enable = lib.setDefault true;
-      # command history finder
-      hstr.enable = lib.setDefault true;
       # very good picker tool for CLI
       fzf.enable = lib.setDefault true;
       # make ls output prettier
       eza.enable = lib.setDefault true;
       # json query tool
       jq.enable = lib.setDefault true;
-      # make your shell prompt prettier
-      starship.enable = lib.setDefault true;
-      # jump to visited directories
-      zoxide.enable = lib.setDefault true;
       # better top
       btop.enable = lib.setDefault true;
       # fuzzy finder and manager for systemd units

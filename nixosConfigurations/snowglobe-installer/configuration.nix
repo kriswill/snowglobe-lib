@@ -5,7 +5,7 @@
   ...
 }:
 let
-  install-sh = pkgs.writeScriptBin "snowglobe-install" (
+  install-sh = pkgs.writeScriptBin "install.sh" (
     builtins.readFile ../../lib/scripts/snowglobe-install.sh
   );
   nixfmt-sh = pkgs.writeScriptBin "nixfmt.sh" (builtins.readFile ../../lib/scripts/nixfmt.sh);
@@ -27,9 +27,10 @@ in
 
     To log in over ssh, set a password for the root user with `sudo passwd`
 
-    Begin install by running `snowglobe-install` as root.
+    Begin install by running `install.sh` as root.
   '';
 
+  users.defaultUserShell = pkgs.zsh;
   environment = {
     systemPackages = [
       install-sh
@@ -88,6 +89,7 @@ in
   };
 
   programs = {
+    zsh.enable = true;
     # allow signing in to git for private repositories
     gh.enable = true;
 
