@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "password-store";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     description = "a standard password manager for UNIX";
     programName = programName;
     packageName = "pass";
@@ -17,11 +18,11 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         # enable the user to store git secrets in pass
-        programs.pass-git-helper.enable = lib.setDefault config.programs.git.enable;
+        programs.pass-git-helper.enable = slib.setDefault config.programs.git.enable;
       };
     }
   );

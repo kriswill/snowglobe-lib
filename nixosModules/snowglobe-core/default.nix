@@ -10,10 +10,19 @@
   config,
   ...
 }:
+let
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
+in
 {
-  imports = lib.importModules ./. { exceptions = [ "overlays.nix" ]; } ++ [
-    # core module modifications from nixpkgs
-    ../nixos
+  imports = [
+    # module modifications and additions to the default nixpkgs moduleset
+    (inputs.import-tree ../nixos)
+    # import the rest of the moduleset
+    (lib.pipe inputs.import-tree [
+      (i: i.filterNot (lib.hasInfix "overlays.nix"))
+      (i: i.filterNot (lib.hasInfix "default.nix"))
+      (i: i ./.)
+    ])
 
     # special case for overlays where outputs needs to be explicitly provided
     (import ./overlays.nix { inherit outputs lib config; })
@@ -38,7 +47,7 @@
       in
       {
         # config for how the system will start
-        boot-config.enable = lib.setDefault true;
+        boot-config.enable = slib.setDefault true;
 
         # enable gpu configurations
         gpu =
@@ -53,19 +62,19 @@
 
         # extra caches
         substituters = {
-          "nix-store.earthgman.dev".enable = lib.setDefault true;
-          "yazi.cachix.org".enable = lib.setDefault true;
+          "nix-store.earthgman.dev".enable = slib.setDefault true;
+          "yazi.cachix.org".enable = slib.setDefault true;
         };
 
         # other stuff
-        dynamic-timezone.enable = lib.setDefault (
+        dynamic-timezone.enable = slib.setDefault (
           config.networking.networkmanager.enable && config.time.timeZone == null
         );
-        headless-debloater.enable = lib.setDefault (!hasDesktop);
-        desktop.enable = lib.setDefault hasDesktop;
-        program-configs.enable = lib.setDefault true;
-        garbage-collector.enable = lib.setDefault true;
-        sops-config.enable = lib.setDefault true;
+        headless-debloater.enable = slib.setDefault (!hasDesktop);
+        desktop.enable = slib.setDefault hasDesktop;
+        program-configs.enable = slib.setDefault true;
+        garbage-collector.enable = slib.setDefault true;
+        sops-config.enable = slib.setDefault true;
       };
 
     # populate public keyring (not present in nixpkgs. only used to hold data)
@@ -85,18 +94,18 @@
 
     nix = {
       # improved nix daemon
-      package = lib.setDefault pkgs.lix;
+      package = slib.setDefault pkgs.lix;
       # prefer to use flakes as channels are basically deprecated at this point
-      channel.enable = lib.setDefault false;
+      channel.enable = slib.setDefault false;
       settings = {
         # allow fallbacks if a substitutor is down
-        fallback = lib.setDefault true;
+        fallback = slib.setDefault true;
         experimental-features = [
           "nix-command"
           "flakes"
         ];
         # enable hard linking of identical contents within the nix store
-        auto-optimise-store = lib.setDefault true;
+        auto-optimise-store = slib.setDefault true;
       };
     };
 
@@ -104,7 +113,7 @@
       hostPlatform = config.system.arch;
       overlays = builtins.attrValues outputs.overlays;
       config = {
-        allowUnfree = lib.setDefault true;
+        allowUnfree = slib.setDefault true;
         permittedInsecurePackages = [
           # TODO remove me later
           # needed for stoat-desktop
@@ -114,26 +123,26 @@
     };
 
     # remove nixos documentation
-    documentation.nixos.enable = lib.setDefault false;
+    documentation.nixos.enable = slib.setDefault false;
 
     # enable the linux-firmware repository if not in a virtual machine
     # TODO only qemu is supported
-    hardware.enableRedistributableFirmware = lib.setDefault (!config.system.isVM);
+    hardware.enableRedistributableFirmware = slib.setDefault (!config.system.isVM);
 
     networking = {
-      networkmanager.enable = lib.setDefault true;
-      hostName = lib.setDefault config.system.name;
+      networkmanager.enable = slib.setDefault true;
+      hostName = slib.setDefault config.system.name;
     };
 
     boot = {
       # everyone gets the latest kernel
-      kernelPackages = lib.setDefault pkgs.linuxPackages_latest;
+      kernelPackages = slib.setDefault pkgs.linuxPackages_latest;
       # clean garbage from tmp
-      tmp.cleanOnBoot = lib.setDefault true;
+      tmp.cleanOnBoot = slib.setDefault true;
 
       loader = {
         # allow the installer to change boot order / other important variables for UEFI systems
-        efi.canTouchEfiVariables = lib.setDefault true;
+        efi.canTouchEfiVariables = slib.setDefault true;
       };
     };
 
@@ -144,14 +153,14 @@
 
       # these are not set properly on nixos by default for some reason
       sessionVariables = {
-        SYSTEMD_KEYMAP_DIRECTORIES = lib.setDefault "${pkgs.kbd}/share/keymaps";
+        SYSTEMD_KEYMAP_DIRECTORIES = slib.setDefault "${pkgs.kbd}/share/keymaps";
       };
     };
 
     # users.defaultUserShell = lib.mkOverride 899 pkgs.zsh;
 
     # make sure that the virtual console respects the keymap chosen in the installer
-    console.useXkbConfig = lib.setDefault true;
+    console.useXkbConfig = slib.setDefault true;
 
     # make sure terminfo for popular terminals is installed
     environment.systemPackages = [
@@ -168,60 +177,60 @@
       # alias to neovim
       vim.enable = lib.mkForce false;
       # cat with colorized output
-      bat.enable = lib.setDefault config.programs.tmux.enable;
+      bat.enable = slib.setDefault config.programs.tmux.enable;
       # brightness control
-      brightnessctl.enable = lib.setDefault true;
+      brightnessctl.enable = slib.setDefault true;
       # many useful unix utilities
-      busybox.enable = lib.setDefault true;
+      busybox.enable = slib.setDefault true;
       # wrapper around several nixos tools
-      nh.enable = lib.setDefault true;
+      nh.enable = slib.setDefault true;
       # declarative disk partitioning tool
-      disko.enable = lib.setDefault true;
+      disko.enable = slib.setDefault true;
       # bloat finder
-      ncdu.enable = lib.setDefault true;
+      ncdu.enable = slib.setDefault true;
       # terminal multiplexer
-      tmux.enable = lib.setDefault true;
+      tmux.enable = slib.setDefault true;
       # editor
       neovim = {
-        enable = lib.setDefault true;
-        viAlias = lib.setDefault true;
-        vimAlias = lib.setDefault true;
+        enable = slib.setDefault true;
+        viAlias = slib.setDefault true;
+        vimAlias = slib.setDefault true;
       };
       # system information
-      fastfetch.enable = lib.setDefault true;
+      fastfetch.enable = slib.setDefault true;
       # file info fetcher
-      file.enable = lib.setDefault true;
+      file.enable = slib.setDefault true;
       # very good picker tool for CLI
-      fzf.enable = lib.setDefault true;
+      fzf.enable = slib.setDefault true;
       # make ls output prettier
-      eza.enable = lib.setDefault true;
+      eza.enable = slib.setDefault true;
       # json query tool
-      jq.enable = lib.setDefault true;
+      jq.enable = slib.setDefault true;
       # better top
-      btop.enable = lib.setDefault true;
+      btop.enable = slib.setDefault true;
       # fuzzy finder and manager for systemd units
-      sysz.enable = lib.setDefault true;
+      sysz.enable = slib.setDefault true;
       # wrapper script for nixos-rebuild
-      snowglobe-rebuild.enable = lib.setDefault true;
+      snowglobe-rebuild.enable = slib.setDefault true;
       # open source version control system
-      git.enable = lib.setDefault true;
+      git.enable = slib.setDefault true;
       # TUI for managing git operations
-      lazygit.enable = lib.setDefault config.programs.git.enable;
+      lazygit.enable = slib.setDefault config.programs.git.enable;
       # better grep
-      ripgrep.enable = lib.setDefault true;
+      ripgrep.enable = slib.setDefault true;
       # tui file manager
-      yazi.enable = lib.setDefault true;
+      yazi.enable = slib.setDefault true;
       # cli archive maker
-      zip.enable = lib.setDefault true;
+      zip.enable = slib.setDefault true;
       # improved bash shell with plugin support
-      zsh.enable = lib.setDefault true;
+      zsh.enable = slib.setDefault true;
     };
 
     services = {
       # run openssh by default
-      openssh.enable = lib.setDefault true;
+      openssh.enable = slib.setDefault true;
       # improved dbus
-      dbus.implementation = lib.setDefault "broker";
+      dbus.implementation = slib.setDefault "broker";
     };
   };
 }

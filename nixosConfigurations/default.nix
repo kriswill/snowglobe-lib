@@ -1,12 +1,12 @@
-{ lib, ... }:
+{ lib, slib, ... }:
 {
-  snowglobe-installer-x86_64 = lib.mkNixosHost {
+  snowglobe-installer-x86_64 = slib.mkNixosHost {
     hostname = "nixos-installer";
     system = "x86_64-linux";
     configDir = ./snowglobe-installer;
   };
 
-  snowglobe-installer-x86_64-small = lib.mkNixosHost {
+  snowglobe-installer-x86_64-small = slib.mkNixosHost {
     hostname = "nixos-installer";
     system = "x86_64-linux";
     configDir = ./snowglobe-installer;

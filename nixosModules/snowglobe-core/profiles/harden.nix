@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.snowglobe-core.profiles.harden;
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.profiles.harden = {
@@ -17,7 +18,7 @@ in
     # enable firewall and prevent the ping of death
     networking.firewall = {
       enable = true;
-      allowPing = lib.setDefault false;
+      allowPing = slib.setDefault false;
     };
 
     # prevent users from being imperatively modified
@@ -32,6 +33,6 @@ in
     };
 
     # tool to determine how hard you are
-    programs.kernel-hardening-checker.enable = lib.setDefault true;
+    programs.kernel-hardening-checker.enable = slib.setDefault true;
   };
 }

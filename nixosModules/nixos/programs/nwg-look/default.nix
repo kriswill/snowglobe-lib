@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "nwg-look";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     description = "gtk theme manager";
     programName = programName;
     packageName = programName;
@@ -17,7 +18,7 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
     }
   );

@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.snowglobe-core.gpu.nvidia;
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.gpu.nvidia = {
@@ -16,24 +17,24 @@ in
     programs = {
       #   sway.extraOptions = [ "--unsupported-gpu" ]; # sway will not launch on nvidia without this set
       # allow monitoring output through btop
-      btop.package = lib.setDefault pkgs.btop-cuda;
+      btop.package = slib.setDefault pkgs.btop-cuda;
     };
 
     hardware.nvidia = {
-      modesetting.enable = lib.setDefault true;
+      modesetting.enable = slib.setDefault true;
 
-      powerManagement.enable = lib.setDefault true;
+      powerManagement.enable = slib.setDefault true;
 
       # use open for RTX 20 series or newer
       # TODO some way to detect old cards which this does not work
-      open = lib.setDefault true;
+      open = slib.setDefault true;
       # Enable the Nvidia settings menu,
       # accessible via `nvidia-settings`.
-      nvidiaSettings = lib.mkIf (config.system.desktop != null) (lib.setDefault true);
+      nvidiaSettings = lib.mkIf (config.system.desktop != null) (slib.setDefault true);
 
       # latest nvidia drivers
       # nvidia loves dropping support for old cards, a manual override might be required
-      package = lib.setDefault config.boot.kernelPackages.nvidiaPackages.beta;
+      package = slib.setDefault config.boot.kernelPackages.nvidiaPackages.beta;
     };
   };
 }

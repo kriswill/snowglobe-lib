@@ -6,23 +6,22 @@
 }:
 let
   cfg = config.snowglobe-core.desktop;
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
-  imports = lib.importModules ./. { };
-
   options.snowglobe-core.desktop.enable = lib.mkEnableOption "Snowglobe-Core's modules for systems with a desktop environment";
 
   config = lib.mkIf cfg.enable {
     snowglobe-core = {
       # uses sddm with astronaut qt6 theme
-      display-manager.enable = lib.setDefault true;
+      display-manager.enable = slib.setDefault true;
       # sound server
-      pipewire-config.enable = lib.setDefault true;
+      pipewire-config.enable = slib.setDefault true;
 
-      printing-config.enable = lib.setDefault true;
+      printing-config.enable = slib.setDefault true;
 
-      # allow imperative installation for sandboxed applications
-      flatpak-config.enable = lib.setDefault true;
+      # apply configuration for flatpak if it is enabled
+      flatpak-config.enable = slib.setDefault true;
 
       desktop =
         let
@@ -43,10 +42,11 @@ in
 
     # TODO nixos-facter?
     # enable bluetooth
-    hardware.bluetooth.enable = lib.setDefault true;
+    hardware.bluetooth.enable = slib.setDefault true;
     # GTK gui
-    services.blueman.enable = lib.setDefault true;
-
+    services.blueman.enable = slib.setDefault true;
+    # imperative sandboxed application management service
+    services.flatpak.enable = slib.setDefault true;
     # add a virtual camera for obs
     boot.extraModulePackages = [
       config.boot.kernelPackages.v4l2loopback
@@ -54,11 +54,11 @@ in
 
     programs = {
       # gtk and gnome software database
-      dconf.enable = lib.setDefault true;
+      dconf.enable = slib.setDefault true;
       # frontend to manage dconf
-      dconf-editor.enable = lib.setDefault config.programs.dconf.enable;
+      dconf-editor.enable = slib.setDefault config.programs.dconf.enable;
       # web browser
-      firefox.enable = lib.setDefault true;
+      firefox.enable = slib.setDefault true;
     };
 
     environment.systemPackages = builtins.attrValues {
@@ -78,21 +78,21 @@ in
     # configures the xdg-desktop-portal, allowing standardized interprocess communication between applications
     # EX: opening a link from some app in the default browser
     xdg.portal = {
-      enable = lib.setDefault true;
+      enable = slib.setDefault true;
       # all xdg-open commands will use the portal configuration by default
-      xdgOpenUsePortal = lib.setDefault true;
+      xdgOpenUsePortal = slib.setDefault true;
     };
 
     # allows configuration for underprivileged users interacting with privileged process
     # ex calling reboot or poweroff without sudo
     # desktop modules install a unique polkit-agent, which allows the session to communicate with polkit
-    security.polkit.enable = lib.setDefault true;
+    security.polkit.enable = slib.setDefault true;
 
     hardware.graphics = {
       enable = true;
       # 32 bit support doesn't exist on other arches
       enable32Bit = lib.mkIf ((builtins.substring 0 3 config.nixpkgs.hostPlatform.system) == "x86") (
-        lib.setDefault true
+        slib.setDefault true
       );
     };
   };

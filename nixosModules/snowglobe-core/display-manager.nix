@@ -6,6 +6,7 @@
   ...
 }:
 let
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
   cfg = config.snowglobe-core.display-manager;
   sddm-astronaut-theme = pkgs.sddm-astronaut.override {
     themeConfig = cfg.sddm.themeConfig;

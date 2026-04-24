@@ -6,6 +6,7 @@
   ...
 }:
 let
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
   cfg = config.snowglobe-core.desktop.niri;
 in
 {
@@ -20,57 +21,57 @@ in
       };
 
       # lock screen
-      swaylock.enable = lib.setDefault true;
+      swaylock.enable = slib.setDefault true;
 
       # notification daemon
       swaync = {
-        enable = lib.setDefault true;
-        systemd.enable = lib.setDefault true;
+        enable = slib.setDefault true;
+        systemd.enable = slib.setDefault true;
       };
 
       # low battery notifier for laptops
       batsignal = {
-        enable = lib.setDefault true;
-        systemd.enable = lib.setDefault true;
+        enable = slib.setDefault true;
+        systemd.enable = slib.setDefault true;
       };
 
       # default terminal
-      alacritty.enable = lib.setDefault true;
+      alacritty.enable = slib.setDefault true;
 
       # default picker
-      fuzzel.enable = lib.setDefault true;
+      fuzzel.enable = slib.setDefault true;
 
       # file manager
-      nautilus.enable = lib.setDefault config.programs.niri.useNautilus;
+      nautilus.enable = slib.setDefault config.programs.niri.useNautilus;
 
       # blue light filter
-      sunsetr.enable = lib.setDefault true;
+      sunsetr.enable = slib.setDefault true;
 
       networkmanagerapplet.enable = true;
 
       waybar = {
-        enable = lib.setDefault true;
+        enable = slib.setDefault true;
         # prevent 2 waybars from showing up due to niri's default config
-        systemd.enable = lib.setDefault false;
+        systemd.enable = slib.setDefault false;
       };
 
       # volume control
       pwvucontrol = lib.mkIf (config.services.pipewire.enable) {
-        enable = lib.setDefault true;
+        enable = slib.setDefault true;
         # waybar hardcodes 'pavucontrol' in its default config
-        pavucontrolAlias = lib.setDefault true;
+        pavucontrolAlias = slib.setDefault true;
       };
 
       xwayland-satellite.enable = true;
 
-      wl-clipboard.enable = lib.setDefault true;
+      wl-clipboard.enable = slib.setDefault true;
     };
 
     # install a nerd font for icons
     fonts.packages = [ pkgs.nerd-fonts.meslo-lg ];
 
     # polkit agent written in gtk
-    security.soteria.enable = lib.setDefault true;
+    security.soteria.enable = slib.setDefault true;
 
     # service patches so they dont fail when exiting niri
     systemd.user.services = {
@@ -83,9 +84,9 @@ in
     environment = {
       sessionVariables = {
         # force electron apps to run using wayland
-        NIXOS_OZONE_WL = lib.setDefault "1";
+        NIXOS_OZONE_WL = slib.setDefault "1";
         # fix blank screens with java applications running under xwayland-satellite
-        _JAVA_AWT_WM_NONREPARENTING = lib.setDefault "1";
+        _JAVA_AWT_WM_NONREPARENTING = slib.setDefault "1";
       };
       systemPackages = builtins.attrValues {
         inherit (pkgs)

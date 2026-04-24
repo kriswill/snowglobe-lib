@@ -4,24 +4,25 @@
   outputs =
     { nixpkgs, self, ... }@inputs:
     let
-      outputs = self.outputs;
-
-      myLib = import ./lib/functions {
-        inherit
-          inputs
-          outputs
-          ;
-        lib = nixpkgs.lib;
-      };
-      lib = nixpkgs.lib.extend (final: prev: (myLib));
-
       supportedSystems = [
         "x86_64-linux"
         "aarch64-linux"
       ];
+
+      outputs = self.outputs;
+      lib = nixpkgs.lib;
+
+      snowglobe-lib = import ./lib/functions {
+        inherit
+          inputs
+          outputs
+          lib
+          ;
+      };
     in
     {
-      inherit lib;
+      # expose custom functions for use with other flakes and projects
+      lib = snowglobe-lib;
 
       nixosModules = rec {
         snowglobe-core = import ./nixosModules/snowglobe-core { inherit lib inputs outputs; };
@@ -30,6 +31,11 @@
         # expose the modules from nixos-hardware because they do not wrap them with options for some reason
         nixos-hardware = inputs.nixos-hardware.nixosModules;
         default = snowglobe-core;
+      };
+
+      nixosConfigurations = import ./nixosConfigurations {
+        inherit lib;
+        slib = snowglobe-lib;
       };
 
       packages = lib.genAttrs supportedSystems (
@@ -45,8 +51,6 @@
       );
 
       overlays = import ./overlays { inherit inputs lib; };
-
-      nixosConfigurations = import ./nixosConfigurations { inherit lib; };
 
       devShells = lib.genAttrs supportedSystems (system: {
         default = import ./devShells { pkgs = nixpkgs.legacyPackages.${system}; };
@@ -74,6 +78,10 @@
     jovian-nixos = {
       url = "github:Jovian-Experiments/Jovian-NixOS";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    import-tree = {
+      url = "github:vic/import-tree";
     };
 
     manga-tui = {

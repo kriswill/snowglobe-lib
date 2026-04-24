@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "networkmanagerapplet";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     inherit pkgs;
     description = "networkmanager applet";
     programName = programName;
@@ -17,7 +18,7 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         # set XDG_DATA_DIRS to include pkgs.networkmanagerapplet/share
@@ -25,7 +26,7 @@ in
         # if this is not set then icons will not render on window managers
         environment.profiles = [ "${cfg.package}" ];
 
-        systemd.user.services.networkmanagerapplet = lib.mkGraphicalService {
+        systemd.user.services.networkmanagerapplet = slib.mkGraphicalService {
           serviceName = "networkmanagerapplet";
           binName = "nm-applet";
           package = cfg.package;

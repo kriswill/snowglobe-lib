@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "nautilus";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     description = "";
     programName = programName;
     packageName = programName;
@@ -17,11 +18,11 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         # mounting of network shares
-        services.gvfs.enable = lib.setDefault true;
+        services.gvfs.enable = slib.setDefault true;
       };
     }
   );

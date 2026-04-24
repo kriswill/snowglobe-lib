@@ -7,6 +7,7 @@
   ...
 }:
 let
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
   cfg = config.snowglobe-core.program-configs;
 in
 {
@@ -16,40 +17,40 @@ in
   config = lib.mkIf cfg.enable {
     programs = {
       # better discord
-      discord.package = lib.setDefault pkgs.vesktop;
+      discord.package = slib.setDefault pkgs.vesktop;
       # hardened firefox
-      firefox.package = lib.setDefault pkgs.librewolf;
+      firefox.package = slib.setDefault pkgs.librewolf;
       # password store with otp support
-      password-store.package = lib.setDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
+      password-store.package = slib.setDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
       # bleeding edge libreoffice
-      libreoffice.package = lib.setDefault pkgs.libreoffice-fresh;
+      libreoffice.package = slib.setDefault pkgs.libreoffice-fresh;
       # no spyware chromium
-      chromium.package = lib.setDefault pkgs.ungoogled-chromium;
+      chromium.package = slib.setDefault pkgs.ungoogled-chromium;
       # alias pavucontrol to pwvucontrol
-      pwvucontrol.pavucontrolAlias = lib.setDefault true;
+      pwvucontrol.pavucontrolAlias = slib.setDefault true;
 
       neovim = {
-        viAlias = lib.setDefault true;
-        vimAlias = lib.setDefault true;
+        viAlias = slib.setDefault true;
+        vimAlias = slib.setDefault true;
       };
 
-      nh.flake = lib.setDefault "/etc/nixos";
+      nh.flake = slib.setDefault "/etc/nixos";
 
       zsh = {
-        autosuggestions.enable = lib.setDefault true;
-        syntaxHighlighting.enable = lib.setDefault true;
+        autosuggestions.enable = slib.setDefault true;
+        syntaxHighlighting.enable = slib.setDefault true;
       };
 
       # make direnv be not annoying
       # direnv = {
-      #   silent = lib.setDefault true;
+      #   silent = slib.setDefault true;
       # };
     };
     environment.variables = lib.mkIf config.programs.direnv.enable {
-      DIRENV_WARN_TIMEOUT = lib.setDefault 0;
+      DIRENV_WARN_TIMEOUT = slib.setDefault 0;
     };
 
     # always use wayland for sddm
-    services.displayManager.sddm.wayland.enable = lib.setDefault true;
+    services.displayManager.sddm.wayland.enable = slib.setDefault true;
   };
 }

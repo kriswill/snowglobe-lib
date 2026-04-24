@@ -8,6 +8,7 @@ let
   overlays = outputs.overlays;
   cfg = config.snowglobe-core.overlays;
   overlayNames = builtins.attrNames overlays;
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
 
   getRollingReleaseOverlays =
     overlayNames:
@@ -79,11 +80,11 @@ in
     snowglobe-core.overlays = lib.mkIf config.snowglobe-core.enable (
       # rolling releases
       lib.genAttrs (getRollingReleaseOverlays overlayNames) (name: {
-        enable = lib.setDefault true;
+        enable = slib.setDefault true;
       })
       # other optional overlays
       // {
-        zsh-syntax-highlighting-fix.enable = lib.setDefault true;
+        zsh-syntax-highlighting-fix.enable = slib.setDefault true;
       }
     );
   };

@@ -7,6 +7,7 @@
 }:
 let
   cfg = config.snowglobe-core.profiles.hacker-mode;
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.profiles.hacker-mode.enable =

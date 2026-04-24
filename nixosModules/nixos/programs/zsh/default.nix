@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "zsh";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.zsh = lib.mkProgramOption {
+  options.programs.zsh = slib.mkProgramOption {
     inherit programName pkgs;
     excludedOptions = [
       "enable"
@@ -17,7 +18,7 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         environment.systemPackages =

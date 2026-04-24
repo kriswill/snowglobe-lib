@@ -7,6 +7,7 @@
 }:
 let
   cfg = config.snowglobe-core.profiles.gaming;
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.profiles.gaming = {
@@ -23,29 +24,29 @@ in
         };
 
         hardware = {
-          xone.enable = lib.setDefault true;
+          xone.enable = slib.setDefault true;
         };
 
         programs = {
           # open source frontend for managing your games and emulators
-          lutris.enable = lib.setDefault true;
+          lutris.enable = slib.setDefault true;
 
           # performance overlay
-          mangohud.enable = lib.setDefault true;
+          mangohud.enable = slib.setDefault true;
 
           # install proton versions
-          protonup-qt.enable = lib.setDefault true;
+          protonup-qt.enable = slib.setDefault true;
 
           # autoclicker (this works in wayland as most games run in xwayland)
-          xclicker.enable = lib.setDefault true;
+          xclicker.enable = slib.setDefault true;
 
           # proprietary garbage, but required :(
           steam = {
             enable = true;
             gamescopeSession = {
-              enable = lib.setDefault true;
+              enable = slib.setDefault true;
             };
-            localNetworkGameTransfers.openFirewall = lib.setDefault true;
+            localNetworkGameTransfers.openFirewall = slib.setDefault true;
           };
         };
         # TODO gamemode

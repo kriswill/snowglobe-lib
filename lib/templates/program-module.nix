@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = config.snowglobe-core.lib;
   programName = "";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     inherit pkgs;
     description = "";
     programName = programName;
@@ -17,7 +18,7 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
     }
   );

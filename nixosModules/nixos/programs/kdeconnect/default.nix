@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "kdeconnect";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     inherit pkgs;
     description = "Multi platform app that allows your devices to communicate";
     programName = programName;
@@ -24,11 +25,11 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         systemd.user.services.kdeconnect-indicator = lib.mkIf (cfg.trayApplet.enable) (
-          lib.mkGraphicalService {
+          slib.mkGraphicalService {
             serviceName = "kdeconnect-indicator";
             package = cfg.package;
           }

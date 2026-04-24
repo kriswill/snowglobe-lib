@@ -5,15 +5,14 @@
   ...
 }:
 let
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
   cfg = config.snowglobe-core.gpu;
   moduleEnabled = (cfg.amd.enable || cfg.nvidia.enable || cfg.intel.enable);
 in
 {
-  imports = lib.importModules ./. { };
-
   config = lib.mkIf moduleEnabled {
     hardware.graphics.enable = true;
     # good tool for monitoring and control of your gpu
-    services.lact.enable = lib.setDefault true;
+    services.lact.enable = slib.setDefault true;
   };
 }

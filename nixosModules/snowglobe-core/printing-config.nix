@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.snowglobe-core.printing-config;
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.printing-config = {

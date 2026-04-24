@@ -5,6 +5,7 @@
   ...
 }:
 let
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
   cfg = config.snowglobe-core.desktop.kde;
 in
 {
@@ -52,7 +53,7 @@ in
     services = {
       blueman.enable = false;
 
-      flatpak.enable = lib.setDefault true;
+      flatpak.enable = slib.setDefault true;
 
       # make sure sddm is enabled
       displayManager.sddm.enable = true;
@@ -75,7 +76,7 @@ in
     # plasma does not come with a calculator
     programs = {
       wl-clipboard.enable = true; # needed for some stuff
-      gnome-calculator.enable = lib.setDefault true; # kde does not come with a calculator
+      gnome-calculator.enable = slib.setDefault true; # kde does not come with a calculator
 
       # disable pwvucontrol in favor of the default plasma volume control
       pwvucontrol.enable = lib.mkDefault false;

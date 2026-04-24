@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "neovim";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     description = "customized module for importing packaged neovim configs.";
     programName = programName;
     inherit pkgs;
@@ -21,7 +22,7 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         environment = {
@@ -30,7 +31,7 @@ in
             let
               viAlias =
                 if (cfg.viAlias) then
-                  lib.mkProgramAlias {
+                  slib.mkProgramAlias {
                     program = "nvim";
                     alias = "vi";
                     package = cfg.package;
@@ -41,7 +42,7 @@ in
 
               vimAlias =
                 if (cfg.vimAlias) then
-                  lib.mkProgramAlias {
+                  slib.mkProgramAlias {
                     program = "nvim";
                     alias = "vim";
                     package = cfg.package;

@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.snowglobe-core.pipewire-config;
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.pipewire-config.enable = lib.mkEnableOption "Snowglobe-Core's pipewire configuration";

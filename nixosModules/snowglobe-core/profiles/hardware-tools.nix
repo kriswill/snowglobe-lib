@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.snowglobe-core.profiles.hardware-tools;
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.profiles.hardware-tools.enable =

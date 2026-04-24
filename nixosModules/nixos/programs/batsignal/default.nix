@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "batsignal";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     inherit pkgs;
     description = "simple battery monitor written in C";
     programName = programName;
@@ -27,11 +28,11 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         systemd.user.services.batsignal = lib.mkIf (cfg.systemd.enable) (
-          lib.mkGraphicalService {
+          slib.mkGraphicalService {
             serviceName = "batsignal";
             package = cfg.package;
           }

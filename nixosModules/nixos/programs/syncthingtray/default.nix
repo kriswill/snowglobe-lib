@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "syncthingtray";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     inherit pkgs;
     description = "tray applet for syncthing";
     programName = programName;
@@ -20,11 +21,11 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         systemd.user.services.syncthingtray = lib.mkIf (cfg.systemd.enable) (
-          lib.mkGraphicalService {
+          slib.mkGraphicalService {
             serviceName = "syncthingtray";
             programArgs = [ "--wait" ];
             package = cfg.package;

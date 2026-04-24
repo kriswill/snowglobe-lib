@@ -1,4 +1,4 @@
-# create some additional system options that can be populated by lib.mkHost
+# create some additional system options that can be populated by lib.mkNixosHost
 { lib, ... }:
 {
   options.system = {

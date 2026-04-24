@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.snowglobe-core.profiles.nix-tools;
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.profiles.nix-tools = {
@@ -16,7 +17,7 @@ in
     programs = {
       nix-output-monitor.enable = true;
       nix-fast-build.enable = true;
-      nvd.enable = lib.setDefault true;
+      nvd.enable = slib.setDefault true;
       nh.enable = true;
       direnv = {
         enable = true;

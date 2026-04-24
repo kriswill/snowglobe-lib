@@ -5,6 +5,7 @@
   ...
 }:
 let
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
   cfg = config.snowglobe-core.gpu.amd;
 in
 {
@@ -15,11 +16,11 @@ in
     };
 
     # provide special derivation that can monitor amdgpu stats
-    programs.btop.package = lib.setDefault pkgs.btop-rocm;
+    programs.btop.package = slib.setDefault pkgs.btop-rocm;
 
     hardware = {
       # allow overclocking
-      amdgpu.overdrive.enable = lib.setDefault true;
+      amdgpu.overdrive.enable = slib.setDefault true;
       # enable full resolution during early KMS while booting
       amdgpu.initrd.enable = lib.mkDefault true;
     };

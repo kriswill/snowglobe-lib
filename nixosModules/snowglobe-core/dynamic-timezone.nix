@@ -7,6 +7,7 @@
 }:
 let
   cfg = config.snowglobe-core.dynamic-timezone;
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.dynamic-timezone = {

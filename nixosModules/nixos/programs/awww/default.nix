@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "awww";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     inherit pkgs;
     description = "answer to your wayland wallpaper woes";
     programName = programName;
@@ -29,11 +30,11 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         systemd.user.services.awww-daemon = lib.mkIf (cfg.systemd.enable) (
-          lib.mkGraphicalService {
+          slib.mkGraphicalService {
             serviceName = "awww-daemon";
             package = cfg.package;
             waylandDependent = true;

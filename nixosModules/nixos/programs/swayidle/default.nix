@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "swayidle";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     inherit pkgs;
     description = "idle daemon for wayland";
     programName = programName;
@@ -27,11 +28,11 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         systemd.user.services.swayidle = lib.mkIf (cfg.systemd.enable) (
-          lib.mkGraphicalService {
+          slib.mkGraphicalService {
             serviceName = "swayidle";
             package = cfg.package;
             waylandDependent = true;

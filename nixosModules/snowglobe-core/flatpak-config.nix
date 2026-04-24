@@ -7,6 +7,7 @@
 let
   module-name = "flatpak-config";
   cfg = config.snowglobe-core.${module-name};
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.${module-name} = {
@@ -21,8 +22,6 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
-        services.flatpak.enable = true;
-
         # automatically add flatpak to whatever frontend you want to use
         systemd.services.flatpak-repo = {
           wantedBy = [ "multi-user.target" ];
@@ -33,7 +32,7 @@ in
         };
       }
       (lib.mkIf (config.snowglobe-core.desktop.enable) {
-        programs.${cfg.frontend}.enable = lib.setDefault true;
+        programs.${cfg.frontend}.enable = slib.setDefault true;
       })
     ]
   );

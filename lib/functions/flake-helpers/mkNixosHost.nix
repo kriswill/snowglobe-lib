@@ -1,7 +1,11 @@
-{ outputs, ... }:
+{
+  inputs,
+  outputs,
+  lib,
+  ...
+}:
 let
-  # allow use of custom + nixpkgs lib functions
-  lib = outputs.lib;
+  slib = outputs.lib;
 in
 {
   hostname ? "nixos", # name your system
@@ -30,7 +34,7 @@ lib.nixosSystem {
         moduleDir:
         if (configDir != null) then
           if (builtins.pathExists (configDir + "/${moduleDir}")) then
-            (lib.importModules (configDir + "/${moduleDir}") { })
+            [ (inputs.import-tree (configDir + "/${moduleDir}")) ]
           else
             [ ]
         else
@@ -50,7 +54,7 @@ lib.nixosSystem {
     in
     [
       {
-        snowglobe-core.enable = lib.setDefault true;
+        snowglobe-core.enable = slib.setDefault true;
 
         # set secrets file
         sops.defaultSopsFile = lib.mkIf (sopsFile != null) sopsFile;

@@ -7,6 +7,7 @@
 let
   module-name = "libvirtd-qemu";
   cfg = config.snowglobe-core.${module-name};
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.${module-name} = {
@@ -38,7 +39,7 @@ in
         };
       }
       (lib.mkIf (config.system.desktop != null) {
-        programs.virt-manager.enable = lib.setDefault true;
+        programs.virt-manager.enable = slib.setDefault true;
       })
     ]
   );

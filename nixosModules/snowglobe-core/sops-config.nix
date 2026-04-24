@@ -7,6 +7,7 @@
 }:
 let
   cfg = config.snowglobe-core.sops-config;
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.sops-config.enable = lib.mkEnableOption "Snowglobe-Core's sops-nix configuration";
@@ -18,9 +19,9 @@ in
         ;
     };
     sops = {
-      defaultSopsFormat = lib.setDefault "yaml";
+      defaultSopsFormat = slib.setDefault "yaml";
       age = {
-        keyFile = lib.setDefault "/var/lib/sops-nix/keys.txt";
+        keyFile = slib.setDefault "/var/lib/sops-nix/keys.txt";
       };
     };
   };

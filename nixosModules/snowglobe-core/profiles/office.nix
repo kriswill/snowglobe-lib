@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.snowglobe-core.profiles.office;
+  slib = import ../../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-core.profiles.office = {
@@ -18,13 +19,13 @@ in
 
     programs = {
       # email
-      thunderbird.enable = lib.setDefault true;
+      thunderbird.enable = slib.setDefault true;
       # open source MSoffice
-      libreoffice.enable = lib.setDefault true;
+      libreoffice.enable = slib.setDefault true;
       # image editor
-      gimp.enable = lib.setDefault true;
+      gimp.enable = slib.setDefault true;
       # provide chromium as a backup browser in case something on firefox doesn't work due to poor web engineering
-      chromium.enable = lib.setDefault true;
+      chromium.enable = slib.setDefault true;
     };
   };
 }

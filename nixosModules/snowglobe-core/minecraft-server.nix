@@ -8,6 +8,7 @@
 }:
 let
   cfg = config.snowglobe-core.minecraft-server;
+  slib = import ../../lib/functions/module-wrappers { inherit lib; };
 
   stopScript = pkgs.writeShellScript "minecraft-server-stop" ''
     echo stop > ${config.systemd.sockets.minecraft-server.socketConfig.ListenFIFO}

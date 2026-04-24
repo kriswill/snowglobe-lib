@@ -5,11 +5,12 @@
   ...
 }:
 let
+  slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
   programName = "neomutt";
   cfg = config.programs.${programName};
 in
 {
-  options.programs.${programName} = lib.mkProgramOption {
+  options.programs.${programName} = slib.mkProgramOption {
     description = "TUI email client";
     programName = programName;
     packageName = programName;
@@ -24,14 +25,14 @@ in
   };
 
   config = lib.mkIf cfg.enable (
-    lib.installProgram {
+    slib.installProgram {
       inherit programName config;
       extraModules = {
         # install lukeSmithXYZ mutt helper
-        programs.mutt-wizard.enable = lib.setDefault true;
+        programs.mutt-wizard.enable = slib.setDefault true;
         environment.systemPackages =
           let
-            mutt-alias = lib.mkProgramAlias {
+            mutt-alias = slib.mkProgramAlias {
               program = "neomutt";
               alias = "mutt";
               package = cfg.package;
