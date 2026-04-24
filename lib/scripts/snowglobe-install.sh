@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
-
-clear
-
 if [ "$(whoami)" != "root" ]; then
 	printf "You must be root.\n"
 	exit 1
 fi
 
+clear
 # ensure that the nix daemon is running
 if ! systemctl is-active nix-daemon >/dev/null; then
 	printf "Nix daemon is not running, starting it.\n"
@@ -649,16 +647,14 @@ _get_hardware_info
 
 _select_optional_profiles() {
 	ENABLED_PROFILES=()
-	if [ -z "$IS_VM" ]; then
-		y_or_n --msg="Install programs for hardware diagnostics?" && ENABLED_PROFILES+=("Hardware-Tools")
-	fi
+	y_or_n --msg="Install programs for hardware diagnostics?" && ENABLED_PROFILES+=("hardware-tools")
 	if [ "$SELECTED_DESKTOP" ]; then
-		y_or_n --msg="Install modules for gaming? (steam, lutris, hardware diagnostic tools, etc?)" --default="no" && ENABLED_PROFILES+=("Gaming")
-		y_or_n --msg="Install programs for office work? (libreoffice, email client, gimp, etc?)" --default="no" && ENABLED_PROFILES+=("Office")
+		y_or_n --msg="Install modules for gaming? (steam, lutris, hardware diagnostic tools, etc?)" --default="no" && ENABLED_PROFILES+=("gaming")
+		y_or_n --msg="Install programs for office work? (libreoffice, email client, gimp, etc?)" --default="no" && ENABLED_PROFILES+=("office")
 	fi
-	y_or_n --msg="Install penetration and security testing tools from Kali Linux? (nmap, tor-browser, john-the-ripper, wireshark, etc)" --default="no" && ENABLED_PROFILES+=("Hacking-Tools")
-	y_or_n --msg="Install additional nix tools? (recommended for developers)" --default="no" && ENABLED_PROFILES+=("Nix-Tools")
-	y_or_n --msg="Would you like to harden your configuration? This disables some features (like password-based ssh authentication) for increased security." --default="yes" && ENABLED_PROFILES+=("Harden")
+	y_or_n --msg="Install penetration and security testing tools from Kali Linux? (nmap, tor-browser, john-the-ripper, wireshark, etc)" --default="no" && ENABLED_PROFILES+=("hacker-mode")
+	y_or_n --msg="Install additional nix tools? (recommended for developers)" --default="no" && ENABLED_PROFILES+=("nix-tools")
+	y_or_n --msg="Would you like to harden your configuration? This disables some features (like password-based ssh authentication) for increased security." --default="yes" && ENABLED_PROFILES+=("harden")
 }
 
 _select_locale
@@ -743,23 +739,23 @@ if [ -z "$APPEND_MODE" ]; then
 			description = \"my NixOS configurations\";
 
 			inputs = {
-				nixpkgs.follows = \"snowglobe-core/nixpkgs\";
+				nixpkgs.follows = \"snowglobe-lib/nixpkgs\";
 				# Uncomment to lock your own nixpkgs revision in the flake.lock.
 				# Could cause instabilities, use only if you know what you are doing.
 				# nixpkgs = {
 				#   url = \"github:NixOS/nixpkgs/nixos-unstable\";
 				# };
 
-				snowglobe-core = {
-					url = \"git+https://git.earthgman.dev/earthgman/snowglobe-core\";
+				snowglobe-lib = {
+					url = \"git+https://git.earthgman.dev/earthgman/snowglobe-lib\";
 					# Be sure to also uncomment this if you use your own nixpkgs input. Mismatched system dependencies are not good.
 					# inputs.nixpkgs.follows = \"nixpkgs\";
 				};
 			};
 
-			outputs = { self, nixpkgs, snowglobe-core, ... }@inputs:
+			outputs = { self, nixpkgs, snowglobe-lib, ... }@inputs:
 			let
-				lib = snowglobe-core.lib; # nixpkgs.lib merged with some custom functions used for modules.
+				lib = snowglobe-lib.lib; # nixpkgs.lib merged with some custom functions used for modules.
 				outputs = self.outputs;
 			in
 			{
@@ -1010,25 +1006,9 @@ printf '{ pkgs, lib, config, ... }:
 	"$LOCALE" "$XKB_LAYOUT" >"$HOST_CONFIG_DIR/configuration.nix"
 
 if [ "$ENABLED_PROFILES" ]; then
-	# TODO optimize and make expandable
+	printf "\n# custom profiles\n" >>"$HOST_CONFIG_DIR/configuration.nix"
 	for profile in "${ENABLED_PROFILES[@]}"; do
-		case $profile in
-		"Gaming")
-			printf "snowglobe-core.profiles.gaming.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
-			;;
-		"Office")
-			printf "snowglobe-core.profiles.office.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
-			;;
-		"Hacking-Tools")
-			printf "snowglobe-core.profiles.hacker-mode.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
-			;;
-		"Nix-Tools")
-			printf "snowglobe-core.profiles.nix-tools.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
-			;;
-		"Harden")
-			printf "snowglobe-core.profiles.harden.enable = true;\n" >>"$HOST_CONFIG_DIR/configuration.nix"
-			;;
-		esac
+		printf "snowglobe-lib.profiles.%s.enable = true;\n" "$profile" >>"$HOST_CONFIG_DIR/configuration.nix"
 	done
 fi
 printf "}" >>"$HOST_CONFIG_DIR/configuration.nix"

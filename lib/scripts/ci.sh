@@ -72,13 +72,13 @@ for repo in $REPOSITORIES; do
 	cd "$REPO_DIR" || exit 1
 
 	# edit the flake.nix to point to the development branch
-	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-core' | grep 'testing')" ]; then
+	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep 'testing')" ]; then
 		# if the repo is on the testing branch
-		sed -i 's|/earthgman/snowglobe-core?ref=testing|/earthgman/snowglobe-core?ref=dev|' "$REPO_DIR/flake.nix"
+		sed -i 's|/earthgman/snowglobe-lib?ref=testing|/earthgman/snowglobe-lib?ref=dev|' "$REPO_DIR/flake.nix"
 	else
-		sed -i 's|/earthgman/snowglobe-core|/earthgman/snowglobe-core?ref=dev|' "$REPO_DIR/flake.nix"
+		sed -i 's|/earthgman/snowglobe-lib|/earthgman/snowglobe-lib?ref=dev|' "$REPO_DIR/flake.nix"
 	fi
-	nix flake update snowglobe-core
+	nix flake update snowglobe-lib
 
 	if [ "$CHECK_ONLY" ]; then
 		nix flake check || exit 1
@@ -92,12 +92,12 @@ for repo in $REPOSITORIES; do
 			msg="build for $host from repo: $REPO_OWNER/$REPO_NAME has failed"
 			echo "$msg"
 			notify-send -a "snowglobe-CI" "ci.sh" "$msg"
-			sed -i 's|/EarthGman/snowglobe-core?ref=dev|/EarthGman/snowglobe-core?ref=testing|' "$REPO_DIR/flake.nix"
+			sed -i 's|/EarthGman/snowglobe-lib?ref=dev|/EarthGman/snowglobe-lib?ref=testing|' "$REPO_DIR/flake.nix"
 			exit 1
 		}
 	done
 	# return the flake to its original state
-	sed -i 's|/EarthGman/snowglobe-core?ref=dev|/EarthGman/snowglobe-core?ref=testing|' "$REPO_DIR/flake.nix"
+	sed -i 's|/EarthGman/snowglobe-lib?ref=dev|/EarthGman/snowglobe-lib?ref=testing|' "$REPO_DIR/flake.nix"
 done
 
 cd "$PROJECT_ROOT" || exit 1

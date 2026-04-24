@@ -25,12 +25,12 @@
       lib = snowglobe-lib;
 
       nixosModules = rec {
-        snowglobe-core = import ./nixosModules/snowglobe-core { inherit lib inputs outputs; };
+        snowglobe-lib = import ./nixosModules/snowglobe-lib { inherit lib inputs outputs; };
         # jovian configuration
         jovian = import ./nixosModules/jovian { inherit inputs lib; };
         # expose the modules from nixos-hardware because they do not wrap them with options for some reason
         nixos-hardware = inputs.nixos-hardware.nixosModules;
-        default = snowglobe-core;
+        default = snowglobe-lib;
       };
 
       nixosConfigurations = import ./nixosConfigurations {

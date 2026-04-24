@@ -52,7 +52,7 @@ lib.nixosSystem {
     in
     [
       {
-        snowglobe-core.enable = slib.setDefault true;
+        snowglobe-lib.enable = slib.setDefault true;
 
         # set secrets file
         sops.defaultSopsFile = lib.mkIf (sopsFile != null) sopsFile;

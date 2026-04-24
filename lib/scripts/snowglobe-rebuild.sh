@@ -33,7 +33,7 @@ case "$1" in
 	printf "\n  Optional Flags:\n"
 	printf "  ------\n"
 	printf "  --config-dir=path - the root location of your NixOS configuration flake. Defaults to /etc/nixos.\n"
-	printf "  --update-inputs=input1,input2 - comma seperated list of flake inputs to update. Defaults to 'snowglobe-core'\n"
+	printf "  --update-inputs=input1,input2 - comma seperated list of flake inputs to update. Defaults to 'snowglobe-lib'\n"
 	exit 0
 	;;
 
@@ -62,7 +62,7 @@ for arg in "$@"; do
 		# TODO list of inputs to update
 		INPUTS_TO_UPDATE=$(printf "%s" "$ARG_VAL" | tr ',' ' ')
 		if [ -z "$INPUTS_TO_UPDATE" ]; then
-			INPUTS_TO_UPDATE='snowglobe-core'
+			INPUTS_TO_UPDATE='snowglobe-lib'
 		fi
 		nix flake update "$INPUTS_TO_UPDATE"
 		;;
