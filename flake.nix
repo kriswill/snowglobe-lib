@@ -34,7 +34,7 @@
       };
 
       nixosConfigurations = import ./nixosConfigurations {
-        inherit lib;
+        inherit outputs lib;
         slib = snowglobe-lib;
       };
 

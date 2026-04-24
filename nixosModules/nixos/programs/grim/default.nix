@@ -6,13 +6,13 @@
 }:
 let
   slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
-  programName = "";
+  programName = "grim";
   cfg = config.programs.${programName};
 in
 {
   options.programs.${programName} = slib.mkProgramOption {
     inherit pkgs;
-    description = "";
+    description = "screenshot tool for wayland";
     programName = programName;
     packageName = programName;
   };
