@@ -49,8 +49,6 @@ lib.nixosSystem {
       userConfig = importModules "users";
       programConfig = importModules "programs";
       serviceConfig = importModules "services";
-
-      snowglobeCore = [ outputs.nixosModules.snowglobe-core ];
     in
     [
       {
@@ -78,7 +76,6 @@ lib.nixosSystem {
     ++ programConfig
     ++ serviceConfig
     ++ userConfig
-    ++ snowglobeCore
     # extra modules passed to the function
     ++ modules;
 }
