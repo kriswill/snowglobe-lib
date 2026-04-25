@@ -740,22 +740,24 @@ if [ -z "$APPEND_MODE" ]; then
 
 			inputs = {
 				nixpkgs.follows = \"snowglobe-lib/nixpkgs\";
-				# Uncomment to lock your own nixpkgs revision in the flake.lock.
-				# Could cause instabilities, use only if you know what you are doing.
+        # comment above and uncomment below to pin your own nixpkgs revision in the flake.lock.
+				# Could cause instabilities, use at your own risk.
 				# nixpkgs = {
 				#   url = \"github:NixOS/nixpkgs/nixos-unstable\";
 				# };
 
+				import-tree.follows = \"snowglobe-lib/import-tree\";
+
 				snowglobe-lib = {
-					url = \"git+https://git.earthgman.dev/earthgman/snowglobe-lib\";
-					# Be sure to also uncomment this if you use your own nixpkgs input. Mismatched system dependencies are not good.
+					url = \"git+https://codeberg.org/earthgman/snowglobe-lib\";
+					# Be sure to also uncomment this if you use your own nixpkgs input to avoid duplicate nixpkgs repos in the store.
 					# inputs.nixpkgs.follows = \"nixpkgs\";
 				};
 			};
 
 			outputs = { self, nixpkgs, snowglobe-lib, ... }@inputs:
 			let
-				lib = snowglobe-lib.lib; # nixpkgs.lib merged with some custom functions used for modules.
+			  lib = nixpkgs.lib;
 				outputs = self.outputs;
 			in
 			{
@@ -801,26 +803,33 @@ if [ -z "$APPEND_MODE" ]; then
 			config,
 			...
 		}:
+		let
+			import-tree = inputs.import-tree;
+		in
 		{
 			# automatically wraps up module files present in this directory
-			imports = lib.importModules ./. { } ++ [
-				# EXAMPLE
+			imports = [
+				# modules shared between nixos home-manager and darwin
+				(import-tree ../sharedModules)
+				# the rest of your modules
+				(import-tree.filterNot (lib.hasInfix \"default.nix\") ./.)
+
+				# add additional modules from your flake
 				# inputs.home-manager.nixosModules.default
 			];
 
-			
 			# contain and enable your custom modules
 			# If you wish to let your modules be consumable by other flakes, be sure to segment them to avoid conflicts.
 
 			# options.your-name-here.enable = lib.mkEnableOption \"your-name-here's NixOS modules\";
 
-			# apply only if your modules are enabled
 			# config = lib.mkMerge [
 			#		{
 						# import your overlays to all hosts
 						nixpkgs.overlays = builtins.attrValues outputs.overlays;
 			#			your-name-here.enable = lib.mkDefault true;
 			#		}
+			# 	apply only if your custom modules are enabled
 			#		(lib.mkIf config.your-name-here.enable {
 			#		  your-name-here.your-module-1.enable = true;
 			#		  your-name-here.your-module-2.enable = true;
@@ -829,38 +838,14 @@ if [ -z "$APPEND_MODE" ]; then
 			# ];
 	}" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/default.nix"
 
-	# nixosModules/profile.nix
-	printf "{ pkgs, lib, config, ... }:
-		{
-			# you can add any configuration you want shared among all your hosts
-			# Example
-			# programs.ghostty.enable = true;
-		}
-	" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/profile.nix"
-
-	# shared modules
-	printf "{ lib, ... }:
-	# configuration that can be shared between nixosMoudules, homeModules, and darwinModules
-	{
-		imports = lib.importModules ./. { };
-	}" | install -D /dev/stdin "$CONFIG_ROOT/sharedModules/default.nix"
-
 	# sharedModules/keyring.nix
 	printf "{
 	keyring = { 
 		ssh = { };
 		openpgp = { };
 		age = { };
-		substitutors = { };
 	};
 }" | install -D /dev/stdin "$KEYRING_FILE"
-
-	# nixosModules/nixos
-	printf "# reserved for any modifications you wish to make to the core NixOS module tree from nixpkgs
-		{ pkgs, lib, config, ... }:
-		{
-			imports = lib.importModules ./. { };
-		}" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/nixos/default.nix"
 
 	# packages
 	printf "
@@ -886,7 +871,7 @@ if [ -z "$APPEND_MODE" ]; then
 		}" | install -D /dev/stdin "$CONFIG_ROOT/overlays/default.nix"
 else
 	if [ -z "$REPO_DIR" ]; then
-		printf "Error: Repo not found but append mode was sepcified, this is a bug.\n"
+		printf "Error: Repo not found but append mode was specified, this is a bug.\n"
 		exit 1
 	fi
 
@@ -1123,70 +1108,70 @@ _set_password() {
 	done
 }
 
-_add_key() {
-	unset SSH_KEY
-	unset SSH_KEY_NAME
-	if [ "$APPEND_MODE" ] || [ "$AUTHORIZED_SSH_KEYS" ]; then
-		SSH_KEYS_STRING=$(nix eval $CONFIG_ROOT'#'nixosConfigurations."$HOSTNAME".config.keyring.ssh | tr -d '{ }')
-	fi
-	if [ -z "$AUTHORIZED_SSH_KEYS" ]; then
-		AUTHORIZED_SSH_KEYS=()
-	fi
-	if [ "$SSH_KEYS_STIRNG" ]; then
-		IFS=';'
-		KEY_NAMES=$(for keypair in $SSH_KEYS_STRING; do
-			printf "%s" "$keypair" | cut -d= -f1
-		done)
-		SSH_KEY="$(printf "%s" "$KEY_NAMES" | fzf \
-			--border \
-			--border-label-pos 1:bottom \
-			--border-label="Found these ssh public keys on your keyring. Use one of these? (esc or ctrl+c to cancel)")"
-		unset IFS
-	fi
-
-	# assume that all keys that made it onto the keyring are valid
-	if [ "$SSH_KEY" ]; then
-		# remove the selected entry from the list for future selections
-		SSH_KEYS_STRING="$(printf "%s" "$SSH_KEYS_STRING" | sed -e "s|$SSH_KEY[^;]*||g" -e 's|;||')"
-		return 0
-	fi
-
-	while :; do
-		read -rp "Enter a public SSH key: " SSH_KEY
-		if [ -z "$SSH_KEY" ]; then
-			y_or_n --msg="No SSH key was entered. Would you like to try again?" || return 1
-		else
-			if ! ssh-keygen -l -f <(printf "%s" "$SSH_KEY") >/dev/null 2>&1; then
-				y_or_n --msg="That ssh key does not seem valid. Try again?" || return 1
-			else
-				break
-			fi
-		fi
-	done
-
-	while :; do
-		printf "Warning: key name will be stripped of numbers and special characters. (excluding - and _)\n"
-		read -rp "Give an name to this key for your keyring: " SSH_KEY_NAME
-		SSH_KEY_NAME="$(printf "%s" "$SSH_KEY_NAME" | tr -d '[`"=;:$%#^<>+(){}*!&[]~|][:blank:][:cntrl:][:digit:]')"
-		if [ -z "$SSH_KEY_NAME" ]; then
-			printf "Key name cannot be empty. Try again.\n"
-		else
-			for key in $KEY_NAMES; do
-				printf "%s" "$key"
-				if [ "$SSH_KEY_NAME" = "$key" ]; then
-					printf "A key with that alias is already present in your keyring. Use a different alias.\n"
-					continue
-				fi
-			done
-		fi
-		break
-	done
-
-	# write to the keyring
-	sed -i "s|\(ssh = {\)\([^}]*\)|\1\n\t$SSH_KEY_NAME = \"$SSH_KEY\";|" "$KEYRING_FILE"
-
-	AUTHORIZED_SSH_KEYS+=("$SSH_KEY_NAME")
-}
+# _add_key() {
+# 	unset SSH_KEY
+# 	unset SSH_KEY_NAME
+# 	if [ "$APPEND_MODE" ] || [ "$AUTHORIZED_SSH_KEYS" ]; then
+# 		SSH_KEYS_STRING=$(nix eval $CONFIG_ROOT'#'nixosConfigurations."$HOSTNAME".config.keyring.ssh | tr -d '{ }')
+# 	fi
+# 	if [ -z "$AUTHORIZED_SSH_KEYS" ]; then
+# 		AUTHORIZED_SSH_KEYS=()
+# 	fi
+# 	if [ "$SSH_KEYS_STIRNG" ]; then
+# 		IFS=';'
+# 		KEY_NAMES=$(for keypair in $SSH_KEYS_STRING; do
+# 			printf "%s" "$keypair" | cut -d= -f1
+# 		done)
+# 		SSH_KEY="$(printf "%s" "$KEY_NAMES" | fzf \
+# 			--border \
+# 			--border-label-pos 1:bottom \
+# 			--border-label="Found these ssh public keys on your keyring. Use one of these? (esc or ctrl+c to cancel)")"
+# 		unset IFS
+# 	fi
+#
+# 	# assume that all keys that made it onto the keyring are valid
+# 	if [ "$SSH_KEY" ]; then
+# 		# remove the selected entry from the list for future selections
+# 		SSH_KEYS_STRING="$(printf "%s" "$SSH_KEYS_STRING" | sed -e "s|$SSH_KEY[^;]*||g" -e 's|;||')"
+# 		return 0
+# 	fi
+#
+# 	while :; do
+# 		read -rp "Enter a public SSH key: " SSH_KEY
+# 		if [ -z "$SSH_KEY" ]; then
+# 			y_or_n --msg="No SSH key was entered. Would you like to try again?" || return 1
+# 		else
+# 			if ! ssh-keygen -l -f <(printf "%s" "$SSH_KEY") >/dev/null 2>&1; then
+# 				y_or_n --msg="That ssh key does not seem valid. Try again?" || return 1
+# 			else
+# 				break
+# 			fi
+# 		fi
+# 	done
+#
+# 	while :; do
+# 		printf "Warning: key name will be stripped of numbers and special characters. (excluding - and _)\n"
+# 		read -rp "Give an name to this key for your keyring: " SSH_KEY_NAME
+# 		SSH_KEY_NAME="$(printf "%s" "$SSH_KEY_NAME" | tr -d '[`"=;:$%#^<>+(){}*!&[]~|][:blank:][:cntrl:][:digit:]')"
+# 		if [ -z "$SSH_KEY_NAME" ]; then
+# 			printf "Key name cannot be empty. Try again.\n"
+# 		else
+# 			for key in $KEY_NAMES; do
+# 				printf "%s" "$key"
+# 				if [ "$SSH_KEY_NAME" = "$key" ]; then
+# 					printf "A key with that alias is already present in your keyring. Use a different alias.\n"
+# 					continue
+# 				fi
+# 			done
+# 		fi
+# 		break
+# 	done
+#
+# 	# write to the keyring
+# 	sed -i "s|\(ssh = {\)\([^}]*\)|\1\n\t$SSH_KEY_NAME = \"$SSH_KEY\";|" "$KEYRING_FILE"
+#
+# 	AUTHORIZED_SSH_KEYS+=("$SSH_KEY_NAME")
+# }
 
 _set_permissions() {
 	USER_PERMISSIONS=()
@@ -1230,18 +1215,18 @@ while :; do
 			break
 		done
 
-		while :; do
-			if [ ${#AUTHORIZED_SSH_KEYS} -lt 1 ]; then
-				MSG="Add an authorized public key to access this user over SSH?"
-			else
-				MSG="Add another key?"
-			fi
-			y_or_n --msg="$MSG" --default="no" && {
-				_add_key || break
-				continue
-			}
-			break
-		done
+		# while :; do
+		# 	if [ ${#AUTHORIZED_SSH_KEYS} -lt 1 ]; then
+		# 		MSG="Add an authorized public key to access this user over SSH?"
+		# 	else
+		# 		MSG="Add another key?"
+		# 	fi
+		# 	y_or_n --msg="$MSG" --default="no" && {
+		# 		_add_key || break
+		# 		continue
+		# 	}
+		# 	break
+		# done
 
 		if [ -z "$PASSWORD" ] && [ ${#AUTHORIZED_SSH_KEYS[@]} -lt 1 ]; then
 			printf "\nError: Neither a password nor SSH key was set for this user. You will not be able to log into it unless you set one!\n\n"
@@ -1260,12 +1245,11 @@ while :; do
 		if [ "$PASSWORD" ]; then
 			printf "Password - =*Redacted*=\n"
 		fi
-		# TODO ssh keys
-		if [ "$AUTHORIZED_SSH_KEYS" ]; then
-			for key in "${AUTHORIZED_SSH_KEYS[@]}"; do
-				printf "Authorized SSH key - %s\n" "$key"
-			done
-		fi
+		# if [ "$AUTHORIZED_SSH_KEYS" ]; then
+		# 	for key in "${AUTHORIZED_SSH_KEYS[@]}"; do
+		# 		printf "Authorized SSH key - %s\n" "$key"
+		# 	done
+		# fi
 		if [ -z "$NORMAL_USER" ]; then
 			printf "Permission - System Administrator\n\n"
 		elif [ "$USER_PERMISSIONS" ]; then
@@ -1276,7 +1260,7 @@ while :; do
 
 		y_or_n --msg="Are you satisfied with the current configuration?" --default="yes" && break
 		clear
-		OPTIONS=("Username" "Password" "Authorized SSH keys" "Permissions")
+		OPTIONS=("Username" "Password" "Permissions")
 		SELECTED="$(for option in "${OPTIONS[@]}"; do
 			printf "%s\n" "$option"
 		done | fzf \
@@ -1290,17 +1274,6 @@ while :; do
 			;;
 		"Password")
 			_set_password 'force'
-			;;
-		"Authorized SSH keys")
-			AUTHORIZED_SSH_KEYS=()
-			while :; do
-				if [ ${#AUTHORIZED_SSH_KEYS} -gt 1 ]; then
-					y_or_n --msg="Add another key?" && {
-						_add_key || break
-					}
-				fi
-				_add_key
-			done
 			;;
 		"Permissions")
 			_set_permissions

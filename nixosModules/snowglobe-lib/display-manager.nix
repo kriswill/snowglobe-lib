@@ -79,6 +79,9 @@ in
         };
       })
       (lib.mkIf (cfg.display-manager == "ly") {
+        # https://codeberg.org/fairyglade/ly/issues/706
+        systemd.services.display-manager.environment.XDG_CURRENT_DESKTOP = "X-NIXOS-SYSTEMD-AWARE";
+
         services.displayManager.ly = {
           enable = true;
         };
