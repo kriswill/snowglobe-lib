@@ -891,11 +891,12 @@ printf "To circumvent this security limitation of NixOS, you can use a sops-nix 
 printf "While other key-based encryption formats can be used for sops-nix. The installer will use age.\n\n"
 
 SOPS_FILE="nixosConfigurations/$HOSTNAME/secrets.yaml"
-KEY_FILE_PATH="/mnt/var/lib/sops-nix/keys.txt"
+KEY_FILE_DIR="/mnt/root/.config/sops/age"
+KEY_FILE_PATH="/mnt/root/.config/sops/age/keys.txt"
 if [ -e "$KEY_FILE_PATH" ]; then
 	rm -rf "$KEY_FILE_PATH"
 fi
-mkdir -p "/mnt/var/lib/sops-nix"
+mkdir -p "$KEY_FILE_DIR"
 
 _create_key_alias() {
 	while :; do
@@ -929,7 +930,7 @@ case "$yn" in
 
 	while [ ! -e "$KEY_FILE_PATH" ]; do
 		printf "Place your private key file at the following location: %s\n" "$KEY_FILE_PATH"
-		printf "The file must be in the proper age format or else the install will fail.\n"
+		printf "The file must be in proper age format or else the install will fail.\n"
 		printf "press any key when the file is in place..."
 		read -r some_key
 
@@ -1344,6 +1345,15 @@ if [ -e "$CONFIG_ROOT/$SOPS_FILE" ]; then
 	}
 fi
 
-nixfmt.sh "$CONFIG_ROOT"
+for i in $(find "$CONFIG_ROOT" -type f -not -path '*/.*'); do
+	case "$i" in
+	*".nix")
+		nixfmt "$i"
+		;;
+	*)
+		continue
+		;;
+	esac
+done
 
 _install_nixos

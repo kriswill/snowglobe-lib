@@ -21,7 +21,8 @@ in
     sops = {
       defaultSopsFormat = slib.setDefault "yaml";
       age = {
-        keyFile = slib.setDefault "/var/lib/sops-nix/keys.txt";
+        # this location allows for root to access secrets after installation.
+        keyFile = slib.setDefault "/root/.config/sops/age/keys.txt";
       };
     };
   };

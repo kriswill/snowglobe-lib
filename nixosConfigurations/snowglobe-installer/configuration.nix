@@ -8,7 +8,6 @@ let
   install-sh = pkgs.writeScriptBin "install.sh" (
     builtins.readFile ../../lib/scripts/snowglobe-install.sh
   );
-  nixfmt-sh = pkgs.writeScriptBin "nixfmt.sh" (builtins.readFile ../../lib/scripts/nixfmt.sh);
 in
 {
   imports = [ (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix") ];
@@ -34,7 +33,6 @@ in
   environment = {
     systemPackages = [
       install-sh
-      nixfmt-sh
     ]
     ++ (builtins.attrValues {
       inherit (pkgs)
