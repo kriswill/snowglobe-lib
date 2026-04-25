@@ -13,12 +13,6 @@
       default = { };
     };
 
-    substitutors = lib.mkOption {
-      description = "public keys from trusted nix substitutors";
-      type = lib.types.attrsOf lib.types.str;
-      default = { };
-    };
-
     openpgp = lib.mkOption {
       description = "public keys for openpgp";
       type = lib.types.attrsOf lib.types.str;

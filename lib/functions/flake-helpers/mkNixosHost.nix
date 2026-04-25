@@ -50,7 +50,8 @@ lib.nixosSystem {
       programConfig = importModules "programs";
       serviceConfig = importModules "services";
     in
-    [
+    [ outputs.nixosModules.default ]
+    ++ [
       {
         snowglobe-lib.enable = slib.setDefault true;
 

@@ -60,12 +60,6 @@ in
             nvidia.enable = builtins.elem "nvidia" gpu-vendors;
           };
 
-        # extra caches
-        substituters = {
-          "nix-store.earthgman.dev".enable = slib.setDefault true;
-          "yazi.cachix.org".enable = slib.setDefault true;
-        };
-
         # other stuff
         dynamic-timezone.enable = slib.setDefault (
           config.networking.networkmanager.enable && config.time.timeZone == null
@@ -77,20 +71,21 @@ in
         sops-config.enable = slib.setDefault true;
       };
 
-    # populate public keyring (not present in nixpkgs. only used to hold data)
-    keyring = {
-      substitutors =
-        let
-          substituters = config.snowglobe-lib.substituters;
-        in
-        {
-          "nix-store.earthgman.dev" = substituters."nix-store.earthgman.dev".publicKey;
-          "yazi.cachix.org" = substituters."yazi.cachix.org".publicKey;
-        };
-    };
-
     # core nixos modules
     # ------------------
+
+    # extra caches
+    # use of custom substitutor module;
+    substituters = {
+      # not enabled by default since I cant be trusted
+      "nix-store.earthgman.dev" = {
+        publicKey = "nix-store.earthgman.dev:2Qrw9kS+K2c00ikcgaz5Y0M7j5XmkhFJz3d7oNgJdLw=";
+      };
+      "yazi.cachix.org" = {
+        enable = slib.setDefault true;
+        publicKey = "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k=";
+      };
+    };
 
     nix = {
       # improved nix daemon
