@@ -128,10 +128,10 @@ fi
 ERRORMSG="Rebuild failed or sudo timed out."
 # nh complains if you run it as root
 if type nh >/dev/null && [ "$(whoami)" != "root" ] >/dev/null; then
-	nh os "$1" "$CONFIG_DIR" || _notify "Error" "$ERRORMSG"
+	nh os "$1" . || _notify "Error" "$ERRORMSG"
 else
 	# TODO build functionality
-	nixos-rebuild "$1" --flake "$CONFIG_DIR" || _notify "Error" "$ERRORMSG"
+	nixos-rebuild "$1" --flake . || _notify "Error" "$ERRORMSG"
 fi
 
 if [ "$PERSISTENT_UPDATE" ]; then
