@@ -44,7 +44,7 @@ in
     nix.settings = {
       substituters = lib.remove "" (
         lib.forEach (builtins.attrNames cfg) (
-          substituter: if (cfg.${substituter}.enable) then substituter else ""
+          substituter: if (cfg.${substituter}.enable) then "https://" + substituter + "/" else ""
         )
       );
       trusted-public-keys = lib.remove "" (

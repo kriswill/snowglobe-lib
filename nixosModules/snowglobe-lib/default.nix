@@ -152,7 +152,7 @@ in
       };
     };
 
-    # users.defaultUserShell = lib.mkOverride 899 pkgs.zsh;
+    users.defaultUserShell = lib.mkOverride 899 config.programs.zsh.package;
 
     # make sure that the virtual console respects the keymap chosen in the installer
     console.useXkbConfig = slib.setDefault true;
