@@ -36,6 +36,7 @@ in
             serviceName = "batsignal";
             package = cfg.package;
             extraServiceConfig = {
+              ExecCondition = "${lib.getExe cfg.package} -o";
               Restart = "no";
             };
           }
