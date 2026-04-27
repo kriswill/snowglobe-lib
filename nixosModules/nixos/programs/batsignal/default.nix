@@ -35,6 +35,9 @@ in
           slib.mkGraphicalService {
             serviceName = "batsignal";
             package = cfg.package;
+            extraServiceConfig = {
+              Restart = "no";
+            };
           }
         );
       };
