@@ -27,14 +27,16 @@ in
 
     # TODO add to a user activation script
     # IMPERATIVE ACTION: touch ~/.steam/steam/.cef-enable-remote-debugging
-    system.userActivationScripts = {
-      enable-decky = ''
-        ENABLE_DEBUGGING_PATH="$HOME/.steam/steam/.cef-enable-remote-debugging"
-        if [ ! -e "$ENABLE_DEBUGGING_PATH" ]; then
-          touch "$ENABLE_DEBUGGING_PATH"
-        fi
-      '';
-    };
     decky-loader.enable = slib.setDefault true;
   };
+
+  system.userActivationScripts = {
+    enable-decky = ''
+      ENABLE_DEBUGGING_PATH="$HOME/.steam/steam/.cef-enable-remote-debugging"
+      if [ ! -e "$ENABLE_DEBUGGING_PATH" ]; then
+        touch "$ENABLE_DEBUGGING_PATH"
+      fi
+    '';
+  };
+
 }
