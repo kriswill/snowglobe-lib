@@ -6,9 +6,9 @@
   ...
 }:
 {
-  snowglobe-lib = {
-    overlays = {
-      rmpc-git.enable = false;
-    };
-  };
+  # snowglobe-lib = {
+  #   overlays = {
+  #     rmpc-git.enable = false;
+  #   };
+  # };
 }
