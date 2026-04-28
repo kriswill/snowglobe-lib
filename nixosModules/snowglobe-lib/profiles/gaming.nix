@@ -23,7 +23,11 @@ in
           ];
         };
 
+        # rgb control
+        services.hardware.openrgb.enable = slib.setDefault true;
+
         hardware = {
+          # just in case
           xone.enable = slib.setDefault true;
         };
 
@@ -34,15 +38,15 @@ in
           # performance overlay
           mangohud.enable = slib.setDefault true;
 
-          # install proton versions
+          # install and manage proton versions
           protonup-qt.enable = slib.setDefault true;
 
           # autoclicker (this works in wayland as most games run in xwayland)
           xclicker.enable = slib.setDefault true;
 
-          # proprietary garbage, but required :(
+          # proprietary garbage, but required for most modern gaming :(
           steam = {
-            enable = true;
+            enable = slib.setDefault true;
             gamescopeSession = {
               enable = slib.setDefault true;
             };
