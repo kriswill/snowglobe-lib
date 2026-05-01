@@ -13,6 +13,11 @@ if [ "$1" = "--check-only" ]; then
 	CHECK_ONLY=1
 fi
 
+if [ "$1" = "--clear-cache" ]; then
+	rm -r "$XDG_CACHE_HOME/snowglobe-CI"
+	exit 0
+fi
+
 REPOSITORIES=$(cat ".secrets/repo-urls.txt")
 PROJECT_ROOT="$PWD"
 
@@ -72,10 +77,10 @@ for repo in $REPOSITORIES; do
 	cd "$REPO_DIR" || exit 1
 
 	# edit the flake.nix to point to the development branch
-	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep '?ref=dev')" ]; then
+	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep 'ref=dev')" ]; then
 		# do nothing
 		printf "already on dev branch\n"
-	elif [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep '?ref=testing')" ]; then
+	elif [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep 'ref=testing')" ]; then
 		# if the repo is on the testing branch
 		sed -i 's|/earthgman/snowglobe-lib?ref=testing|/earthgman/snowglobe-lib?ref=dev|' "$REPO_DIR/flake.nix"
 	else
