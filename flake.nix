@@ -58,7 +58,7 @@
     };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     awww = {
       url = "git+https://codeberg.org/LGFae/awww";
