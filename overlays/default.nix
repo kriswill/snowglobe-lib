@@ -1,6 +1,7 @@
 { inputs, lib }:
 import ./rolling-releases.nix { inherit inputs; }
-// import ./self-maintained.nix { inherit lib; }
+# // import ./self-maintained.nix { inherit lib; }
+// import ./package-fixes.nix
 // {
   # custom packages
   packages =

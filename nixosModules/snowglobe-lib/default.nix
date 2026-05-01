@@ -77,8 +77,9 @@ in
     # extra caches
     # use of custom substitutor module;
     substituters = {
-      # not enabled by default since I cant be trusted
       "nix-store.earthgman.dev" = {
+        # TODO figure out some way to allow users to disable this in the installer. I cannot be trusted >:)
+        enable = slib.setDefault true;
         publicKey = "nix-store.earthgman.dev:2Qrw9kS+K2c00ikcgaz5Y0M7j5XmkhFJz3d7oNgJdLw=";
       };
       "yazi.cachix.org" = {

@@ -1,3 +1,6 @@
 .secrets/
 result
+result-dev
+result-man
+result-lib
 .direnv/

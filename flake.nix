@@ -47,7 +47,7 @@
             overlays = builtins.attrValues self.outputs.overlays;
           };
         in
-        import ./packages { inherit pkgs; } // import ./packages/self-maintained { inherit pkgs lib; }
+        import ./packages { inherit pkgs; }
       );
 
       overlays = import ./overlays { inherit inputs lib; };
@@ -58,7 +58,7 @@
     };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
 
     awww = {
       url = "git+https://codeberg.org/LGFae/awww";
