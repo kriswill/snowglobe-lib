@@ -23,32 +23,14 @@ in
 }:
 lib.nixosSystem {
   inherit system; # used for legacy nixos < 22.05, but it doesn't hurt to have it here
-  specialArgs = {
-    # apply custom lib functions
-    inherit lib;
-  }
-  // specialArgs;
+  inherit specialArgs;
   modules =
     let
-      importModules =
-        moduleDir:
-        if (configDir != null) then
-          if (builtins.pathExists (configDir + "/${moduleDir}")) then
-            [ (inputs.import-tree (configDir + "/${moduleDir}")) ]
-          else
-            [ ]
-        else
-          [ ];
-
       hostConfig =
-        if (configDir != null) then
-          if builtins.pathExists (configDir) then [ (configDir + "/configuration.nix") ] else [ ]
+        if (configDir != null) && builtins.pathExists (configDir) then
+          inputs.import-tree configDir
         else
-          [ ];
-
-      userConfig = importModules "users";
-      programConfig = importModules "programs";
-      serviceConfig = importModules "services";
+          { };
     in
     [ outputs.nixosModules.default ]
     ++ [
@@ -73,10 +55,7 @@ lib.nixosSystem {
         };
       }
     ]
-    ++ hostConfig
-    ++ programConfig
-    ++ serviceConfig
-    ++ userConfig
+    ++ [ hostConfig ]
     # extra modules passed to the function
     ++ modules;
 }
