@@ -7,6 +7,18 @@
       doCheck = false;
     });
 
+    ani-cli = prev.ani-cli.overrideAttrs (_: {
+      version = "4.14.0";
+      src = prev.fetchFromGitHub {
+        repo = "ani-cli";
+        owner = "pystardust";
+        rev = "master";
+        hash = "sha256-OyCKDN89sBz59+3JncMDyNOq8UMqqjara+A0Owo3oko=";
+      };
+
+      runtimeInputs = prev.ani-cli.runtimeInputs ++ [ prev.libressl ];
+    });
+
     # hash mismatch
     wireshark = prev.wireshark.overrideAttrs (_: {
       src = prev.fetchFromGitLab {

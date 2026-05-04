@@ -730,8 +730,6 @@ if [ -d "$CONFIG_ROOT" ]; then
 fi
 mkdir -p "$CONFIG_ROOT"
 
-KEYRING_FILE="$CONFIG_ROOT/sharedModules/keyring.nix"
-
 # if the configuration is new
 if [ -z "$APPEND_MODE" ]; then
 	# flake.nix
@@ -739,6 +737,12 @@ if [ -z "$APPEND_MODE" ]; then
 			description = \"my NixOS configurations\";
 
 			inputs = {
+				snowglobe-lib = {
+					url = \"git+https://codeberg.org/earthgman/snowglobe-lib\";
+					# Be sure to also uncomment this if you use your own nixpkgs input to avoid duplicate nixpkgs repos in the store.
+					# inputs.nixpkgs.follows = \"nixpkgs\";
+				};
+
 				nixpkgs.follows = \"snowglobe-lib/nixpkgs\";
         # comment above and uncomment below to pin your own nixpkgs revision in the flake.lock.
 				# Could cause instabilities, use at your own risk.
@@ -747,27 +751,25 @@ if [ -z "$APPEND_MODE" ]; then
 				# };
 
 				import-tree.follows = \"snowglobe-lib/import-tree\";
-
-				snowglobe-lib = {
-					url = \"git+https://codeberg.org/earthgman/snowglobe-lib\";
-					# Be sure to also uncomment this if you use your own nixpkgs input to avoid duplicate nixpkgs repos in the store.
-					# inputs.nixpkgs.follows = \"nixpkgs\";
-				};
 			};
 
 			outputs = { self, nixpkgs, snowglobe-lib, ... }@inputs:
 			let
 			  lib = nixpkgs.lib;
 				outputs = self.outputs;
+				import-tree = inputs.import-tree;
 			in
 			{
 				# expose hosts configured under this flake
 				nixosConfigurations = import ./nixosConfigurations { inherit lib inputs outputs; };
 
 				# expose your custom modules.
-				nixosModules.default = import ./nixosModules { inherit lib inputs outputs; };
+				nixosModules.default = import-tree [ ./nixosModules ] // {
+					# apply your nixpkgs overlays
+					nixpkgs.overlays = builtins.attrValues outputs.overlays;
+				};
 
-				# expose your overlays (package set modifications)
+				# expose your overlays
 				overlays = import ./overlays { inherit inputs; };
 
 				# your custom derivations
@@ -795,27 +797,19 @@ if [ -z "$APPEND_MODE" ]; then
 
 	# nixosModules/default.nix
 	printf "
-    # wrapper for your custom nixosModules
-		{ inputs, outputs, lib, ... }:
 		{
 			pkgs,
 			lib,
 			config,
 			...
 		}:
-		let
-			import-tree = inputs.import-tree;
-		in
 		{
-			# automatically wraps up module files present in this directory
 			imports = [
-				# modules shared between nixos home-manager and darwin
-				(import-tree ../sharedModules)
-				# the rest of your modules
-				(import-tree.filterNot (lib.hasInfix \"default.nix\") ./.)
-
-				# add additional modules from your flake
+				# add additional modules shared among your hosts
+				# example
 				# inputs.home-manager.nixosModules.default
+				
+				# you do not need to add files from nixosModules/ they are imported automatically by import-tree
 			];
 
 			# contain and enable your custom modules
@@ -823,29 +817,20 @@ if [ -z "$APPEND_MODE" ]; then
 
 			# options.your-name-here.enable = lib.mkEnableOption \"your-name-here's NixOS modules\";
 
-			# config = lib.mkMerge [
-			#		{
-						# import your overlays to all hosts
-						nixpkgs.overlays = builtins.attrValues outputs.overlays;
-			#			your-name-here.enable = lib.mkDefault true;
-			#		}
-			# 	apply only if your custom modules are enabled
-			#		(lib.mkIf config.your-name-here.enable {
-			#		  your-name-here.your-module-1.enable = true;
-			#		  your-name-here.your-module-2.enable = true;
-			#		  ...
-			#		})
-			# ];
-	}" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/default.nix"
+			config = lib.mkMerge [
+				{
+					#	your-name-here.enable = lib.mkDefault true;
+				}
+			#	apply custom configuration only if your custom modules are enabled
 
-	# sharedModules/keyring.nix
-	printf "{
-	keyring = { 
-		ssh = { };
-		openpgp = { };
-		age = { };
-	};
-}" | install -D /dev/stdin "$KEYRING_FILE"
+			#	(lib.mkIf config.your-name-here.enable {
+			#	  your-name-here.your-module-1.enable = true;
+			#	  your-name-here.your-module-2.enable = true;
+			#	  # more boilerplate here
+			#	  ...
+			#	})
+			];
+	}" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/default.nix"
 
 	# packages
 	printf "
@@ -1056,8 +1041,18 @@ printf "\n}" >>"$HOSTS_CONFIG_FILE"
 # generate hardware-configuration.nix and move disko.nix into place
 _get_nixos_hardware_config
 
-# user creation
 clear
+
+# optional setup
+printf "\nWhen building your nixos configuration, you may wish to reference public keys for various reasons, such as SSH authorization.\n"
+printf "If you have public keys associated with your identity, you can add them to a keyring module for ease of access within your configuration.\n"
+y_or_n --msg="Set up keyring?" --default="no" && {
+	KEY_TYPES=("ssh" "age" "openpgp")
+	SELECTED_KEY_TYPE=$(printf "%s\n" "${KEY_TYPES[@]}" | fzf)
+}
+
+clear
+# user creation
 printf "\nNow you must add and configure user accounts.\n"
 printf "By default, the root user will not be accessible unless configured in this section.\n"
 printf "So if you wish to add a method of authentication for root, simply type \`root\` for username.\n"
@@ -1109,71 +1104,6 @@ _set_password() {
 	done
 }
 
-# _add_key() {
-# 	unset SSH_KEY
-# 	unset SSH_KEY_NAME
-# 	if [ "$APPEND_MODE" ] || [ "$AUTHORIZED_SSH_KEYS" ]; then
-# 		SSH_KEYS_STRING=$(nix eval $CONFIG_ROOT'#'nixosConfigurations."$HOSTNAME".config.keyring.ssh | tr -d '{ }')
-# 	fi
-# 	if [ -z "$AUTHORIZED_SSH_KEYS" ]; then
-# 		AUTHORIZED_SSH_KEYS=()
-# 	fi
-# 	if [ "$SSH_KEYS_STIRNG" ]; then
-# 		IFS=';'
-# 		KEY_NAMES=$(for keypair in $SSH_KEYS_STRING; do
-# 			printf "%s" "$keypair" | cut -d= -f1
-# 		done)
-# 		SSH_KEY="$(printf "%s" "$KEY_NAMES" | fzf \
-# 			--border \
-# 			--border-label-pos 1:bottom \
-# 			--border-label="Found these ssh public keys on your keyring. Use one of these? (esc or ctrl+c to cancel)")"
-# 		unset IFS
-# 	fi
-#
-# 	# assume that all keys that made it onto the keyring are valid
-# 	if [ "$SSH_KEY" ]; then
-# 		# remove the selected entry from the list for future selections
-# 		SSH_KEYS_STRING="$(printf "%s" "$SSH_KEYS_STRING" | sed -e "s|$SSH_KEY[^;]*||g" -e 's|;||')"
-# 		return 0
-# 	fi
-#
-# 	while :; do
-# 		read -rp "Enter a public SSH key: " SSH_KEY
-# 		if [ -z "$SSH_KEY" ]; then
-# 			y_or_n --msg="No SSH key was entered. Would you like to try again?" || return 1
-# 		else
-# 			if ! ssh-keygen -l -f <(printf "%s" "$SSH_KEY") >/dev/null 2>&1; then
-# 				y_or_n --msg="That ssh key does not seem valid. Try again?" || return 1
-# 			else
-# 				break
-# 			fi
-# 		fi
-# 	done
-#
-# 	while :; do
-# 		printf "Warning: key name will be stripped of numbers and special characters. (excluding - and _)\n"
-# 		read -rp "Give an name to this key for your keyring: " SSH_KEY_NAME
-# 		SSH_KEY_NAME="$(printf "%s" "$SSH_KEY_NAME" | tr -d '[`"=;:$%#^<>+(){}*!&[]~|][:blank:][:cntrl:][:digit:]')"
-# 		if [ -z "$SSH_KEY_NAME" ]; then
-# 			printf "Key name cannot be empty. Try again.\n"
-# 		else
-# 			for key in $KEY_NAMES; do
-# 				printf "%s" "$key"
-# 				if [ "$SSH_KEY_NAME" = "$key" ]; then
-# 					printf "A key with that alias is already present in your keyring. Use a different alias.\n"
-# 					continue
-# 				fi
-# 			done
-# 		fi
-# 		break
-# 	done
-#
-# 	# write to the keyring
-# 	sed -i "s|\(ssh = {\)\([^}]*\)|\1\n\t$SSH_KEY_NAME = \"$SSH_KEY\";|" "$KEYRING_FILE"
-#
-# 	AUTHORIZED_SSH_KEYS+=("$SSH_KEY_NAME")
-# }
-
 _set_permissions() {
 	USER_PERMISSIONS=()
 	y_or_n --msg="Should this user have access to privilege escalation? (able to run sudo)" --default="yes" && USER_PERMISSIONS+=("Wheel")
@@ -1185,8 +1115,6 @@ _set_permissions() {
 
 USERS=()
 while :; do
-	# evaluate saved ssh keys
-
 	_set_username
 
 	TMP_USERS=()
