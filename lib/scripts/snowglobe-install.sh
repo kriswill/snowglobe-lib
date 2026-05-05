@@ -93,7 +93,7 @@ _clone_repo() {
 	REPO_DIR=/tmp/your-snowglobe
 	if [ -d "$REPO_DIR" ] && [ "$(ls -A "$REPO_DIR")" ]; then
 		printf "\nFiles were found in the repo destination directory: %s\n" "$REPO_DIR"
-		printf "This only occurs if a previous installation attempt was aborted before the files could be moved.\n"
+		printf "This only occurs if a previous installation cloned a repo and was aborted\n"
 		y_or_n --msg="Clear the contents of $REPO_DIR and clone your repository again?" --default="no" || return 0
 		rm -rf "$REPO_DIR"
 	fi
@@ -118,7 +118,7 @@ _clone_repo() {
 
 _mv_repo() {
 	for file in $(ls -A "$REPO_DIR"); do
-		mv "$REPO_DIR/$file" "/mnt/etc/nixos"
+		cp -r "$REPO_DIR/$file" "/mnt/etc/nixos"
 	done
 }
 
@@ -273,10 +273,6 @@ _format_disks() {
 	printf "Note: These setups are very customizable and are for enthusists / advanced users only, so these will not be included by default.\n"
 	printf "For reference, the disko repository: https://github.com/nix-community/disko/example has several examples to help you get started.\n\n"
 
-	if [ "$REPO_DIR" ]; then
-		printf "Since you have cloned an existing snowglobe repository, you also have the option to deploy a disko file from there instead.\n\n"
-	fi
-
 	y_or_n --msg="Do you wish to proceed with formatting?" --default="yes" || {
 		printf "Aborted\n"
 		exit 1
@@ -289,57 +285,30 @@ _format_disks() {
 		[ -z "$SELECTED_DISKO_CONFIG" ] || [ ! -f "$SELECTED_DISKO_CONFIG" ] || ! grep -q "disko" "$SELECTED_DISKO_CONFIG"
 	}
 
-	if [ "$REPO_DIR" ]; then
-		y_or_n --msg="Use a disko file from your repo?" && {
-			while :; do
-				SELECTED_DISKO_CONFIG=$(fzf \
-					--preview 'bat -f {}' \
-					--border --border-label-pos 1:bottom \
-					--walker-root "$REPO_DIR" \
-					--border-label="Choose a disko file to use for formatting. (Press ESC or Ctrl+C to cancel)")
-				if _failed_disko_condition; then
-					printf "\n"
-					y_or_n --msg="No disko file was selected. Or, it is invalid. Do you wish to try another file from your repo?" || break
+	CUSTOM_DISKO_CONFIGURATIONS=$(find /etc/disko -type f | sed 's|\/etc\/disko\/||' | grep -v 'defaults')
+	if [ "$CUSTOM_DISKO_CONFIGURATIONS" ]; then
+		SELECTED_DISKO_CONFIG=$(
+			for config in $CUSTOM_DISKO_CONFIGURATIONS; do
+				# readd the absolute path
+				file="/etc/disko/$config"
+				# dirty check to see if the file is actually a disko config
+				if grep -q 'disko' "$file"; then
+					printf "%s\n" "$config"
 				else
-					CUSTOM_DISKO=true
-					break
+					continue
 				fi
-			done
-			if _failed_disko_condition; then
-				y_or_n --msg="Would you like to continue by using other disko formatting methods?" --default="yes" || {
-					printf "Aborted\n"
-					exit 1
-				}
-			fi
-		}
-	fi
-
-	if [ -z "$CUSTOM_DISKO" ]; then
-		CUSTOM_DISKO_CONFIGURATIONS=$(find /etc/disko -type f | sed 's|\/etc\/disko\/||' | grep -v 'defaults')
-		if [ "$CUSTOM_DISKO_CONFIGURATIONS" ]; then
-			SELECTED_DISKO_CONFIG=$(
-				for config in $CUSTOM_DISKO_CONFIGURATIONS; do
-					# readd the absolute path
-					file="/etc/disko/$config"
-					# dirty check to see if the file is actually a disko config
-					if grep -q 'disko' "$file"; then
-						printf "%s\n" "$config"
-					else
-						continue
-					fi
-				done | fzf \
-					--disabled \
-					--border \
-					--border-label-pos 1:bottom \
-					--preview='bat -f /etc/disko/{}' \
-					--border-label='Found the following custom configurations. Would you like to use one of these? (Press ESC or Ctrl+C to skip)'
-			)
-			if [ "$SELECTED_DISKO_CONFIG" ]; then
-				SELECTED_DISKO_CONFIG="/etc/disko/""$SELECTED_DISKO_CONFIG"
-				CUSTOM_DISKO=true
-			else
-				printf "\nNo custom disko configuration file selected, proceeding with defaults.\n"
-			fi
+			done | fzf \
+				--disabled \
+				--border \
+				--border-label-pos 1:bottom \
+				--preview='bat -f /etc/disko/{}' \
+				--border-label='Found the following custom configurations. Would you like to use one of these? (Press ESC or Ctrl+C to skip)'
+		)
+		if [ "$SELECTED_DISKO_CONFIG" ]; then
+			SELECTED_DISKO_CONFIG="/etc/disko/""$SELECTED_DISKO_CONFIG"
+			CUSTOM_DISKO=true
+		else
+			printf "\nNo custom disko configuration file selected, proceeding with defaults.\n"
 		fi
 	fi
 
@@ -384,41 +353,46 @@ _format_disks() {
 		else
 			SELECTED_DISKO_CONFIG="$DISKO_DEFAULTS_DIR/default-ext4.nix"
 		fi
+	fi
 
-		cat "$SELECTED_DISKO_CONFIG" >"$DISKO_CONFIG_PATH"
+	if [ -z "$SELECTED_DISKO_CONFIG" ]; then
+		printf "Disko configuration variable is empty. This is a bug.\n"
+		exit 1
+	fi
 
-		if [ "$SELECTED_DISK" ]; then
-			# capture the persistent serial name of the disk for the disko file
-			for serial in $(ls -A /dev/disk/by-id); do
-				if [ "$(readlink -f "/dev/disk/by-id/$serial")" = "$SELECTED_DISK" ]; then
-					ASSOCIATED_DISK_SERIAL="$serial"
-					break
-				fi
-			done
-			sed -i "s|device = \"\/dev\/sda\"|device = \"\/dev\/disk\/by-id\/$ASSOCIATED_DISK_SERIAL\"|" "$DISKO_CONFIG_PATH"
-		fi
+	cat "$SELECTED_DISKO_CONFIG" >"$DISKO_CONFIG_PATH"
 
-		# will nuke any file in /mnt
-		# the user has already been asked about this so just go ahead and do it
-		for file in /mnt/*; do
-			rm -rf "$file"
+	if [ "$SELECTED_DISK" ]; then
+		# capture the persistent serial name of the disk for the disko file
+		for serial in $(ls -A /dev/disk/by-id); do
+			if [ "$(readlink -f "/dev/disk/by-id/$serial")" = "$SELECTED_DISK" ]; then
+				ASSOCIATED_DISK_SERIAL="$serial"
+				break
+			fi
 		done
+		sed -i "s|device = \"\/dev\/sda\"|device = \"\/dev\/disk\/by-id\/$ASSOCIATED_DISK_SERIAL\"|" "$DISKO_CONFIG_PATH"
+	fi
 
-		disko --mode destroy,format,mount "$DISKO_CONFIG_PATH" || {
-			printf "Error: Disko was unable to format the request drives\n"
-			DISKO_ERROR=true
-		}
+	# will nuke any file in /mnt
+	# the user has already been asked about this so just go ahead and do it
+	for file in /mnt/*; do
+		rm -rf "$file"
+	done
 
-		# cleanup
-		unset SELECTED_DISKO_CONFIG
-		unset SELECTED_DISK
-		if [ -e "/tmp/luks-password" ]; then
-			rm "/tmp/luks-password"
-		fi
+	disko --mode destroy,format,mount "$DISKO_CONFIG_PATH" || {
+		printf "Error: Disko was unable to format the request drives\n"
+		DISKO_ERROR=true
+	}
 
-		if [ "$DISKO_ERROR" ]; then
-			exit 1
-		fi
+	# cleanup
+	unset SELECTED_DISKO_CONFIG
+	unset SELECTED_DISK
+	if [ -e "/tmp/luks-password" ]; then
+		rm "/tmp/luks-password"
+	fi
+
+	if [ "$DISKO_ERROR" ]; then
+		exit 1
 	fi
 }
 
@@ -449,6 +423,7 @@ _install_nixos() {
 		git -C "$CONFIG_ROOT" add "$CONFIG_ROOT"
 	fi
 
+	printf "Installing NixOS\n"
 	if [ ! -d "$HOST_CONFIG_DIR/users" ]; then
 		# if no users have been configured, ensure root gets a password
 		# This password will not be declaratively stored with sops.
@@ -469,10 +444,12 @@ _install_nixos() {
 
 # main
 CONFIG_ROOT="/mnt/etc/nixos"
+KEYRING_FILE="$CONFIG_ROOT/nixosModules/keyring.nix"
 
 printf "\nIf you have used the installer before, you might have already created a configuration for this host.\n"
 printf "Assuming you have read access to the remote repository, you can skip directly to the installation phase.\n"
-printf "You can also use this mode to auto-detect and propagate hardware changes (such changes to disk layouts or gpu vendor) to your configuration.\n\n"
+# TODO
+# printf "You can also use this mode to auto-detect and propagate hardware changes (such changes to disk layouts or gpu vendor) to your configuration.\n\n"
 
 y_or_n --msg="Install an existing configuration?" --default="no" && {
 	_clone_repo
@@ -488,7 +465,7 @@ y_or_n --msg="Install an existing configuration?" --default="no" && {
 		if [ -z "$HOSTNAME" ]; then
 			printf "\nNo host was selected\n"
 			y_or_n --msg="Would you like to try the selection again?" --default="yes" || {
-				print "Aborted"
+				printf "Aborted"
 				exit 1
 			}
 		fi
@@ -511,14 +488,14 @@ y_or_n --msg="Install an existing configuration?" --default="no" && {
 			printf "\nDetected sops secrets from this configuration.\n"
 			printf "You will need to imperatively place your private age key file at /mnt%s before you continue\n" "$SOPS_KEYFILE"
 			printf "Press any key to continue..."
-			read -r some_key
+			read -rn1 some_key
 			unset some_key
 		fi
 
 		while [ ! -e "/mnt$SOPS_KEYFILE" ]; do
 			printf "Keyfile not found.\nEnsure the file is present in /mnt%s before you continue.\n" "$SOPS_KEYFILE"
 			printf "Press any key to continue..."
-			read -r some_key
+			read -rn1 some_key
 		done
 		unset some_key
 	fi
@@ -600,54 +577,56 @@ _select_xkb_layout() {
 
 _select_desktop_environment() {
 	unset SELECTED_DESKTOP
-	y_or_n --msg="Install a desktop envrionment?" --default="yes" && {
 
-		KDE_DESCRIPTION="A modern all inclusive desktop environment for wayland.
+	KDE_DESCRIPTION="A modern all inclusive desktop environment for wayland.
 Very similar to Microsoft Windows 11.
 Perfect for beginners."
 
-		NIRI_DESCRIPTION="A high-quality, modern DIY wayland window manager.
+	NIRI_DESCRIPTION="A high-quality, modern DIY wayland window manager.
 Uses infinite scrolling windows in a tiled format.
 Recommended for enthusists / advanced users only."
 
-		# TODO support some more desktops
-		DESKTOPS=("Niri" "KDE")
+	# TODO support some more desktops
+	DESKTOPS=("Niri" "KDE" "None")
 
-		while [ -z "$SELECTED_DESKTOP" ]; do
-			SELECTED_DESKTOP=$(
-				for desktop in "${DESKTOPS[@]}"; do
-					printf "%s\n" "$desktop"
-				done | fzf \
-					--disabled \
-					--border \
-					--reverse \
-					--border-label-pos 1:top \
-					--border-label='Select a desktop environment' \
-					--preview-window 'right,75%,border-left' \
-					--preview "
+	while [ -z "$SELECTED_DESKTOP" ]; do
+		SELECTED_DESKTOP=$(
+			for desktop in "${DESKTOPS[@]}"; do
+				printf "%s\n" "$desktop"
+			done | fzf \
+				--disabled \
+				--border \
+				--reverse \
+				--border-label-pos 1:top \
+				--border-label='Select a desktop environment' \
+				--preview-window 'right,75%,border-left' \
+				--preview "
   if [ {} = 'Niri' ]; then
     printf '$NIRI_DESCRIPTION'
   elif [ {} = 'KDE' ]; then
     printf '$KDE_DESCRIPTION'
   fi
 	" | tr '[:upper:]' '[:lower:]'
-			)
-			if [ -z "$SELECTED_DESKTOP" ]; then
-				y_or_n --msg="No desktop selected. Would you like to try again?" --default="yes" || {
-					printf "No desktop environment will be installed\n"
-					break
-				}
-			fi
-			break
-		done
-	}
+		)
+		if [ -z "$SELECTED_DESKTOP" ]; then
+			y_or_n --msg="No desktop selected. Would you like to try again?" --default="yes" || {
+				printf "No desktop environment will be installed\n"
+				break
+			}
+		fi
+		break
+	done
+
+	if [ "$SELECTED_DESKTOP" = "None" ]; then
+		unset SELECTED_DESKTOP
+	fi
 }
 
 _get_hardware_info
 
 _select_optional_profiles() {
 	ENABLED_PROFILES=()
-	y_or_n --msg="Install programs for hardware diagnostics?" && ENABLED_PROFILES+=("hardware-tools")
+	y_or_n --msg="Install programs for hardware diagnostics?" --default="no" && ENABLED_PROFILES+=("hardware-tools")
 	if [ "$SELECTED_DESKTOP" ]; then
 		y_or_n --msg="Install modules for gaming? (steam, lutris, hardware diagnostic tools, etc?)" --default="no" && ENABLED_PROFILES+=("gaming")
 		y_or_n --msg="Install programs for office work? (libreoffice, email client, gimp, etc?)" --default="no" && ENABLED_PROFILES+=("office")
@@ -764,10 +743,11 @@ if [ -z "$APPEND_MODE" ]; then
 				nixosConfigurations = import ./nixosConfigurations { inherit lib inputs outputs; };
 
 				# expose your custom modules.
-				nixosModules.default = import-tree [ ./nixosModules ] // {
+				nixosModules.default = import-tree [
+					./nixosModules
 					# apply your nixpkgs overlays
-					nixpkgs.overlays = builtins.attrValues outputs.overlays;
-				};
+					{ nixpkgs.overlays = builtins.attrValues outputs.overlays; }
+				];
 
 				# expose your overlays
 				overlays = import ./overlays { inherit inputs; };
@@ -865,16 +845,30 @@ else
 	if [ -d "$HOST_CONFIG_DIR" ]; then
 		rm -rf "$HOST_CONFIG_DIR"
 	fi
-	sed -i "/$HOSTNAME/,/^$/p" "$HOSTS_CONFIG_FILE"
+fi
+
+# always ensure the keyring is generated
+if [ ! -e "$KEYRING_FILE" ]; then
+	printf "# do not remove this file! It is used by the installer to manage and reference your keys
+{
+	keyring = {
+		ssh = { };
+		age = { };
+		openpgp = { };
+	};
+}" | install -D /dev/stdin "$KEYRING_FILE"
 fi
 
 # sops setup
-mkdir -p "$HOST_CONFIG_DIR"
 printf "\nBefore configuring your user accounts, you will need to configure sops-nix.\n"
 printf "By default, all nix configuration files, including those containing hashed passwords or other secrets, will be world-readable in /nix/store.\n"
 printf "To circumvent this security limitation of NixOS, you can use a sops-nix configuration to encrypt part of your configuration so it can be safely stored in public repositories.\n"
 printf "While other key-based encryption formats can be used for sops-nix. The installer will use age.\n\n"
+printf "Press any key to continue..."
+read -rn1 some_key
+unset some_key
 
+mkdir -p "$HOST_CONFIG_DIR"
 SOPS_FILE="nixosConfigurations/$HOSTNAME/secrets.yaml"
 KEY_FILE_DIR="/mnt/root/.config/sops/age"
 KEY_FILE_PATH="/mnt/root/.config/sops/age/keys.txt"
@@ -883,19 +877,76 @@ if [ -e "$KEY_FILE_PATH" ]; then
 fi
 mkdir -p "$KEY_FILE_DIR"
 
-_create_key_alias() {
-	while :; do
-		printf "\nCreate an alias for your key (\`default\`, \`workstations\`, \`homelab\`, etc): "
-		read -r KEY_NAME
+_remove_key_hashtable() {
+	if [ "$KEY_HASHTABLE" ]; then
+		rm -rf "$KEY_HASHTABLE"
+		unset "$KEY_HASHTABLE"
+	fi
+}
 
-		if [ -z "$KEY_NAME" ]; then
+_build_key_hashtable() {
+	_remove_key_hashtable
+	KEYVALUE_PAIRS="$1"
+	KEY_HASHTABLE=$(mktemp -d)
+	if [ "$KEYVALUE_PAIRS" ]; then
+		IFS=';'
+		for key in $KEYVALUE_PAIRS; do
+			KEY_NAME="$(printf "%s" "$key" | cut -d= -f1)"
+			KEY_VALUE="$(printf "%s" "$key" | cut -d= -f2)"
+			printf "%s" "$KEY_VALUE" >"$KEY_HASHTABLE/$KEY_NAME"
+		done
+		unset IFS
+	fi
+}
+
+AGE_KEY_PAIRS=$(nix eval --file "$KEYRING_FILE" keyring.age | tr -d '{ }')
+if [ "$AGE_KEY_PAIRS" ]; then
+	_build_key_hashtable "$AGE_KEY_PAIRS"
+	y_or_n --msg="Found configured age keys on your keyring. Would you like to use one of those?" && {
+		while :; do
+			AGE_KEY_NAME=$(
+				for key in $(ls -A "$KEY_HASHTABLE"); do
+					printf "%s\n" "$key"
+				done | fzf \
+					--border \
+					--border-label-pos 1:bottom \
+					--border-label="Found the following age keys on your keyring. (Ctrl+C or esc to cancel)"
+			)
+
+			if [ -z "$AGE_KEY_NAME" ]; then
+				y_or_n --msg="No key selected. Try again?" --default="yes" || break
+			else
+				AGE_KEY_VALUE="$(cat "$KEY_HASHTABLE/$AGE_KEY_NAME")"
+				break
+			fi
+		done
+	}
+	_remove_key_hashtable
+fi
+
+if [ -z "$AGE_KEY_NAME" ]; then
+	# key generation
+	printf "\nGenerating age key-pair...\n"
+	age-keygen -o "$KEY_FILE_PATH" >/dev/null || {
+		printf "Failed to generate age key pair.\n"
+		exit 1
+	}
+	AGE_KEY_VALUE=$(cat "$KEY_FILE_PATH" | grep "public key:" | cut -d ":" -f2 | tr -d " ")
+
+	while :; do
+		printf "Warning: Key name will be cleansed of characters that are not [a-z][A-Z][0-9], -, or _\n"
+		printf "\nCreate an alias for your key (\`default\`, \`workstations\`, \`homelab\`, etc): "
+		read -r AGE_KEY_NAME
+		AGE_KEY_NAME=$(printf "%s" "$AGE_KEY_NAME" | tr -d '[`"=;:$%#^<>+(){}*!&[]~|][:blank:][:cntrl:]')
+
+		if [ -z "$AGE_KEY_NAME" ]; then
 			printf "Key name cannot be empty.\n"
 			continue
 		fi
 
-		if [ "$APPEND_MODE" ]; then
-			if cat "$CONFIG_ROOT/.sops.yaml" | grep "&$KEY_NAME"; then
-				printf "\nERROR: Detected duplicate key names/aliases in .sops.yaml. Your new key name must be different than your other keys.\n"
+		if [ -e "$CONFIG_ROOT/.sops.yaml" ]; then
+			if cat "$CONFIG_ROOT/.sops.yaml" | grep "\- &$AGE_KEY_NAME" >/dev/null; then
+				printf "\nWarning: Detected duplicate key names/aliases in .sops.yaml. Your new key must have a different name than any of your other keys. Try again.\n"
 			else
 				break
 			fi
@@ -903,58 +954,47 @@ _create_key_alias() {
 			break
 		fi
 	done
-}
 
-y_or_n --msg="Do you have an exisiting age key pair that you wish to use to encrypt this host's secrets?" --default="no"
+	# write newly generated key to the keyring
+	sed -i "s|\(age = {\)\([^}]*\)|\1\n\t$AGE_KEY_NAME = \"$AGE_KEY_VALUE\";|" "$KEYRING_FILE"
 
-case "$yn" in
-"Y" | "y")
-	printf "Enter your public age key: "
-	read -r PUBLIC_AGE_KEY
-	_create_key_alias
-
+	printf "The generated private key is stored at %s.\n" "$KEY_FILE_PATH"
+	printf "This will allow the super user to create and modify your secrets.\n"
+	printf "It is imperative that you create a backup of this private key after installation is complete. If you lose it, you will no longer be able to access your secrets and your system cannot rebuild.\n"
+	printf "press any key to acknowledge..."
+	read -rn1 some_key
+	unset some_key
+	NEW_AGE_KEY=1
+# else if the key was selected from your keyring
+else
 	while [ ! -e "$KEY_FILE_PATH" ]; do
-		printf "Place your private key file at the following location: %s\n" "$KEY_FILE_PATH"
+		printf "Selected Key: %s\n" "$AGE_KEY_NAME"
+		printf "Place the corresponding private key file at the following location: %s\n" "$KEY_FILE_PATH"
 		printf "The file must be in proper age format or else the install will fail.\n"
 		printf "press any key when the file is in place..."
-		read -r some_key
+		read -rn1 some_key
 
-		if [ -e "$KEY_FILE_PATH" ]; then
+		if [ ! -e "$KEY_FILE_PATH" ]; then
 			printf "Key file was not found in the required location.\n"
 		fi
 	done
-	;;
-"N" | "n")
-	# key generation
-	printf "\nGenerating age key-pair...\n"
-	age-keygen -o "$KEY_FILE_PATH" >/dev/null || {
-		printf "Failed to generate age key pair.\n"
-		exit 1
-	}
-	PUBLIC_AGE_KEY=$(cat "$KEY_FILE_PATH" | grep "public key:" | cut -d ":" -f2 | tr -d " ")
+fi
 
-	_create_key_alias
-
-	printf "The generated private key is stored at %s.\n" "$KEY_FILE_PATH"
-	printf "It is imperative that you create a backup of this private key after installation is complete. If you lose it, you will no longer be able to access your secrets and your system cannot rebuild.\n"
-	printf "press any key to acknowledge..."
-	read -r some_key
-	unset some_key
-	;;
-esac
-
-if [ "$APPEND_MODE" ]; then
-	# append the key and creation rules to an existing .sops.yaml
-	sed -i "/keys:/a\  - &$KEY_NAME $PUBLIC_AGE_KEY" $CONFIG_ROOT/.sops.yaml
-	sed -i "/creation_rules:/a\  - path_regex: $SOPS_FILE\n    key_groups:\n      - age:\n          - *$KEY_NAME" $CONFIG_ROOT/.sops.yaml
+# assume that if the key is on the ring then it is already in .sops.yaml
+if [ -e "$CONFIG_ROOT/.sops.yaml" ]; then
+	if [ "$NEW_AGE_KEY" ]; then
+		sed -i "/keys:/a\  - &$AGE_KEY_NAME $AGE_KEY_VALUE" $CONFIG_ROOT/.sops.yaml
+	fi
+	sed -i "/creation_rules:/a\  - path_regex: $SOPS_FILE\n    key_groups:\n      - age:\n          - *$AGE_KEY_NAME" $CONFIG_ROOT/.sops.yaml
 else
+	# sops yaml doesn't exist so create it
 	printf "keys:
   - &%s %s
 creation_rules:
   - path_regex: %s
     key_groups:
       - age:
-          - *%s" "$KEY_NAME" "$PUBLIC_AGE_KEY" "$SOPS_FILE" "$KEY_NAME" >$CONFIG_ROOT/.sops.yaml
+          - *%s" "$AGE_KEY_NAME" "$AGE_KEY_VALUE" "$SOPS_FILE" "$AGE_KEY_NAME" >$CONFIG_ROOT/.sops.yaml
 fi
 
 # ensure secure permissions are set
@@ -963,16 +1003,9 @@ chmod 600 "$KEY_FILE_PATH"
 # write configuration files
 # create configuration.nix
 printf '{ pkgs, lib, config, ... }:
-		{
-			imports = [
-				# kernel configuration from nixos-generate-config
-				./hardware-configuration.nix
-				# fstab config using disko modules
-				./disko.nix
-			];
-
-			i18n.defaultLocale = "%s";
-			services.xserver.xkb.layout = "%s";
+	{
+		i18n.defaultLocale = "%s";
+		services.xserver.xkb.layout = "%s";
 ' \
 	"$LOCALE" "$XKB_LAYOUT" >"$HOST_CONFIG_DIR/configuration.nix"
 
@@ -982,19 +1015,16 @@ if [ "$ENABLED_PROFILES" ]; then
 		printf "snowglobe-lib.profiles.%s.enable = true;\n" "$profile" >>"$HOST_CONFIG_DIR/configuration.nix"
 	done
 fi
+
 printf "}" >>"$HOST_CONFIG_DIR/configuration.nix"
 
-_create_moduleset() {
-	printf "{pkgs, lib, config, ...}:
-	{
-		%s = { };
-	}" "$1" | install -D /dev/stdin "$HOST_CONFIG_DIR/$1/$2.nix"
-}
-# create split host config (programs, services)
-_create_moduleset "programs" "enabled"
-_create_moduleset "programs" "disabled"
-_create_moduleset "services" "enabled"
-_create_moduleset "services" "disabled"
+printf "# enable and disable programs
+{ }
+" | install -D /dev/stdin "$HOST_CONFIG_DIR/programs/default.nix"
+
+printf "# enable and disable services
+{ }
+" | install -D /dev/stdin "$HOST_CONFIG_DIR/services/default.nix"
 
 # write new host to the global hosts configuration file
 if [ "$APPEND_MODE" ]; then
@@ -1003,10 +1033,13 @@ if [ "$APPEND_MODE" ]; then
 else
 	# add the function header if this is a new configuration
 	printf "{ lib, inputs, outputs, ... }:
+	let
+	  slib = inputs.snowglobe-lib.lib;
+	in
 		{\n" >"$HOSTS_CONFIG_FILE"
 fi
 
-printf '%s = lib.mkNixosHost {
+printf '%s = slib.mkNixosHost {
 	hostname = "%s";
 	cpu-vendor = "%s";
 	gpu-vendors = [ %s ];
@@ -1040,16 +1073,6 @@ printf "\n}" >>"$HOSTS_CONFIG_FILE"
 
 # generate hardware-configuration.nix and move disko.nix into place
 _get_nixos_hardware_config
-
-clear
-
-# optional setup
-printf "\nWhen building your nixos configuration, you may wish to reference public keys for various reasons, such as SSH authorization.\n"
-printf "If you have public keys associated with your identity, you can add them to a keyring module for ease of access within your configuration.\n"
-y_or_n --msg="Set up keyring?" --default="no" && {
-	KEY_TYPES=("ssh" "age" "openpgp")
-	SELECTED_KEY_TYPE=$(printf "%s\n" "${KEY_TYPES[@]}" | fzf)
-}
 
 clear
 # user creation
@@ -1104,6 +1127,115 @@ _set_password() {
 	done
 }
 
+_configure_ssh_keys() {
+	AUTHORIZED_SSH_KEYS=()
+	# read public keys from the keyring
+	SSH_KEY_PAIRS=$(nix eval --file "$KEYRING_FILE" keyring.ssh | tr -d '{ }')
+	if [ "$SSH_KEY_PAIRS" ]; then
+		_build_key_hashtable "$SSH_KEY_PAIRS"
+		y_or_n --msg="Found configured ssh keys on your keyring. Would you like to use one of those?" && {
+		  SSH_KEY_NAMES=$(ls -A "$KEY_HASHTABLE")
+			while :; do
+				SSH_KEY_NAME=$(
+					for key in $SSH_KEY_NAMES; do
+						printf "%s\n" "$key"
+					done | fzf \
+						--border \
+						--border-label-pos 1:bottom \
+						--border-label="Found the following SSH keys on your keyring. Use one of these? (Ctrl+C or esc to cancel)"
+				)
+
+				if [ -z "$SSH_KEY_NAME" ]; then
+					y_or_n --msg="No key was selected. Try again?" --default="yes" || break
+				else
+					# use the key name instead of value as it will be passed as config.keyring.ssh.$keyname
+					AUTHORIZED_SSH_KEYS+=("$SSH_KEY_NAME")
+
+					# remove SSH key name from the picker
+					TMP_SSH_KEY_NAMES=()
+					for keyname in $SSH_KEY_NAMES; do
+						if [ "$keyname" != "$SSH_KEY_NAME" ]; then
+							TMP_SSH_KEY_NAMES+=("$keyname")
+						fi
+					done
+					SSH_KEY_NAMES=${TMP_SSH_KEY_NAMES[@]}
+					unset TMP_SSH_KEY_NAMES
+
+					# all keys in the keyring have been authorized
+					if [ ${#SSH_KEY_NAMES[@]} = 0 ]; then
+						break
+					else
+						y_or_n --msg="Add another key from your keyring?" || break
+					fi
+				fi
+			done
+		}
+	fi
+
+	# allow the users to enter additional ssh keys and register them to the keyring
+	if [ ${#AUTHORIZED_SSH_KEYS[@]} != 0 ]; then
+		y_or_n --msg="Would you like to configure additional ssh keys not present on your keyring?" || return 0
+	fi
+
+	# ensure a keyvalue table exists
+	if [ -z "$KEY_HASHTABLE" ]; then
+		_build_key_hashtable
+	fi
+
+	while :; do
+		while :; do
+			read -rp "Enter a valid ed25519 public key: " SSH_KEY_VALUE
+			if [ -z "$SSH_KEY_VALUE" ]; then
+				y_or_n --msg="No key was entered. Try again?" || return 1
+			else
+				if ! ssh-keygen -l -f <(printf "%s" "$SSH_KEY_VALUE") >/dev/null 2>&1; then
+					y_or_n --msg="That ssh key does not seem valid. Try again?" || return 1
+				else
+					break
+				fi
+			fi
+		done
+
+		# validate the name and prevent duplicates
+		KEY_NAMES=$(ls -A "$KEY_HASHTABLE")
+		while :; do
+			printf "Warning: key name will be stripped of numbers and special characters. (excluding - and _)\n"
+			read -rp "Give a name to this key for your keyring: " SSH_KEY_NAME
+			SSH_KEY_NAME="$(printf "%s" "$SSH_KEY_NAME" | tr -d '[`"=;:$%#^<>+(){}*!&[]~|][:blank:][:cntrl:][:digit:]')"
+			if [ -z "$SSH_KEY_NAME" ]; then
+				printf "Key name cannot be empty. Try again\n"
+				continue
+			else
+				if [ "$KEY_NAMES" ]; then
+					for keyname in $KEY_NAMES; do
+						if [ "$SSH_KEY_NAME" = "$keyname" ]; then
+							SSH_DUPLICATE_DETECTED=1
+							break
+						fi
+					done
+					if [ "$SSH_DUPLICATE_DETECTED" ]; then
+						unset SSH_DUPLICATE_DETECTED
+						printf "A key with the provided name is already in the keyring. Try again.\n"
+						continue
+					fi
+				fi
+			fi
+			printf "Final key name: %s\n" "$SSH_KEY_NAME"
+			break
+		done
+
+		AUTHORIZED_SSH_KEYS+=("$SSH_KEY_NAME")
+		# write ssh key to the keyring and temporary table
+		sed -i "s|\(ssh = {\)\([^}]*\)|\1\n\t$SSH_KEY_NAME = \"$SSH_KEY_VALUE\";|" "$KEYRING_FILE"
+		printf "%s" "$SSH_KEY_VALUE" >"$KEY_HASHTABLE/$SSH_KEY_NAME"
+
+		y_or_n --msg="Authorize another ssh key?" || break
+	done
+
+	unset SSH_KEY_VALUE
+	unset SSH_KEY_NAME
+}
+
 _set_permissions() {
 	USER_PERMISSIONS=()
 	y_or_n --msg="Should this user have access to privilege escalation? (able to run sudo)" --default="yes" && USER_PERMISSIONS+=("Wheel")
@@ -1134,7 +1266,7 @@ while :; do
 	done
 	TMP_USERS=()
 
-	# loop until a PASSWORD or authorized key is set for this user
+	# loop until a password or authorized key is set for this user
 	while :; do
 		while [ -z "$PASSWORD" ]; do
 			y_or_n --msg="Set a password for this user?" --default="yes" && {
@@ -1144,18 +1276,7 @@ while :; do
 			break
 		done
 
-		# while :; do
-		# 	if [ ${#AUTHORIZED_SSH_KEYS} -lt 1 ]; then
-		# 		MSG="Add an authorized public key to access this user over SSH?"
-		# 	else
-		# 		MSG="Add another key?"
-		# 	fi
-		# 	y_or_n --msg="$MSG" --default="no" && {
-		# 		_add_key || break
-		# 		continue
-		# 	}
-		# 	break
-		# done
+		y_or_n --msg="Add an ssh key for authentication with this user over openssh?" --default="no" && _configure_ssh_keys
 
 		if [ -z "$PASSWORD" ] && [ ${#AUTHORIZED_SSH_KEYS[@]} -lt 1 ]; then
 			printf "\nError: Neither a password nor SSH key was set for this user. You will not be able to log into it unless you set one!\n\n"
@@ -1174,11 +1295,11 @@ while :; do
 		if [ "$PASSWORD" ]; then
 			printf "Password - =*Redacted*=\n"
 		fi
-		# if [ "$AUTHORIZED_SSH_KEYS" ]; then
-		# 	for key in "${AUTHORIZED_SSH_KEYS[@]}"; do
-		# 		printf "Authorized SSH key - %s\n" "$key"
-		# 	done
-		# fi
+		if [ "$AUTHORIZED_SSH_KEYS" ]; then
+			for key in "${AUTHORIZED_SSH_KEYS[@]}"; do
+				printf "Authorized SSH key - %s\n" "$key"
+			done
+		fi
 		if [ -z "$NORMAL_USER" ]; then
 			printf "Permission - System Administrator\n\n"
 		elif [ "$USER_PERMISSIONS" ]; then
@@ -1189,7 +1310,7 @@ while :; do
 
 		y_or_n --msg="Are you satisfied with the current configuration?" --default="yes" && break
 		clear
-		OPTIONS=("Username" "Password" "Permissions")
+		OPTIONS=("Username" "Password" "Permissions" "Authorized Keys")
 		SELECTED="$(for option in "${OPTIONS[@]}"; do
 			printf "%s\n" "$option"
 		done | fzf \
@@ -1203,6 +1324,9 @@ while :; do
 			;;
 		"Password")
 			_set_password 'force'
+			;;
+		"Authorized Keys")
+			_configure_ssh_keys
 			;;
 		"Permissions")
 			_set_permissions
@@ -1226,6 +1350,14 @@ while :; do
 
 	if [ "$NORMAL_USER" ]; then
 		printf "isNormalUser = true;\n" >>"$USER_CONFIG_DIR/default.nix"
+	fi
+
+	if [ "$AUTHORIZED_SSH_KEYS" ]; then
+	  printf "openssh.authorizedKeys.keys = with config.keyring.ssh; [\n" >>"$USER_CONFIG_DIR/default.nix"
+		for key in "${AUTHORIZED_SSH_KEYS[@]}"; do
+		  printf "%s\n" "$key" >>"$USER_CONFIG_DIR/default.nix"
+		done
+		printf "];\n" >>"$USER_CONFIG_DIR/default.nix"
 	fi
 
 	if [ "$USER_PERMISSIONS" ]; then

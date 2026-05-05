@@ -1,17 +1,13 @@
 { inputs, lib }:
-import ./rolling-releases.nix { inherit inputs; }
-# // import ./self-maintained.nix { inherit lib; }
-// import ./package-fixes.nix
-// {
-  # custom packages
-  packages =
+{
+  default =
+    # custom packages
     final: prev:
     import ../packages {
       pkgs = final;
     };
 
-  zsh-syntax-highlighting-fix =
-    final: prev: (import ./zsh-syntax-highlighting.nix { inherit final prev; });
+  package-fixes = import ./package-fixes;
 
   nix-post-build-hook-queue = inputs.nix-post-build-hook-queue.overlays.default;
 }

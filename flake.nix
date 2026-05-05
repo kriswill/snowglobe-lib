@@ -11,6 +11,7 @@
 
       outputs = self.outputs;
       lib = nixpkgs.lib;
+      import-tree = inputs.import-tree;
 
       snowglobe-lib = import ./lib/functions {
         inherit
@@ -25,7 +26,24 @@
       lib = snowglobe-lib;
 
       nixosModules = rec {
-        snowglobe-lib = import ./nixosModules/snowglobe-lib { inherit lib inputs outputs; };
+        snowglobe-lib = {
+          imports = [
+            (import-tree [
+              ./nixosModules/snowglobe-lib
+              { nixpkgs.overlays = builtins.attrValues outputs.overlays; }
+              outputs.nixosModules.nixos
+              # improved disk partition management
+              inputs.disko.nixosModules.default
+              # queue system for nix post-build-hook when uploading to binary caches
+              inputs.nix-post-build-hook-queue.nixosModules.default
+            ])
+            # secrets storage and key management
+            # does not work with import-tree for some reason
+            inputs.sops-nix.nixosModules.default
+          ];
+        };
+        # nixos module patches
+        nixos = import-tree ./nixosModules/nixos;
         # jovian configuration
         jovian = import ./nixosModules/jovian { inherit inputs lib; };
         # expose the modules from nixos-hardware because they do not wrap them with options for some reason
@@ -60,18 +78,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
 
-    awww = {
-      url = "git+https://codeberg.org/LGFae/awww";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     disko = {
       url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    ghostty = {
-      url = "github:ghostty-org/ghostty";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -84,11 +92,6 @@
       url = "github:vic/import-tree";
     };
 
-    manga-tui = {
-      url = "github:josueBarretogit/manga-tui";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nixos-hardware = {
       url = "https://flakehub.com/f/NixOS/nixos-hardware/*.tar.gz";
     };
@@ -99,34 +102,8 @@
       inputs.treefmt.follows = "";
     };
 
-    nh = {
-      url = "github:nix-community/nh";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    niri = {
-      url = "github:niri-wm/niri";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.rust-overlay.follows = "";
-    };
-
-    prismlauncher = {
-      url = "github:PrismLauncher/PrismLauncher";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     sops-nix = {
       url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    rmpc = {
-      url = "github:mierak/rmpc";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    yazi = {
-      url = "github:sxyazi/yazi";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

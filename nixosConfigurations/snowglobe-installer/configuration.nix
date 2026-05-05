@@ -24,7 +24,7 @@ in
   services.getty.helpLine = lib.mkForce ''
     Welcome to the Snowglobe NixOS installer.
 
-    To log in over ssh, set a password for the root user with `sudo passwd`
+    It is recommended to set password for the root user with `sudo passwd` to log in over ssh
 
     Begin install by running `install.sh` as root.
   '';

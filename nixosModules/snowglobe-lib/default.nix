@@ -1,10 +1,4 @@
 {
-  inputs,
-  outputs,
-  lib,
-  ...
-}:
-{
   pkgs,
   lib,
   config,
@@ -14,26 +8,6 @@ let
   slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
-  imports = [
-    # module modifications and additions to the default nixpkgs moduleset
-    (inputs.import-tree ../nixos)
-    # import the rest of the moduleset
-    (lib.pipe inputs.import-tree [
-      (i: i.filterNot (lib.hasInfix "overlays.nix"))
-      (i: i.filterNot (lib.hasInfix "default.nix"))
-      (i: i ./.)
-    ])
-
-    # special case for overlays where outputs needs to be explicitly provided
-    (import ./overlays.nix { inherit outputs lib config; })
-    # improved disk partition management
-    inputs.disko.nixosModules.default
-    # secrets storage and key management
-    inputs.sops-nix.nixosModules.default
-    # queue system for nix post-build-hook when uploading to binary caches
-    inputs.nix-post-build-hook-queue.nixosModules.default
-  ];
-
   options.snowglobe-lib = {
     enable = lib.mkEnableOption "Snowglobe-Lib's nixos modules and configurations";
   };
@@ -107,7 +81,6 @@ in
 
     nixpkgs = {
       hostPlatform = config.system.arch;
-      overlays = builtins.attrValues outputs.overlays;
       config = {
         allowUnfree = slib.setDefault true;
         permittedInsecurePackages = [
