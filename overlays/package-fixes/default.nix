@@ -2,16 +2,16 @@
 final: prev: {
   # fails to build due to failing checks
   # https://github.com/NixOS/nixpkgs/issues/513245
-  # openldap = prev.openldap.overrideAttrs (_: {
-  #   doCheck = false;
-  # });
+  openldap = prev.openldap.overrideAttrs (_: {
+    doCheck = false;
+  });
 
   ani-cli = prev.ani-cli.overrideAttrs (_: {
     version = "4.14.0";
     src = prev.fetchFromGitHub {
       repo = "ani-cli";
       owner = "pystardust";
-      rev = "master";
+      rev = "6803b8a15faafa41cb79271e9a4f7f9c70a53651";
       hash = "sha256-OyCKDN89sBz59+3JncMDyNOq8UMqqjara+A0Owo3oko=";
     };
 
