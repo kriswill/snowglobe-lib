@@ -784,31 +784,21 @@ if [ -z "$APPEND_MODE" ]; then
 			...
 		}:
 		{
-			imports = [
-				# add additional modules shared among your hosts
-				# example
-				# inputs.home-manager.nixosModules.default
-				
-				# you do not need to add files from nixosModules/ they are imported automatically by import-tree
-			];
-
-			# contain and enable your custom modules
-			# If you wish to let your modules be consumable by other flakes, be sure to segment them to avoid conflicts.
-
-			# options.your-name-here.enable = lib.mkEnableOption \"your-name-here's NixOS modules\";
-
+			# example for merging your shared config
 			config = lib.mkMerge [
-				{
-					#	your-name-here.enable = lib.mkDefault true;
-				}
-			#	apply custom configuration only if your custom modules are enabled
-
-			#	(lib.mkIf config.your-name-here.enable {
+			# {
 			#	  your-name-here.your-module-1.enable = true;
 			#	  your-name-here.your-module-2.enable = true;
-			#	  # more boilerplate here
+			#	  # more module boilerplate here
 			#	  ...
-			#	})
+			#	}
+			
+			#	You can also define and enable modules only if a certain condition is met
+			#	(lib.mkIf (some condition here) {
+			#	  your-name-here.module-3.enable = true;
+			#	  # any other modules
+			#	  ...
+			# })
 			];
 	}" | install -D /dev/stdin "$CONFIG_ROOT/nixosModules/default.nix"
 
@@ -1134,7 +1124,7 @@ _configure_ssh_keys() {
 	if [ "$SSH_KEY_PAIRS" ]; then
 		_build_key_hashtable "$SSH_KEY_PAIRS"
 		y_or_n --msg="Found configured ssh keys on your keyring. Would you like to use one of those?" && {
-		  SSH_KEY_NAMES=$(ls -A "$KEY_HASHTABLE")
+			SSH_KEY_NAMES=$(ls -A "$KEY_HASHTABLE")
 			while :; do
 				SSH_KEY_NAME=$(
 					for key in $SSH_KEY_NAMES; do
@@ -1353,9 +1343,9 @@ while :; do
 	fi
 
 	if [ "$AUTHORIZED_SSH_KEYS" ]; then
-	  printf "openssh.authorizedKeys.keys = with config.keyring.ssh; [\n" >>"$USER_CONFIG_DIR/default.nix"
+		printf "openssh.authorizedKeys.keys = with config.keyring.ssh; [\n" >>"$USER_CONFIG_DIR/default.nix"
 		for key in "${AUTHORIZED_SSH_KEYS[@]}"; do
-		  printf "%s\n" "$key" >>"$USER_CONFIG_DIR/default.nix"
+			printf "%s\n" "$key" >>"$USER_CONFIG_DIR/default.nix"
 		done
 		printf "];\n" >>"$USER_CONFIG_DIR/default.nix"
 	fi

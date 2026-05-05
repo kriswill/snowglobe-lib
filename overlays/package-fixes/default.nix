@@ -18,16 +18,6 @@ final: prev: {
     runtimeInputs = prev.ani-cli.runtimeInputs ++ [ prev.libressl ];
   });
 
-  # hash mismatch
-  # wireshark = prev.wireshark.overrideAttrs (_: {
-  #   src = prev.fetchFromGitLab {
-  #     repo = "wireshark";
-  #     owner = "wireshark";
-  #     tag = "v4.6.5";
-  #     hash = "sha256-Zvrwxjp4LK2J3QnxmPxKKrU01YHQvPyp54UWzeGNCjA=";
-  #   };
-  # });
-
   # fix the symlinks in zsh-syntax-highlighting
   zsh-syntax-highlighting = prev.zsh-syntax-highlighting.overrideAttrs {
     installPhase = ''

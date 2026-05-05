@@ -14,7 +14,7 @@ if [ "$1" = "--check-only" ]; then
 fi
 
 if [ "$1" = "--clear-cache" ]; then
-	rm -r "$XDG_CACHE_HOME/snowglobe-CI"
+	rm -rf "$XDG_CACHE_HOME/snowglobe-CI"
 	exit 0
 fi
 
