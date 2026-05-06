@@ -83,11 +83,6 @@ in
       hostPlatform = config.system.arch;
       config = {
         allowUnfree = slib.setDefault true;
-        permittedInsecurePackages = [
-          # TODO remove me later
-          # needed for stoat-desktop
-          "electron-38.8.4"
-        ];
       };
     };
 

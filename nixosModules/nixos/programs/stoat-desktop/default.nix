@@ -20,6 +20,12 @@ in
   config = lib.mkIf cfg.enable (
     slib.installProgram {
       inherit programName config;
+      extraModules = {
+        nixpkgs.config.permittedInsecurePackages = [
+          # TODO remove me later
+          "electron-38.8.4"
+        ];
+      };
     }
   );
 }

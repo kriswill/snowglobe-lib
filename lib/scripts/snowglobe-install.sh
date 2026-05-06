@@ -285,73 +285,88 @@ _format_disks() {
 		[ -z "$SELECTED_DISKO_CONFIG" ] || [ ! -f "$SELECTED_DISKO_CONFIG" ] || ! grep -q "disko" "$SELECTED_DISKO_CONFIG"
 	}
 
-	CUSTOM_DISKO_CONFIGURATIONS=$(find /etc/disko -type f | sed 's|\/etc\/disko\/||' | grep -v 'defaults')
-	if [ "$CUSTOM_DISKO_CONFIGURATIONS" ]; then
-		SELECTED_DISKO_CONFIG=$(
-			for config in $CUSTOM_DISKO_CONFIGURATIONS; do
-				# readd the absolute path
-				file="/etc/disko/$config"
-				# dirty check to see if the file is actually a disko config
-				if grep -q 'disko' "$file"; then
-					printf "%s\n" "$config"
-				else
-					continue
-				fi
-			done | fzf \
-				--disabled \
-				--border \
-				--border-label-pos 1:bottom \
-				--preview='bat -f /etc/disko/{}' \
-				--border-label='Found the following custom configurations. Would you like to use one of these? (Press ESC or Ctrl+C to skip)'
-		)
-		if [ "$SELECTED_DISKO_CONFIG" ]; then
-			SELECTED_DISKO_CONFIG="/etc/disko/""$SELECTED_DISKO_CONFIG"
-			CUSTOM_DISKO=true
-		else
-			printf "\nNo custom disko configuration file selected, proceeding with defaults.\n"
-		fi
+	if [ "$REINSTALL_MODE" ]; then
+		printf "\nDetected that this is an existing configuration.\n"
+		y_or_n --msg="Would you like to re-use this host's disko file from your repo?" --default="yes" && {
+			PRECONFIGURED_DISKO_FILE="$REPO_DIR/nixosConfigurations/$HOSTNAME/disko.nix"
+			if [ -e "$PRECONFIGURED_DISKO_FILE" ]; then
+				SELECTED_DISKO_CONFIG="$PRECONFIGURED_DISKO_FILE"
+				unset PRECONFIGURED_DISKO_FILE
+			else
+				y_or_n --msg="This host's disko file could not be found in your repo. Continue using another disko file?" || exit 1
+			fi
+		}
 	fi
 
-	# default disko deployment
-	if [ -z "$CUSTOM_DISKO" ]; then
-		DISKO_DEFAULTS_DIR="/etc/disko/defaults"
+	# allow for users to use custom disko files
+	if [ -z "$SELECTED_DISKO_CONFIG" ]; then
+		CUSTOM_DISKO_CONFIGURATIONS=$(find /etc/disko -type f | sed 's|\/etc\/disko\/||' | grep -v 'defaults')
+		if [ "$CUSTOM_DISKO_CONFIGURATIONS" ]; then
+			SELECTED_DISKO_CONFIG=$(
+				for config in $CUSTOM_DISKO_CONFIGURATIONS; do
+					file="/etc/disko/$config"
+					# dirty check to see if the file is actually a disko config
+					if grep -q 'disko' "$file"; then
+						printf "%s\n" "$config"
+					else
+						continue
+					fi
+				done | fzf \
+					--disabled \
+					--border \
+					--border-label-pos 1:bottom \
+					--preview='bat -f /etc/disko/{}' \
+					--border-label='Found the following custom configurations. Would you like to use one of these? (Press ESC or Ctrl+C to skip)'
+			)
+			if [ "$SELECTED_DISKO_CONFIG" ]; then
+				SELECTED_DISKO_CONFIG="/etc/disko/""$SELECTED_DISKO_CONFIG"
+				CUSTOM_DISKO=true
+			else
+				printf "\nNo custom disko configuration file selected, proceeding with defaults.\n"
+			fi
+		fi
 
-		_select_disk "Select a disk to install NixOS"
+		# default disko deployment
+		if [ -z "$CUSTOM_DISKO" ]; then
+			DISKO_DEFAULTS_DIR="/etc/disko/defaults"
 
-		printf "\nTo protect your persistent storage volume from theft, you can use the Linux Unified Key Setup (LUKS) to encrypt it\n"
-		printf "By default the installer will set up a passphrase that you will have to enter to boot.\n"
-		y_or_n --msg="Would you like to set up LUKS encryption?" --default="no" && {
-			printf "\nYou will now be prompted for a passphrase to encrypt your disk.\n"
-			printf "For the greatest level of security you should ensure the following:\n"
-			printf "	1. Your password should be different than any used for websites or services.\n"
-			printf "	2. Easy to remember. If you lose this password you will never be able to recover your files.\n"
-			printf "	3. Moderately sized (recommended is between 15-25 characters).\n"
-			while [ -z "$PASSWORD" ] || [ "$PASSWORD" != "$PASSWORD2" ]; do
-				printf "\n"
-				read -rs -p "Enter Password: " PASSWORD
-				if [ -z "$PASSWORD" ]; then
-					continue
-				fi
+			_select_disk "Select a disk to install NixOS"
 
-				printf "\n"
-				read -rs -p "Confirm Password: " PASSWORD2
-				printf "\n"
-				if [ "$PASSWORD" != "$PASSWORD2" ]; then
-					printf "\nPasswords do not match! Try again.\n"
-				else
+			printf "\nTo protect your persistent storage volume from theft, you can use the Linux Unified Key Setup (LUKS) to encrypt it\n"
+			printf "By default the installer will set up a passphrase that you will have to enter to boot.\n"
+			y_or_n --msg="Would you like to set up LUKS encryption?" --default="no" && {
+				printf "\nYou will now be prompted for a passphrase to encrypt your disk.\n"
+				printf "For the greatest level of security you should ensure the following:\n"
+				printf "	1. Your password should be different than any used for websites or services.\n"
+				printf "	2. Easy to remember. If you lose this password you will never be able to recover your files.\n"
+				printf "	3. Moderately sized (recommended is between 15-25 characters).\n"
+				while [ -z "$PASSWORD" ] || [ "$PASSWORD" != "$PASSWORD2" ]; do
 					printf "\n"
-					break
-				fi
-			done
-			printf "%s" "$PASSWORD" >/tmp/luks-password
-			unset PASSWORD PASSWORD2
-			LUKS=true
-		}
+					read -rs -p "Enter Password: " PASSWORD
+					if [ -z "$PASSWORD" ]; then
+						continue
+					fi
 
-		if [ "$LUKS" ]; then
-			SELECTED_DISKO_CONFIG="$DISKO_DEFAULTS_DIR/default-ext4-luks.nix"
-		else
-			SELECTED_DISKO_CONFIG="$DISKO_DEFAULTS_DIR/default-ext4.nix"
+					printf "\n"
+					read -rs -p "Confirm Password: " PASSWORD2
+					printf "\n"
+					if [ "$PASSWORD" != "$PASSWORD2" ]; then
+						printf "\nPasswords do not match! Try again.\n"
+					else
+						printf "\n"
+						break
+					fi
+				done
+				printf "%s" "$PASSWORD" >/tmp/luks-password
+				unset PASSWORD PASSWORD2
+				LUKS=true
+			}
+
+			if [ "$LUKS" ]; then
+				SELECTED_DISKO_CONFIG="$DISKO_DEFAULTS_DIR/default-ext4-luks.nix"
+			else
+				SELECTED_DISKO_CONFIG="$DISKO_DEFAULTS_DIR/default-ext4.nix"
+			fi
 		fi
 	fi
 
@@ -472,6 +487,7 @@ y_or_n --msg="Install an existing configuration?" --default="no" && {
 	done
 
 	printf "\nSelected Host: %s\n" "$HOSTNAME"
+	REINSTALL_MODE=1
 
 	# TODO add hardware regeneration mode
 	_format_disks
@@ -501,8 +517,6 @@ y_or_n --msg="Install an existing configuration?" --default="no" && {
 	fi
 
 	printf "\nChecks complete. No further action needed.\n"
-	printf "Installing now.\n"
-
 	_install_nixos
 }
 
@@ -617,7 +631,7 @@ Recommended for enthusists / advanced users only."
 		break
 	done
 
-	if [ "$SELECTED_DESKTOP" = "None" ]; then
+	if [ "$SELECTED_DESKTOP" = "none" ]; then
 		unset SELECTED_DESKTOP
 	fi
 }
@@ -1101,12 +1115,15 @@ _set_password() {
 		read -rs -p "Enter Password: " PASSWORD
 		printf "\n"
 		if [ -z "$PASSWORD" ]; then
-			printf "No password provided.\n"
-			if [ -z "$1" ]; then
-				break
-			else
+			y_or_n --msg="No password provided. Try Again?" --default="yes"
+			case "$yn" in
+			"Y" | "y")
 				continue
-			fi
+				;;
+			"N" | "n")
+				break
+				;;
+			esac
 		fi
 		read -rs -p "Confirm Password: " PASSWORD2
 		printf "\n"
@@ -1256,30 +1273,37 @@ while :; do
 	done
 	TMP_USERS=()
 
-	# loop until a password or authorized key is set for this user
-	while :; do
-		while [ -z "$PASSWORD" ]; do
-			y_or_n --msg="Set a password for this user?" --default="yes" && {
-				_set_password
-				continue
-			}
-			break
-		done
+	y_or_n --msg="Set a password for this user?" --default="yes" && {
+		_set_password
+	}
 
-		y_or_n --msg="Add an ssh key for authentication with this user over openssh?" --default="no" && _configure_ssh_keys
-
-		if [ -z "$PASSWORD" ] && [ ${#AUTHORIZED_SSH_KEYS[@]} -lt 1 ]; then
-			printf "\nError: Neither a password nor SSH key was set for this user. You will not be able to log into it unless you set one!\n\n"
-		else
-			break
-		fi
-	done
+	y_or_n --msg="Add an ssh key for authentication with this user over openssh?" --default="no" && _configure_ssh_keys
 
 	if [ "$NORMAL_USER" ]; then
 		_set_permissions
 	fi
 
 	while :; do
+		while [ -z "$PASSWORD" ] && [ ${#AUTHORIZED_SSH_KEYS[@]} -lt 1 ] && [ "$NORMAL_USER" ]; do
+			SELECTED=$(
+				printf "Password\nAuthorized Keys" | fzf \
+					--border \
+					--border-label-pos 1:bottom \
+					--border-label="Warning: Neither a password nor an ssh was set for this user. You must set one or this user will be inaccessible."
+			)
+			case "$SELECTED" in
+			"Password")
+				_set_password
+				;;
+			"Authorized Keys")
+				_configure_ssh_keys
+				;;
+			*)
+				continue
+				;;
+			esac
+		done
+
 		clear
 		printf "\nConfiguration for user: %s\n" "$USERNAME"
 		if [ "$PASSWORD" ]; then
@@ -1313,7 +1337,7 @@ while :; do
 			_set_username
 			;;
 		"Password")
-			_set_password 'force'
+			_set_password
 			;;
 		"Authorized Keys")
 			_configure_ssh_keys
@@ -1384,9 +1408,13 @@ while :; do
 	unset PASSWORD
 	unset PASSWORD2
 	unset NORMAL_USER
+	unset AUTHORIZED_SSH_KEYS
+	unset USER_PERMISSIONS
 
 	y_or_n --msg="Add/Configure another user?" --default="no" || break
 done
+
+# TODO register the ssh keys generated by the installer with the configuration
 
 if [ -e "$CONFIG_ROOT/$SOPS_FILE" ]; then
 	sops --config "$CONFIG_ROOT/.sops.yaml" -e -i "$CONFIG_ROOT/$SOPS_FILE" || {
