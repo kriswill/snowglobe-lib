@@ -6,6 +6,8 @@ final: prev: {
     doCheck = false;
   });
 
+  # version from nixpkgs fails to download media
+  # https://github.com/pystardust/ani-cli/issues/1688
   ani-cli = prev.ani-cli.overrideAttrs (_: {
     version = "4.14.0";
     src = prev.fetchFromGitHub {
