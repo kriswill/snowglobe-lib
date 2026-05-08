@@ -94,12 +94,4 @@ done
 cd "$PROJECT_ROOT" || exit 1
 
 notify-send -a "snowglobe-CI" "ci.sh" "Configuration Checks successful\!"
-
-y_or_n "Configuration checks successful, merge into testing?" && {
-	git checkout testing
-	git merge dev
-	git push -u origin testing
-	git checkout dev
-}
-
 exit 0
