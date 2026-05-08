@@ -18,6 +18,8 @@ if [ "$1" = "--clear-cache" ]; then
 	exit 0
 fi
 
+GIT_BRANCH="$(git branch | grep '\*' | cut -d' ' -f2)"
+
 REPOSITORIES=$(cat ".secrets/repo-urls.txt")
 PROJECT_ROOT="$PWD"
 
@@ -32,23 +34,6 @@ y_or_n() {
 		esac
 	done
 }
-
-if [ $(git branch | grep '*' | cut -d' ' -f2) != 'dev' ]; then
-	printf "You are not on the development branch, Aborting."
-	exit 1
-fi
-
-if ! git status | grep -q 'nothing to commit, working tree clean'; then
-	y_or_n "Detected uncommitted changes, commit them now?" && {
-		printf "Commit Message: "
-		read -r COMMIT_MSG
-		git add .
-		git commit -m "$COMMIT_MSG"
-		git push -u origin dev
-	}
-fi
-
-nix flake check
 
 for repo in $REPOSITORIES; do
 	REPO_OWNER=$(echo "$repo" | rev | cut -d "/" -f2 | rev)
@@ -75,16 +60,14 @@ for repo in $REPOSITORIES; do
 	fi
 
 	cd "$REPO_DIR" || exit 1
+	cp flake.nix flake.nix.bak
 
 	# edit the flake.nix to point to the development branch
-	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep 'ref=dev')" ]; then
+	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep 'ref=unstable')" ]; then
 		# do nothing
 		printf "already on dev branch\n"
-	elif [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep 'ref=testing')" ]; then
-		# if the repo is on the testing branch
-		sed -i 's|/earthgman/snowglobe-lib?ref=testing|/earthgman/snowglobe-lib?ref=dev|' "$REPO_DIR/flake.nix"
 	else
-		sed -i 's|/earthgman/snowglobe-lib|/earthgman/snowglobe-lib?ref=dev|' "$REPO_DIR/flake.nix"
+		sed -i 's|/earthgman/snowglobe-lib|/earthgman/snowglobe-lib?ref=unstable|' "$REPO_DIR/flake.nix"
 	fi
 	nix flake update snowglobe-lib
 
@@ -100,12 +83,12 @@ for repo in $REPOSITORIES; do
 			msg="build for $host from repo: $REPO_OWNER/$REPO_NAME has failed"
 			echo "$msg"
 			notify-send -a "snowglobe-CI" "ci.sh" "$msg"
-			sed -i 's|/EarthGman/snowglobe-lib?ref=dev|/EarthGman/snowglobe-lib?ref=testing|' "$REPO_DIR/flake.nix"
+			mv flake.nix.bak flake.nix
 			exit 1
 		}
 	done
 	# return the flake to its original state
-	sed -i 's|/EarthGman/snowglobe-lib?ref=dev|/EarthGman/snowglobe-lib?ref=testing|' "$REPO_DIR/flake.nix"
+	mv flake.nix.bak flake.nix
 done
 
 cd "$PROJECT_ROOT" || exit 1
