@@ -3,7 +3,7 @@ final: prev: {
   # fails to build due to failing checks for the i686 version of the package
   # https://github.com/NixOS/nixpkgs/issues/513245
   openldap = prev.openldap.overrideAttrs (_: {
-    doCheck = false;
+    doCheck = !prev.stdenv.hostPlatform.isi686;
   });
 
   # version from nixpkgs fails to download media

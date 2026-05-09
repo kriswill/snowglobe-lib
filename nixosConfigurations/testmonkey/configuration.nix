@@ -4,12 +4,19 @@
   pkgs,
   lib,
   config,
+  outputs,
   ...
 }:
 let
   mkForce = lib.mkForce;
 in
 {
+  # build decky and other jovian plugins
+  imports = [ outputs.nixosModules.jovian ];
+  jovian.steam = {
+    user = "bob";
+    desktopSession = "niri";
+  };
   # custom program options
   programs =
     let
@@ -35,9 +42,14 @@ in
   hardware.enableAllFirmware = true;
 
   # add all custom packages
-  environment.systemPackages = lib.forEach (builtins.attrNames (
-    import ../../packages {
-      inherit pkgs;
-    }
-  )) (package: pkgs.${package});
+  environment.systemPackages =
+    lib.forEach (builtins.attrNames (
+      import ../../packages {
+        inherit pkgs;
+      }
+    )) (package: pkgs.${package})
+    # extra packages I want to check
+    ++ (with pkgs; [
+      ly
+    ]);
 }

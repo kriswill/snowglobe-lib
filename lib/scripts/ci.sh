@@ -2,8 +2,34 @@
 # This script is used to verify all host configurations for the registered repositories
 # It ensures that all configurations that depend on the module set do not have failing builds after a flake update.
 # additionally it will ensure all packages are cached, preventing local builds for these hosts.
-_notify() {
+y_or_n() {
+	printf "%s: [y/n] " "$1"
+	read -r yn
+
+	if [ -z "$yn" ]; then
+		return 1
+	fi
+
+	case "$yn" in
+	"Y" | "y")
+		return 0
+		;;
+
+	"N" | "n")
+		return 1
+		;;
+	*)
+		printf "Not a valid response\n"
+		;;
+	esac
+}
+
+_end_sequence() {
 	notify-send -a "snowglobe-CI" "ci.sh" "Configuration Checks successful\!"
+	if systemctl is-active nix-post-build-hook-queue >/dev/null; then
+		y_or_n "disable post-build-hook-queue?" && sudo systemctl stop nix-post-build-hook-queue
+	fi
+	exit 0
 }
 
 for arg in "$@"; do
@@ -32,6 +58,15 @@ if [ ! -d nixosConfigurations/testmonkey ]; then
 	exit 1
 fi
 
+# use nix-post-build-hook-queue to push modified packages to nix-store.earthgman.dev
+if [ -z "$CHECK_ONLY" ] && ! systemctl is-active nix-post-build-hook-queue >/dev/null; then
+	printf "Build hook queue is not enabled Authenticate to enable the service.\n"
+	if ! systemctl is-active nix-post-build-hook-queue.socket >/dev/null; then
+		sudo systemctl start nix-post-build-hook-queue.socket
+	fi
+	sudo systemctl start nix-post-build-hook-queue
+fi
+
 if [ "$CHECK_ONLY" ]; then
 	nix flake check
 else
@@ -40,8 +75,7 @@ fi
 
 # early escape if no repo checks are being done
 if [ ! ${CHECK_REGISTERED_REPOS+x} ]; then
-	_notify
-	exit 0
+	_end_sequence
 fi
 
 GIT_BRANCH="$(git branch | grep '\*' | cut -d' ' -f2)"
@@ -60,12 +94,6 @@ y_or_n() {
 		esac
 	done
 }
-
-# use nix-post-build-hook-queue to push modified packages to nix-store.earthgman.dev
-if [ -z "$CHECK_ONLY" ] && ! systemctl is-active nix-post-build-hook-queue; then
-	printf "Build hook queue is not enabled Authenticate to enable the service.\n"
-	sudo systemctl start nix-post-build-hook-queue
-fi
 
 for repo in $REPOSITORIES; do
 	REPO_OWNER=$(echo "$repo" | rev | cut -d "/" -f2 | rev)
@@ -124,7 +152,5 @@ for repo in $REPOSITORIES; do
 	mv flake.nix.bak flake.nix
 done
 
-_notify
-
 cd "$PROJECT_ROOT" || exit 1
-exit 0
+_end_sequence

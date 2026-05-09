@@ -11,10 +11,10 @@ fi
 INSTALLERS=$(
 	for configuration in $(nix eval "$REPO_DIR#nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"'); do
 		printf "%s\n" "$configuration"
-	done | grep 'installer'
+	done | grep 'snowglobe-installer'
 )
 
-mkdir -p "$XDG_CACHE_HOME/snowglobe-CI/installers"
+mkdir -p "$XDG_CACHE_HOME/snowglobe-CI/installers" || exit 1
 
 for image in $INSTALLERS; do
 	# store isos so they can be shared between hosts

@@ -23,6 +23,7 @@ in
     steam = {
       enable = slib.setDefault true;
       autoStart = slib.setDefault true;
+      desktopSession = slib.setDefault config.system.desktop;
     };
 
     # TODO add to a user activation script
