@@ -14,7 +14,7 @@ in
     description = "calculator app for KDE plasma";
     programName = programName;
     packageName = programName;
-    inherit pkgs;
+    pkgs = pkgs.kdePackages;
   };
 
   config = lib.mkIf cfg.enable (

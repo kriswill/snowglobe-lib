@@ -16,7 +16,18 @@
     system = "x86_64-linux";
     configDir = ./snowglobe-installer;
     modules = [
-      { hardware.enableRedistributableFirmware = lib.mkForce false; }
+      {
+        hardware = {
+          enableRedistributableFirmware = lib.mkForce false;
+          enableAllFirmware = lib.mkForce false;
+        };
+      }
     ];
+  };
+
+  testmonkey = slib.mkNixosHost {
+    hostname = "testmonkey";
+    system = "x86_64-linux";
+    configDir = ./testmonkey;
   };
 }

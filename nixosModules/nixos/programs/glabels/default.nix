@@ -13,7 +13,7 @@ in
   options.programs.${programName} = slib.mkProgramOption {
     description = "label creator";
     programName = programName;
-    packageName = programName;
+    packageName = "glabels-qt";
     inherit pkgs;
   };
 

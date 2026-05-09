@@ -2,19 +2,45 @@
 # This script is used to verify all host configurations for the registered repositories
 # It ensures that all configurations that depend on the module set do not have failing builds after a flake update.
 # additionally it will ensure all packages are cached, preventing local builds for these hosts.
+_notify() {
+	notify-send -a "snowglobe-CI" "ci.sh" "Configuration Checks successful\!"
+}
 
-# conceal identities of those enrolled for the checks
-if [ ! -e .secrets/repo-urls.txt ]; then
+for arg in "$@"; do
+	ARG_NAME=$(printf "%s" "$arg" | cut -d= -f1)
+	ARG_VAL=$(printf "%s" "$arg" | cut -d= -f2)
+	case "$ARG_NAME" in
+	"--check-only")
+		CHECK_ONLY=1
+		;;
+	"--clear-cache")
+		rm -rf "$XDG_CACHE_HOME/snowglobe-CI"
+		;;
+	"--check-registered-repos")
+		CHECK_REGISTERED_REPOS=1
+		;;
+	esac
+done
+
+if [ ! -e .secrets/repo-urls.txt ] && [ "$CHECK_REGISTERED_REPOS" ]; then
 	printf "Error: repo-urls were not found or you are not in the project root.\n"
 	exit 1
 fi
 
-if [ "$1" = "--check-only" ]; then
-	CHECK_ONLY=1
+if [ ! -d nixosConfigurations/testmonkey ]; then
+	printf "testmonkey config missing or not in project root\n"
+	exit 1
 fi
 
-if [ "$1" = "--clear-cache" ]; then
-	rm -rf "$XDG_CACHE_HOME/snowglobe-CI"
+if [ "$CHECK_ONLY" ]; then
+	nix flake check
+else
+	nixos-rebuild build --flake .#testmonkey
+fi
+
+# early escape if no repo checks are being done
+if [ ! ${CHECK_REGISTERED_REPOS+x} ]; then
+	_notify
 	exit 0
 fi
 
@@ -34,6 +60,12 @@ y_or_n() {
 		esac
 	done
 }
+
+# use nix-post-build-hook-queue to push modified packages to nix-store.earthgman.dev
+if [ -z "$CHECK_ONLY" ] && ! systemctl is-active nix-post-build-hook-queue; then
+	printf "Build hook queue is not enabled Authenticate to enable the service.\n"
+	sudo systemctl start nix-post-build-hook-queue
+fi
 
 for repo in $REPOSITORIES; do
 	REPO_OWNER=$(echo "$repo" | rev | cut -d "/" -f2 | rev)
@@ -69,6 +101,7 @@ for repo in $REPOSITORIES; do
 	else
 		sed -i 's|/earthgman/snowglobe-lib|/earthgman/snowglobe-lib?ref=unstable|' "$REPO_DIR/flake.nix"
 	fi
+
 	nix flake update snowglobe-lib
 
 	if [ "$CHECK_ONLY" ]; then
@@ -91,7 +124,7 @@ for repo in $REPOSITORIES; do
 	mv flake.nix.bak flake.nix
 done
 
-cd "$PROJECT_ROOT" || exit 1
+_notify
 
-notify-send -a "snowglobe-CI" "ci.sh" "Configuration Checks successful\!"
+cd "$PROJECT_ROOT" || exit 1
 exit 0

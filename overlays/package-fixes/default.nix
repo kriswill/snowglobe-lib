@@ -1,6 +1,6 @@
 # overlay to fix failing package builds
 final: prev: {
-  # fails to build due to failing checks
+  # fails to build due to failing checks for the i686 version of the package
   # https://github.com/NixOS/nixpkgs/issues/513245
   openldap = prev.openldap.overrideAttrs (_: {
     doCheck = false;
@@ -41,5 +41,11 @@ final: prev: {
 
       ln -s "$PLUGIN_DIR" $out/share/zsh-syntax-highlighting
     '';
+  };
+
+  # give btop cuda and rocm support
+  btop = prev.btop.override {
+    rocmSupport = true;
+    cudaSupport = true;
   };
 }

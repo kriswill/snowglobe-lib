@@ -14,7 +14,7 @@ in
     description = "Image viewer from KDE plasma";
     programName = programName;
     packageName = programName;
-    inherit pkgs;
+    pkgs = pkgs.kdePackages;
   };
 
   config = lib.mkIf cfg.enable (

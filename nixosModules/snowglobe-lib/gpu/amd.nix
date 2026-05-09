@@ -15,9 +15,6 @@ in
       xserver.videoDrivers = [ "amdgpu" ];
     };
 
-    # provide special derivation that can monitor amdgpu stats
-    programs.btop.package = slib.setDefault pkgs.btop-rocm;
-
     hardware = {
       # allow overclocking
       amdgpu.overdrive.enable = slib.setDefault true;

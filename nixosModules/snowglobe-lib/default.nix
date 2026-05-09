@@ -20,45 +20,44 @@ in
         hasDesktop = (!(config.system.desktop == null));
       in
       {
-        # config for how the system will start
-        boot-config.enable = slib.setDefault true;
 
         # enable gpu configurations
         gpu =
           let
             gpu-vendors = config.system.gpu-vendors;
+            hasElem = builtins.elem;
           in
           {
-            amd.enable = builtins.elem "amd" gpu-vendors;
-            intel.enable = builtins.elem "intel" gpu-vendors;
-            nvidia.enable = builtins.elem "nvidia" gpu-vendors;
+            amd.enable = hasElem "amd" gpu-vendors;
+            intel.enable = hasElem "intel" gpu-vendors;
+            nvidia.enable = hasElem "nvidia" gpu-vendors;
           };
 
-        # other stuff
+        # TODO I dont think I did this right. very hacky but works. look into ntp
         dynamic-timezone.enable = slib.setDefault (
           config.networking.networkmanager.enable && config.time.timeZone == null
         );
+        # config for how the system will start
+        boot-config.enable = slib.setDefault true;
         headless-debloater.enable = slib.setDefault (!hasDesktop);
         desktop.enable = slib.setDefault hasDesktop;
-        program-configs.enable = slib.setDefault true;
+        # TODO make this a custom script instead of a wrapper around nh clean using store path time
         garbage-collector.enable = slib.setDefault true;
-        sops-config.enable = slib.setDefault true;
       };
 
     # core nixos modules
     # ------------------
 
     # extra caches
-    # use of custom substitutor module;
+    # use of custom substitutor module. see nixosModules/nixos/substituters.nix;
     substituters = {
+      # Warning: Personal server for ensuring package patches in overlays/package-patches get cached.
+      # TODO figure out some way to allow users to disable this in the installer. I cannot be trusted >:)
       "nix-store.earthgman.dev" = {
-        # TODO figure out some way to allow users to disable this in the installer. I cannot be trusted >:)
         enable = slib.setDefault true;
         publicKey = "nix-store.earthgman.dev:2Qrw9kS+K2c00ikcgaz5Y0M7j5XmkhFJz3d7oNgJdLw=";
-      };
-      "yazi.cachix.org" = {
-        enable = slib.setDefault true;
-        publicKey = "yazi.cachix.org-1:Dcdz63NZKfvUCbDGngQDAZq6kOroIrFoyO064uvLh8k=";
+        # set lower priority than cache.nixos.org by default
+        priority = slib.setDefault 100;
       };
     };
 
@@ -68,8 +67,9 @@ in
       # prefer to use flakes as channels are basically deprecated at this point
       channel.enable = slib.setDefault false;
       settings = {
-        # allow fallbacks if a substitutor is down
+        # allow fallbacks if a substituter is down
         fallback = slib.setDefault true;
+        # enable flakes
         experimental-features = [
           "nix-command"
           "flakes"
@@ -80,8 +80,12 @@ in
     };
 
     nixpkgs = {
+      # ensure that the nixpkgs config targets the proper system arch
+      # note this config.system.arch is not present in nixpkgs. it is populated by the custom installer
       hostPlatform = config.system.arch;
       config = {
+        # lift restrictions for unfree software
+        # you dont have to install it, but give users the ability to without hassle
         allowUnfree = slib.setDefault true;
       };
     };
@@ -94,6 +98,7 @@ in
     hardware.enableRedistributableFirmware = slib.setDefault (!config.system.isVM);
 
     networking = {
+      # use networkmanager for connections
       networkmanager.enable = slib.setDefault true;
       hostName = slib.setDefault config.system.name;
     };
@@ -110,6 +115,13 @@ in
       };
     };
 
+    # setup sops configuration
+    sops = {
+      defaultSopsFormat = slib.setDefault "yaml";
+      # set to roots config so new installs can edit secrets as the super user
+      age.keyFile = slib.setDefault "/root/.config/sops/age/keys.txt";
+    };
+
     environment = {
       # use dash as /bin/sh of choice
       # once again, override weights are hardcoded into nixpkgs
@@ -119,26 +131,32 @@ in
       sessionVariables = {
         SYSTEMD_KEYMAP_DIRECTORIES = slib.setDefault "${pkgs.kbd}/share/keymaps";
       };
+
+      systemPackages = with pkgs; [
+        # install sops cli tools
+        sops
+        age
+
+        # make sure terminfo for popular terminals is installed for smooth ssh connections
+        kitty.terminfo
+        alacritty.terminfo
+        foot.terminfo
+        ghostty.terminfo
+        wezterm.terminfo
+        st.terminfo
+      ];
     };
 
+    # give people zsh by default since most enthusists just replace bash with it anyway
+    # comes with syntaxhighlighting and autosuggesions enabled
     users.defaultUserShell = lib.mkOverride 899 config.programs.zsh.package;
 
-    # make sure that the virtual console respects the keymap chosen in the installer
+    # make sure that the virtual consoles (TTY) respect the keymap chosen in the installer
     console.useXkbConfig = slib.setDefault true;
 
-    # make sure terminfo for popular terminals is installed
-    environment.systemPackages = [
-      pkgs.kitty.terminfo
-      pkgs.alacritty.terminfo
-      pkgs.foot.terminfo
-      pkgs.ghostty.terminfo
-      pkgs.wezterm.terminfo
-      pkgs.st.terminfo
-    ];
-
-    # enable tools
+    # enable tools / software and their configurations
     programs = {
-      # alias to neovim
+      # use neovim and alias
       vim.enable = lib.mkForce false;
       # cat with colorized output
       bat.enable = slib.setDefault config.programs.tmux.enable;
@@ -146,20 +164,33 @@ in
       brightnessctl.enable = slib.setDefault true;
       # many useful unix utilities
       busybox.enable = slib.setDefault true;
-      # wrapper around several nixos tools
-      nh.enable = slib.setDefault true;
+      # wrapper around several nixos tools like nom and nvd
+      nh = {
+        enable = slib.setDefault true;
+        flake = slib.setDefault "/etc/nixos";
+      };
+      # degoogle chromium
+      chromium.package = slib.setDefault pkgs.ungoogled-chromium;
       # declarative disk partitioning tool
       disko.enable = slib.setDefault true;
+      # vencord
+      discord.package = slib.setDefault pkgs.vesktop;
+      # hardened firefox
+      firefox.package = slib.setDefault pkgs.librewolf;
       # bloat finder
       ncdu.enable = slib.setDefault true;
       # terminal multiplexer
       tmux.enable = slib.setDefault true;
+      # make sure libreoffice is bleeding edge
+      libreoffice.package = slib.setDefault pkgs.libreoffice-fresh;
       # editor
       neovim = {
         enable = slib.setDefault true;
         viAlias = slib.setDefault true;
         vimAlias = slib.setDefault true;
       };
+      # give otp support for 2fa with pass
+      password-store.package = slib.setDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
       # system information
       fastfetch.enable = slib.setDefault true;
       # file info fetcher
@@ -186,8 +217,12 @@ in
       yazi.enable = slib.setDefault true;
       # cli archive maker
       zip.enable = slib.setDefault true;
-      # improved bash shell with plugin support
-      zsh.enable = slib.setDefault true;
+      # that one shell that people always use
+      zsh = {
+        enable = slib.setDefault true;
+        autosuggestions.enable = slib.setDefault true;
+        syntaxHighlighting.enable = slib.setDefault true;
+      };
     };
 
     services = {

@@ -14,7 +14,7 @@ in
 
   hardware = {
     # To get drivers for various wireless devices
-    enableRedistributableFirmware = lib.mkDefault true;
+    enableAllFirmware = lib.mkDefault true;
 
     # no need for these on an installer
     cpu.intel.updateMicrocode = false;

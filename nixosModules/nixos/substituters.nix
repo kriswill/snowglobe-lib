@@ -16,6 +16,11 @@ in
         {
           options = {
             enable = lib.mkEnableOption "whether to trust this substituter";
+            priority = lib.mkOption {
+              description = "priority for this substituter cache (lower values = higher priority)";
+              type = lib.types.int;
+              default = 40;
+            };
             publicKey = lib.mkOption {
               description = "The public key for this substituter";
               type = lib.types.str;
@@ -44,7 +49,11 @@ in
     nix.settings = {
       substituters = lib.remove "" (
         lib.forEach (builtins.attrNames cfg) (
-          substituter: if (cfg.${substituter}.enable) then "https://" + substituter + "/" else ""
+          substituter:
+          let
+            priority = "?priority=${toString cfg.${substituter}.priority}";
+          in
+          if (cfg.${substituter}.enable) then "https://" + substituter + priority else ""
         )
       );
       trusted-public-keys = lib.remove "" (

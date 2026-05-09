@@ -14,11 +14,6 @@ in
   };
   config = lib.mkIf cfg.enable {
     services.xserver.videoDrivers = [ "nvidia" ];
-    programs = {
-      #   sway.extraOptions = [ "--unsupported-gpu" ]; # sway will not launch on nvidia without this set
-      # allow monitoring output through btop
-      btop.package = slib.setDefault pkgs.btop-cuda;
-    };
 
     hardware.nvidia = {
       modesetting.enable = slib.setDefault true;
