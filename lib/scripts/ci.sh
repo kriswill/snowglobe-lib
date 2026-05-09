@@ -32,21 +32,37 @@ _end_sequence() {
 	exit 0
 }
 
-for arg in "$@"; do
-	ARG_NAME=$(printf "%s" "$arg" | cut -d= -f1)
-	ARG_VAL=$(printf "%s" "$arg" | cut -d= -f2)
-	case "$ARG_NAME" in
-	"--check-only")
-		CHECK_ONLY=1
-		;;
-	"--clear-cache")
-		rm -rf "$XDG_CACHE_HOME/snowglobe-CI"
-		;;
-	"--check-registered-repos")
-		CHECK_REGISTERED_REPOS=1
-		;;
-	esac
-done
+# for arg in "$@"; do
+# 	ARG_NAME=$(printf "%s" "$arg" | cut -d= -f1)
+# 	ARG_VAL=$(printf "%s" "$arg" | cut -d= -f2)
+# 	case "$ARG_NAME" in
+# 	"--check-only")
+# 		CHECK_ONLY=1
+# 		;;
+# 	"--clear-cache")
+# 		rm -rf "$XDG_CACHE_HOME/snowglobe-CI"
+# 		;;
+# 	"--check-registered-repos")
+# 		CHECK_REGISTERED_REPOS=1
+# 		;;
+# 	esac
+# done
+
+MODE="$(printf "build testmonkey\ncheck repo flakes\nbuild all" | fzf)"
+case "$MODE" in
+"build testmonkey") ;;
+"check repo flakes")
+	CHECK_ONLY=1
+	CHECK_REGISTERED_REPOS=1
+	;;
+"build all")
+	CHECK_REGISTERED_REPOS=1
+	;;
+*)
+	printf "nothing selected\n"
+	exit 1
+	;;
+esac
 
 if [ ! -e .secrets/repo-urls.txt ] && [ "$CHECK_REGISTERED_REPOS" ]; then
 	printf "Error: repo-urls were not found or you are not in the project root.\n"
