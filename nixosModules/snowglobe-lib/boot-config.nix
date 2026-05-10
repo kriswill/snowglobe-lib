@@ -6,6 +6,7 @@
 }:
 let
   slib = import ../../lib/functions/module-wrappers { inherit lib; };
+  isUEFI = (config.snowglobe-lib.system.firmware == "UEFI");
 in
 {
   options.snowglobe-lib.boot-config.enable = lib.mkEnableOption "Snowglobe-Lib's grub configuration";
@@ -19,7 +20,7 @@ in
         timeout = slib.setDefault 10;
         grub = {
           enable = true;
-          efiSupport = (config.system.firmware == "UEFI");
+          efiSupport = isUEFI;
           devices = [ "nodev" ];
           gfxmodeEfi = slib.setDefault "1920x1080";
           gfxmodeBios = slib.setDefault "1920x1080";
@@ -33,7 +34,7 @@ in
               halt
             } 
           ''
-          + lib.optionalString (config.system.firmware == "UEFI") ''
+          + lib.optionalString isUEFI ''
             menuentry 'UEFI Firmware Settings' --id 'uefi-firmware' {
               fwsetup
             }

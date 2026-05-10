@@ -20,7 +20,7 @@ in
         environment.systemPackages = [ pkgs.dnsmasq ];
         boot.kernelModules =
           let
-            cpu-vendor = config.system.cpu-vendor;
+            cpu-vendor = config.snowglobe-lib.system.cpu-vendor;
           in
           lib.mkIf (cpu-vendor != null) [ "kvm-${cpu-vendor}" ];
         networking.firewall.trustedInterfaces = [ "virbr0" ];
@@ -38,7 +38,7 @@ in
           };
         };
       }
-      (lib.mkIf (config.system.desktop != null) {
+      (lib.mkIf (config.snowglobe-lib.system.desktop != null) {
         programs.virt-manager.enable = slib.setDefault true;
       })
     ]

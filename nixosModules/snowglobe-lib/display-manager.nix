@@ -1,4 +1,3 @@
-# wrapper for my 2 display-managers of choice sddm and ly, could add support for gdm in the future
 {
   pkgs,
   lib,

@@ -36,16 +36,18 @@ lib.nixosSystem {
     ++ [
       {
         snowglobe-lib.enable = slib.setDefault true;
+        nixpkgs.hostPlatform = system;
 
         # set secrets file
         sops.defaultSopsFile = lib.mkIf (sopsFile != null) sopsFile;
 
         # populate system options with hardware specific config
         system = {
+          inherit stateVersion;
           name = hostname;
-          arch = system;
+        };
+        snowglobe-lib.system = {
           inherit
-            stateVersion
             cpu-vendor
             gpu-vendors
             isVM

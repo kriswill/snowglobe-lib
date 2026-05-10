@@ -25,7 +25,7 @@ in
 
       desktop =
         let
-          activeDesktop = config.system.desktop;
+          activeDesktop = config.snowglobe-lib.system.desktop;
         in
         {
           niri.enable = (activeDesktop == "niri");

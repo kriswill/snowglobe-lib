@@ -1,8 +1,8 @@
 # create some additional system options that can be populated by lib.mkNixosHost
 { lib, ... }:
 {
-  options.system = {
-    arch = lib.mkOption {
+  options.snowglobe-lib.system = {
+    hostPlatform = lib.mkOption {
       description = "architecture of your system";
       type = lib.types.str;
       default = "x86_64-linux";
@@ -41,6 +41,13 @@
 
     isVM = lib.mkOption {
       description = "Whether this host is a qemu virtual machine.";
+      type = lib.types.bool;
+      example = true;
+      default = false;
+    };
+
+    isProxmoxLXC = lib.mkOption {
+      description = "Whether this host is an LXC container for proxmox VE.";
       type = lib.types.bool;
       example = true;
       default = false;

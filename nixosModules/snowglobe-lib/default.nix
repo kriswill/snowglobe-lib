@@ -17,14 +17,14 @@ in
     # -----------------------------
     snowglobe-lib =
       let
-        hasDesktop = (!(config.system.desktop == null));
+        hasDesktop = (!(config.snowglobe-lib.system.desktop == null));
       in
       {
 
         # enable gpu configurations
         gpu =
           let
-            gpu-vendors = config.system.gpu-vendors;
+            gpu-vendors = config.snowglobe-lib.system.gpu-vendors;
             hasElem = builtins.elem;
           in
           {
@@ -80,9 +80,6 @@ in
     };
 
     nixpkgs = {
-      # ensure that the nixpkgs config targets the proper system arch
-      # note this config.system.arch is not present in nixpkgs. it is populated by the custom installer
-      hostPlatform = config.system.arch;
       config = {
         # lift restrictions for unfree software
         # you dont have to install it, but give users the ability to without hassle
@@ -95,7 +92,7 @@ in
 
     # enable the linux-firmware repository if not in a virtual machine
     # TODO only qemu is supported
-    hardware.enableRedistributableFirmware = slib.setDefault (!config.system.isVM);
+    hardware.enableRedistributableFirmware = slib.setDefault (!config.snowglobe-lib.system.isVM);
 
     networking = {
       # use networkmanager for connections
