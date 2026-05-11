@@ -14,7 +14,7 @@ in
     lib.mkEnableOption "Snowglobe-Lib's cybersecurity suite. Installs a majority of tools present on Kali.";
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
-      (lib.mkIf (config.system.desktop != null) {
+      (lib.mkIf (config.snowglobe-lib.system.desktop != null) {
         programs = {
           ghidra.enable = lib.mkDefault true;
           john.package = lib.mkDefault pkgs.johnny;

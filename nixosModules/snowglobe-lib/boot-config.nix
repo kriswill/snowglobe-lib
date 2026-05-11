@@ -13,8 +13,6 @@ in
 
   config = lib.mkIf config.snowglobe-lib.boot-config.enable {
     boot = {
-      # TODO look into this
-      # plymouth.enable = lib.mkIf (config.system.desktop != null) slib.setDefault true;
       loader = {
         # give the user more time to select configurations for slower monitors
         timeout = slib.setDefault 10;

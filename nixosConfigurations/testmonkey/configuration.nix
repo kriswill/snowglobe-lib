@@ -37,6 +37,13 @@ in
       kde.enable = true;
     };
     libvirtd-qemu.enable = true;
+    profiles = {
+      office.enable = true;
+      hacker-mode.enable = true;
+      hardware-tools.enable = true;
+      nix-tools.enable = true;
+      gaming.enable = true;
+    };
   };
 
   hardware.enableAllFirmware = true;
