@@ -38,7 +38,7 @@ in
           };
         };
       }
-      (lib.mkIf (config.snowglobe-lib.system.desktop != null) {
+      (lib.mkIf (config.snowglobe-lib.desktop.enable) {
         programs.virt-manager.enable = slib.setDefault true;
       })
     ]

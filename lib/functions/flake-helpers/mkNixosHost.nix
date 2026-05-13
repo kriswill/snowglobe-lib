@@ -13,7 +13,6 @@ in
   cpu-vendor ? null, # cpu vendor, "intel" or "amd"
   gpu-vendors ? [ ], # list of gpu vendors, "intel" "nvidia" "amd"
   isVM ? false, # are we in a VM?
-  desktop ? null, # desktop environment?
   sopsFile ? null,
   stateVersion ? "26.05", # initial release of nixos which this machine was installed
   system ? "x86_64-linux", # target cpu architecture
@@ -51,7 +50,6 @@ lib.nixosSystem {
             cpu-vendor
             gpu-vendors
             isVM
-            desktop
             firmware
             ;
         };

@@ -14,10 +14,9 @@ in
     lib.mkEnableOption "Snowglobe-Lib's cybersecurity suite. Installs a majority of tools present on Kali.";
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
-      (lib.mkIf (config.snowglobe-lib.system.desktop != null) {
+      (lib.mkIf (config.snowglobe-lib.desktop.enable) {
         programs = {
           ghidra.enable = lib.mkDefault true;
-          john.package = lib.mkDefault pkgs.johnny;
           zenmap.enable = lib.mkDefault true;
           tor-browser.enable = lib.mkDefault true;
           wireshark.package = lib.mkDefault pkgs.wireshark; # install gui version if desktop is enabled
@@ -38,7 +37,7 @@ in
         environment.systemPackages = builtins.attrValues {
           inherit (pkgs)
             binutils
-            dig
+            dnsutils
             ;
         };
       }

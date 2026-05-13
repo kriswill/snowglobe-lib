@@ -2,13 +2,6 @@
 { lib, ... }:
 {
   options.snowglobe-lib.system = {
-    hostPlatform = lib.mkOption {
-      description = "architecture of your system";
-      type = lib.types.str;
-      default = "x86_64-linux";
-      example = "aarch64-linux";
-    };
-
     cpu-vendor = lib.mkOption {
       description = "Vendor of your cpu. (used for microcode updates and specific kernel modules)";
       type = lib.types.nullOr (
@@ -33,21 +26,8 @@
       default = [ ];
     };
 
-    desktop = lib.mkOption {
-      description = "The desktop environment.";
-      type = lib.types.nullOr (lib.types.str);
-      default = null;
-    };
-
     isVM = lib.mkOption {
       description = "Whether this host is a qemu virtual machine.";
-      type = lib.types.bool;
-      example = true;
-      default = false;
-    };
-
-    isProxmoxLXC = lib.mkOption {
-      description = "Whether this host is an LXC container for proxmox VE.";
       type = lib.types.bool;
       example = true;
       default = false;

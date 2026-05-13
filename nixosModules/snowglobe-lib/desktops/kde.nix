@@ -1,3 +1,6 @@
+# KDE plasma and other complex self-managing desktop environments do not work well on nixos due to lack of support and conflict of interest.
+# This hacky module exists to fix some weird obscurities with nixos and kde plasma.
+# I do not use this desktop so there is a good chance this may break in the future and support may end.
 {
   pkgs,
   lib,
@@ -12,7 +15,10 @@ in
   options.snowglobe-lib.desktop.kde.enable = lib.mkEnableOption "Snowglobe-Lib's KDE plasma module";
 
   config = lib.mkIf cfg.enable {
-    # script which will repair imperative icons pinned to taskbar and desktop by users
+    snowglobe-lib.desktop.enable = true;
+    # fix for one of the weird interactions with nixos and KDE.
+    # desktop icons pinned to toolbar or desktop get hard-coded to the nix store for some reason.
+    # this script ensures that links get corrected to the correct place for application assets on nixos (/run/current-system/sw/share/applications) on every rebuild
     system.userActivationScripts = {
       fix-plasma-icons.text = ''
         # script that will repair KDE plasma icons after a flake update.
@@ -43,7 +49,6 @@ in
 
     snowglobe-lib = {
       display-manager.enable = false; # allow kde to use its own display-manager config
-      flatpak-config.enable = false; # let kde take care of this too
     };
 
     # make sure plasma can manage the QT configuration independent of nix
@@ -51,22 +56,18 @@ in
     qt.style = lib.mkOverride 899 null;
 
     services = {
-      blueman.enable = false;
-
-      flatpak.enable = slib.setDefault true;
-
       # make sure sddm is enabled
       displayManager.sddm.enable = true;
-
+      # enable plasma6
       desktopManager.plasma6 = {
         enable = true;
       };
     };
 
+    # remove some bloat from kde
     environment = {
       plasma6.excludePackages = builtins.attrValues {
         inherit (pkgs.kdePackages)
-          elisa
           khelpcenter
           kinfocenter
           ;
@@ -77,6 +78,8 @@ in
     programs = {
       wl-clipboard.enable = true; # needed for some stuff
       gnome-calculator.enable = slib.setDefault true; # kde does not come with a calculator
+      # prefer discover instead of gnome-software from desktop.nix
+      gnome-software.enable = lib.mkOverride 1336 false;
 
       # disable pwvucontrol in favor of the default plasma volume control
       pwvucontrol.enable = lib.mkDefault false;

@@ -24,8 +24,8 @@ in
       # TODO some way to detect old cards which this does not work
       open = slib.setDefault true;
       # Enable the Nvidia settings menu,
-      # accessible via `nvidia-settings`.
-      nvidiaSettings = lib.mkIf (config.snowglobe-lib.system.desktop != null) (slib.setDefault true);
+      # accessible via `nvidia-settings`
+      nvidiaSettings = lib.mkIf config.snowglobe-lib.desktop.enable (slib.setDefault true);
 
       # latest nvidia drivers
       # nvidia loves dropping support for old cards, a manual override might be required

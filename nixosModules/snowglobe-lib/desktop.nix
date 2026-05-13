@@ -13,24 +13,10 @@ in
 
   config = lib.mkIf cfg.enable {
     snowglobe-lib = {
-      # uses sddm with astronaut qt6 theme
+      # TODO maybe redo this module
+      # uses sddm with astronaut qt6 theme by default
+      # can also be set to use "ly"
       display-manager.enable = slib.setDefault true;
-      # sound server
-      pipewire-config.enable = slib.setDefault true;
-
-      printing-config.enable = slib.setDefault true;
-
-      # apply configuration for flatpak if it is enabled
-      flatpak-config.enable = slib.setDefault true;
-
-      desktop =
-        let
-          activeDesktop = config.snowglobe-lib.system.desktop;
-        in
-        {
-          niri.enable = (activeDesktop == "niri");
-          kde.enable = (activeDesktop == "kde");
-        };
     };
 
     # make sure all parts of the networkmanager GUI work
@@ -43,14 +29,37 @@ in
     # TODO nixos-facter?
     # enable bluetooth
     hardware.bluetooth.enable = slib.setDefault true;
-    # GTK gui
+    # GTK gui for bluetooth
     services.blueman.enable = slib.setDefault true;
     # imperative sandboxed application management service
-    services.flatpak.enable = slib.setDefault true;
     # add a virtual camera for obs
     boot.extraModulePackages = [
       config.boot.kernelPackages.v4l2loopback
     ];
+
+    # use pipewire for the sound server
+    security.rtkit.enable = slib.setDefault true; # hands out realtime scheduling priority to user processes on demand. Improves performance of pulse
+    services.pipewire = {
+      # enables alsa, pulseaudio, and jack support by default
+      enable = slib.setDefault true;
+      alsa.enable = slib.setDefault true;
+      alsa.support32Bit = slib.setDefault true;
+      pulse.enable = slib.setDefault true;
+      jack.enable = slib.setDefault true;
+    };
+
+    # configure flatpak
+    services.flatpak.enable = slib.setDefault true;
+    # flatpak frontend of choice for (kde module will ensure discover is used instead)
+    programs.gnome-software.enable = slib.setDefault true;
+    # service from nixos wiki to automatically add flathub
+    systemd.services.flatpak-repo = {
+      wantedBy = [ "multi-user.target" ];
+      path = [ config.services.flatpak.package ];
+      script = ''
+        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      '';
+    };
 
     programs = {
       # gtk and gnome software database
@@ -65,7 +74,6 @@ in
       inherit (pkgs)
         # ensure a fully functional cursor and icon theme are installed
         adwaita-icon-theme
-
         # extra stuff
         xdg-utils
         xdg-user-dirs

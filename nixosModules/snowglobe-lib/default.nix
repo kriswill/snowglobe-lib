@@ -17,7 +17,7 @@ in
     # -----------------------------
     snowglobe-lib =
       let
-        hasDesktop = (!(config.snowglobe-lib.system.desktop == null));
+        hasDesktop = (config.snowglobe-lib.desktop.enable);
       in
       {
 
@@ -40,9 +40,6 @@ in
         # config for how the system will start
         boot-config.enable = slib.setDefault true;
         headless-debloater.enable = slib.setDefault (!hasDesktop);
-        desktop.enable = slib.setDefault hasDesktop;
-        # TODO make this a custom script instead of a wrapper around nh clean using store path time
-        garbage-collector.enable = slib.setDefault true;
       };
 
     # core nixos modules
@@ -165,6 +162,9 @@ in
       nh = {
         enable = slib.setDefault true;
         flake = slib.setDefault "/etc/nixos";
+        clean = {
+          enable = slib.setDefault true;
+        };
       };
       # degoogle chromium
       chromium.package = slib.setDefault pkgs.ungoogled-chromium;

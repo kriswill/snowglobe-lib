@@ -14,8 +14,30 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # autodiscovery and configuration of printers and printing drivers
-    snowglobe-lib.printing-config.enable = true;
+    # enable a working printing server by default
+    services = {
+      avahi = {
+        enable = slib.setDefault true;
+        nssmdns4 = slib.setDefault true;
+        openFirewall = slib.setDefault true;
+      };
+      printing = {
+        enable = slib.setDefault true;
+        browsed.enable = slib.setDefault false;
+        drivers = (
+          builtins.attrValues {
+            inherit (pkgs)
+              # hp printers
+              hplip
+              # ghostscript
+              gutenprint
+              # samsung printers
+              splix
+              ;
+          }
+        );
+      };
+    };
 
     programs = {
       # email

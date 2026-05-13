@@ -15,6 +15,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # shared desktop configuration
+    snowglobe-lib.desktop.enable = true;
     programs = {
       niri = {
         enable = true;
@@ -47,6 +49,7 @@ in
       # blue light filter
       sunsetr.enable = slib.setDefault true;
 
+      # TODO a nixos module exists for this. Look into it
       networkmanagerapplet.enable = true;
 
       waybar = {
@@ -55,19 +58,21 @@ in
         systemd.enable = slib.setDefault false;
       };
 
-      # volume control
+      # gtk volume control application for pipewire
       pwvucontrol = lib.mkIf (config.services.pipewire.enable) {
         enable = slib.setDefault true;
         # waybar hardcodes 'pavucontrol' in its default config
         pavucontrolAlias = slib.setDefault true;
       };
 
-      xwayland-satellite.enable = true;
+      # default xwayland implementation for niri
+      xwayland-satellite.enable = slib.setDefault true;
 
+      # clipboard tool for wayland
       wl-clipboard.enable = slib.setDefault true;
     };
 
-    # install a nerd font for icons
+    # install a nerd font for waybar icons
     fonts.packages = [ pkgs.nerd-fonts.meslo-lg ];
 
     # polkit agent written in gtk
@@ -90,6 +95,7 @@ in
       };
       systemPackages = builtins.attrValues {
         inherit (pkgs)
+          # notification daemon api
           libnotify
           ;
       };
