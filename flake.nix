@@ -15,7 +15,6 @@
 
       snowglobe-lib = import ./lib/functions {
         inherit
-          self
           inputs
           outputs
           lib
