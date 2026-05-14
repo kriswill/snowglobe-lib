@@ -1025,7 +1025,6 @@ printf '%s = slib.mkNixosHost {
 	firmware = "%s";
 	isVM = %s;
 	configDir = ./%s;
-	sopsFile = ./%s/secrets.yaml;
 	specialArgs = { inherit inputs; };
 	modules = [ outputs.nixosModules.default ];
 	stateVersion = "%s";
@@ -1038,7 +1037,6 @@ printf '%s = slib.mkNixosHost {
 	done)" \
 	"$FIRMWARE" \
 	"$IS_VM" \
-	"$HOSTNAME" \
 	"$HOSTNAME" \
 	"$NIXOS_VERSION" >>"$HOSTS_CONFIG_FILE"
 

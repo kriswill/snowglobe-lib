@@ -18,15 +18,15 @@ in
   system ? "x86_64-linux", # target cpu architecture
   modules ? [ ], # send extra modules to the function
   specialArgs ? { }, # send extra special arguments to the function
-  configDir ? self + /${hostname}, # path to the directory containing this hosts configuration
+  configDir ? null,
 }:
 lib.nixosSystem {
   inherit system; # used for legacy nixos < 22.05, but it doesn't hurt to have it here
   inherit specialArgs;
   modules =
     let
-      # hostConfig = if builtins.pathExists (configDir) then inputs.import-tree configDir else { };
-      hostConfig = inputs.import-tree configDir;
+      configDirExists = ((configDir != null) && (builtins.pathExists configDir));
+      hostConfig = if configDirExists then inputs.import-tree configDir else { };
     in
     [ outputs.nixosModules.default ]
     ++ [
@@ -35,7 +35,7 @@ lib.nixosSystem {
         nixpkgs.hostPlatform = system;
 
         # set secrets file
-        sops.defaultSopsFile = slib.setDefault "${configDir}/secrets.yaml";
+        sops.defaultSopsFile = lib.mkIf configDirExists (slib.setDefault "${configDir}/secrets.yaml");
 
         # populate system options with hardware specific config
         system = {
