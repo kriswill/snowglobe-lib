@@ -44,8 +44,6 @@ in
       thunderbird.enable = slib.setDefault true;
       # open source MSoffice
       libreoffice.enable = slib.setDefault true;
-      # image editor
-      gimp.enable = slib.setDefault true;
       # provide chromium as a backup browser in case something on firefox doesn't work due to poor web engineering
       chromium.enable = slib.setDefault true;
     };

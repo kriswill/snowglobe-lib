@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
-if [ "$(whoami)" != "root" ]; then
-	printf "You must be root.\n"
+_errormsg() {
+	printf "$1\n"
 	exit 1
+}
+
+if [ "$(whoami)" != "root" ]; then
+	_errormsg "You must be root."
 fi
 
 clear
 # ensure that the nix daemon is running
 if ! systemctl is-active nix-daemon >/dev/null; then
 	printf "Nix daemon is not running, starting it.\n"
-	systemctl start nix-daemon
+	systemctl start nix-daemon || _errormsg "Failed to start the nix-daemon"
 fi
 
 y_or_n() {
@@ -83,8 +87,7 @@ while ! curl -s ifconfig.me >/dev/null; do
 		clear
 		;;
 	*)
-		printf "Aborted.\n"
-		exit 1
+		_errormsg "Aborted"
 		;;
 	esac
 done
@@ -110,10 +113,7 @@ _clone_repo() {
 		break
 	done
 
-	git clone "$REPO_URL" --depth 1 "$REPO_DIR" || {
-		printf "\nSomething went wrong while pulling the repository\n"
-		exit 1
-	}
+	git clone "$REPO_URL" --depth 1 "$REPO_DIR" || _errormsg "\nSomething went wrong while pulling the repository"
 }
 
 _mv_repo() {
@@ -159,8 +159,7 @@ _get_hardware_info() {
 
 _get_nixos_hardware_config() {
 	if [ -z "$HOST_CONFIG_DIR" ]; then
-		printf "\nError: Hardware configuration function called without HOST_CONFIG_DIR being set. This is a bug.\n"
-		exit 1
+		_errormsg "\nError: Hardware configuration function called without HOST_CONFIG_DIR being set. This is a bug."
 	fi
 
 	HARDWARE_CONFIG="$HOST_CONFIG_DIR/hardware-configuration.nix"
@@ -186,11 +185,6 @@ _get_nixos_hardware_config() {
 		printf "}" >>"$HOST_CONFIG_DIR/configuration.nix"
 	fi
 
-	# assume that if /tmp/selected-disko-config.nix exists, the formatting process was run for this host and any existing config should be replaced by it
-	if [ -e /tmp/selected-disko-config.nix ] && [ -e "$HOST_CONFIG_DIR/disko.nix" ]; then
-		rm -f "$HOST_CONFIG_DIR/disko.nix"
-	fi
-
 	if [ ! -e "$HOST_CONFIG_DIR/disko.nix" ]; then
 		# get the disko file in place.
 		if [ ! -e /tmp/selected-disko-config.nix ]; then
@@ -206,7 +200,6 @@ _get_nixos_hardware_config() {
 	else
 		return 0
 	fi
-
 }
 
 _get_disk_info() {
@@ -244,10 +237,7 @@ _select_disk() {
 		)
 
 		if [ -z "$SELECTED_DISK" ]; then
-			y_or_n --msg="No disk was selected. Would you like to abort the installation" --default="no" && {
-				printf "Aborted\n"
-				exit 1
-			}
+			y_or_n --msg="No disk was selected. Would you like to abort the installation" --default="no" && _errormsg "Aborted"
 		else
 			printf "Selected Disk: %s\n" "$SELECTED_DISK"
 			break
@@ -273,10 +263,7 @@ _format_disks() {
 	printf "Note: These setups are very customizable and are for enthusists / advanced users only, so these will not be included by default.\n"
 	printf "For reference, the disko repository: https://github.com/nix-community/disko/example has several examples to help you get started.\n\n"
 
-	y_or_n --msg="Do you wish to proceed with formatting?" --default="yes" || {
-		printf "Aborted\n"
-		exit 1
-	}
+	y_or_n --msg="Do you wish to proceed with formatting?" --default="yes" || _errormsg "Aborted"
 
 	_failed_disko_condition() {
 		# will try its best detect whether the selected file is actually a disko file or is a bogus nix file
@@ -293,7 +280,7 @@ _format_disks() {
 				SELECTED_DISKO_CONFIG="$PRECONFIGURED_DISKO_FILE"
 				unset PRECONFIGURED_DISKO_FILE
 			else
-				y_or_n --msg="This host's disko file could not be found in your repo. Continue using another disko file?" || exit 1
+				y_or_n --msg="This host's disko file could not be found in your repo. Continue using another disko file?" || _errormsg "Aborted"
 			fi
 		}
 	fi
@@ -371,8 +358,7 @@ _format_disks() {
 	fi
 
 	if [ -z "$SELECTED_DISKO_CONFIG" ]; then
-		printf "Disko configuration variable is empty. This is a bug.\n"
-		exit 1
+		_errormsg "Disko configuration variable is empty. This is a bug."
 	fi
 
 	cat "$SELECTED_DISKO_CONFIG" >"$DISKO_CONFIG_PATH"
@@ -418,19 +404,10 @@ _install_nixos() {
 		printf "\nWARNING: Detected less than 4GB of free ram\nNixOS requires at least 4GB of free ram to install smoothly.\nCreating a 4GB swap file at /mnt/tmp/swap.\n"
 		printf "This file will be cleared upon next bootup and Zram swap will be enabled for this system to ensure it runs smoothly after install.\n"
 		mkdir -p /mnt/tmp
-		dd if=/dev/zero of=/mnt/tmp/swap bs=1024 count=4000000 || {
-			printf "\nError: Unable to create swap file.\n"
-			exit 1
-		}
-		mkswap /mnt/tmp/swap || {
-			printf "\nError: Could not use mkswap on that file\n"
-			exit 1
-		}
+		dd if=/dev/zero of=/mnt/tmp/swap bs=1024 count=4000000 || _errormsg "\nError: Unable to create swap file."
+		mkswap /mnt/tmp/swap || _errormsg "\nError: Could not use mkswap on that file"
 		chmod 600 /mnt/tmp/swap
-		swapon /mnt/tmp/swap || {
-			printf "\nError: Could not activate the swap file with swapon.\n"
-			exit 1
-		}
+		swapon /mnt/tmp/swap || _errormsg "\nError: Could not activate the swap file with swapon."
 	fi
 
 	if [ -n "$APPEND_MODE" ]; then
@@ -442,18 +419,11 @@ _install_nixos() {
 	if [ ! -d "$HOST_CONFIG_DIR/users" ]; then
 		# if no users have been configured, ensure root gets a password
 		# This password will not be declaratively stored with sops.
-		nixos-install --no-channel-copy --flake "/mnt/etc/nixos#$HOSTNAME" || {
-			printf "\nERROR: Installation failed or aborted.\n"
-			exit 1
-		}
+		nixos-install --no-channel-copy --flake "/mnt/etc/nixos#$HOSTNAME" || _errormsg "\nERROR: Installation failed or aborted."
 	else
-		nixos-install --no-channel-copy --no-root-password --flake "/mnt/etc/nixos#$HOSTNAME" || {
-			printf "\nERROR: Installation failed or aborted.\n"
-			exit 1
-		}
+		nixos-install --no-channel-copy --no-root-password --flake "/mnt/etc/nixos#$HOSTNAME" || _errormsg "\nERROR: Installation failed or aborted."
 	fi
 
-	# end of script
 	exit 0
 }
 
@@ -463,8 +433,6 @@ KEYRING_FILE="$CONFIG_ROOT/nixosModules/keyring.nix"
 
 printf "\nIf you have used the installer before, you might have already created a configuration for this host.\n"
 printf "Assuming you have read access to the remote repository, you can skip directly to the installation phase.\n"
-# TODO
-# printf "You can also use this mode to auto-detect and propagate hardware changes (such changes to disk layouts or gpu vendor) to your configuration.\n\n"
 
 y_or_n --msg="Install an existing configuration?" --default="no" && {
 	_clone_repo
@@ -479,30 +447,45 @@ y_or_n --msg="Install an existing configuration?" --default="no" && {
 			--border-label="Found the following configurations. Which would you like to install?")"
 		if [ -z "$HOSTNAME" ]; then
 			printf "\nNo host was selected\n"
-			y_or_n --msg="Would you like to try the selection again?" --default="yes" || {
-				printf "Aborted"
-				exit 1
-			}
+			y_or_n --msg="Would you like to try the selection again?" --default="yes" || _errormsg "Aborted"
 		fi
 	done
 
 	printf "\nSelected Host: %s\n" "$HOSTNAME"
 	REINSTALL_MODE=1
 
-	# TODO add hardware regeneration mode
 	_format_disks
 	mkdir -p "$CONFIG_ROOT"
 
 	HOST_CONFIG_DIR="$CONFIG_ROOT/nixosConfigurations/$HOSTNAME"
+	HOSTS_CONFIG_FILE="$CONFIG_ROOT/nixosConfigurations/default.nix"
 	_mv_repo
 	_get_nixos_hardware_config
+
+	# modify the arguments to the mkNixosHost function to reflect the host's current hardware state
+	# Also needed to update system.stateVersion
+	_get_hardware_info
+
+	_set_hardware_parameter() {
+		KEY_NAME="$1"
+		KEY_VAL="$2"
+		sed -i -r "/$HOSTNAME = slib.mkNixosHost/,/$KEY_NAME/ s|$KEY_NAME.*|"$KEY_NAME" = \"$KEY_VAL\";|" "$HOSTS_CONFIG_FILE"
+	}
+
+	_set_hardware_parameter "firmware" "$FIRMWARE"
+	_set_hardware_parameter "cpu-vendor" "$CPU_VENDOR"
+	_set_hardware_parameter "gpu-vendors" "[ $(for gpu in "${GPU_VENDORS[@]}"; do
+		printf "\"%s\" " "$gpu"
+	done) ]"
+	_set_hardware_parameter "isVM" "$IS_VM"
+	_set_hardware_parameter "stateVersion" "$NIXOS_VERSION"
 
 	printf "\nchecking configuration\n"
 	if [ "$(nix eval /mnt/etc/nixos'#'nixosConfigurations."$HOSTNAME".config.sops.secrets)" != "{ }" ]; then
 		SOPS_KEYFILE="$(nix eval /mnt/etc/nixos'#'nixosConfigurations."$HOSTNAME".config.sops.age.keyFile | tr -d '"')"
 		if [ ! -e "/mnt$SOPS_KEYFILE" ]; then
 			printf "\nDetected sops secrets from this configuration.\n"
-			printf "You will need to imperatively place your private age key file at /mnt%s before you continue\n" "$SOPS_KEYFILE"
+			printf "You will need to imperatively place your private age keys at /mnt%s before you continue\n" "$SOPS_KEYFILE"
 			printf "Press any key to continue..."
 			read -rn1 some_key
 			unset some_key
@@ -643,7 +626,7 @@ _select_optional_profiles() {
 	y_or_n --msg="Install programs for hardware diagnostics?" --default="no" && ENABLED_PROFILES+=("hardware-tools")
 	if [ "$SELECTED_DESKTOP" ]; then
 		y_or_n --msg="Install modules for gaming? (steam, lutris, hardware diagnostic tools, etc?)" --default="no" && ENABLED_PROFILES+=("gaming")
-		y_or_n --msg="Install programs for office work? (libreoffice, email client, gimp, etc?)" --default="no" && ENABLED_PROFILES+=("office")
+		y_or_n --msg="Install programs for office work? (libreoffice, email client, local CUPS printing server, etc?)" --default="no" && ENABLED_PROFILES+=("office")
 	fi
 	y_or_n --msg="Install penetration and security testing tools from Kali Linux? (nmap, tor-browser, john-the-ripper, wireshark, etc)" --default="no" && ENABLED_PROFILES+=("hacker-mode")
 	y_or_n --msg="Install additional nix tools? (recommended for developers)" --default="no" && ENABLED_PROFILES+=("nix-tools")
@@ -840,8 +823,7 @@ if [ -z "$APPEND_MODE" ]; then
 		}" | install -D /dev/stdin "$CONFIG_ROOT/overlays/default.nix"
 else
 	if [ -z "$REPO_DIR" ]; then
-		printf "Error: Repo not found but append mode was specified, this is a bug.\n"
-		exit 1
+		_errormsg "Error: Repo not found but append mode was specified, this is a bug."
 	fi
 
 	_mv_repo
@@ -931,10 +913,7 @@ fi
 if [ -z "$AGE_KEY_NAME" ]; then
 	# key generation
 	printf "\nGenerating age key-pair...\n"
-	age-keygen -o "$KEY_FILE_PATH" >/dev/null || {
-		printf "Failed to generate age key pair.\n"
-		exit 1
-	}
+	age-keygen -o "$KEY_FILE_PATH" >/dev/null || _errormsg "Failed to generate age key pair.\n"
 	AGE_KEY_VALUE=$(cat "$KEY_FILE_PATH" | grep "public key:" | cut -d ":" -f2 | tr -d " ")
 
 	while :; do
@@ -1013,6 +992,10 @@ printf '{ pkgs, lib, config, ... }:
 ' \
 	"$LOCALE" "$XKB_LAYOUT" >"$HOST_CONFIG_DIR/configuration.nix"
 
+if [ ${SELECTED_DESKTOP+x} ]; then
+	printf "snowglobe-lib.desktop.%s.enable = true;\n" "$SELECTED_DESKTOP" >>"$HOST_CONFIG_DIR/configuration.nix"
+fi
+
 if [ "$ENABLED_PROFILES" ]; then
 	printf "\n# custom profiles\n" >>"$HOST_CONFIG_DIR/configuration.nix"
 	for profile in "${ENABLED_PROFILES[@]}"; do
@@ -1021,14 +1004,6 @@ if [ "$ENABLED_PROFILES" ]; then
 fi
 
 printf "}" >>"$HOST_CONFIG_DIR/configuration.nix"
-
-printf "# enable and disable programs
-{ }
-" | install -D /dev/stdin "$HOST_CONFIG_DIR/programs/default.nix"
-
-printf "# enable and disable services
-{ }
-" | install -D /dev/stdin "$HOST_CONFIG_DIR/services/default.nix"
 
 # write new host to the global hosts configuration file
 if [ "$APPEND_MODE" ]; then
@@ -1049,7 +1024,6 @@ printf '%s = slib.mkNixosHost {
 	gpu-vendors = [ %s ];
 	firmware = "%s";
 	isVM = %s;
-	%s
 	configDir = ./%s;
 	sopsFile = ./%s/secrets.yaml;
 	specialArgs = { inherit inputs; };
@@ -1064,11 +1038,6 @@ printf '%s = slib.mkNixosHost {
 	done)" \
 	"$FIRMWARE" \
 	"$IS_VM" \
-	"$(if [ -n "$SELECTED_DESKTOP" ]; then
-		printf 'desktop = "%s";' "$SELECTED_DESKTOP"
-	else
-		printf 'desktop = null;'
-	fi)" \
 	"$HOSTNAME" \
 	"$HOSTNAME" \
 	"$NIXOS_VERSION" >>"$HOSTS_CONFIG_FILE"
@@ -1449,10 +1418,7 @@ _format_secret /etc/ssh/ssh_host_rsa_key
 
 # encrypt the secrets
 if [ -e "$CONFIG_ROOT/$SOPS_FILE" ]; then
-	sops --config "$CONFIG_ROOT/.sops.yaml" -e -i "$CONFIG_ROOT/$SOPS_FILE" || {
-		printf "Failed to encrypt the secrets file for this host.\n"
-		exit 1
-	}
+	sops --config "$CONFIG_ROOT/.sops.yaml" -e -i "$CONFIG_ROOT/$SOPS_FILE" || _errormsg "Failed to encrypt the secrets file for this host."
 fi
 
 for i in $(find "$CONFIG_ROOT" -type f -not -path '*/.*'); do

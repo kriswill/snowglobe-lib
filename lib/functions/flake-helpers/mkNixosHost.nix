@@ -2,6 +2,7 @@
   inputs,
   outputs,
   lib,
+  self,
   ...
 }:
 let
@@ -13,23 +14,19 @@ in
   cpu-vendor ? null, # cpu vendor, "intel" or "amd"
   gpu-vendors ? [ ], # list of gpu vendors, "intel" "nvidia" "amd"
   isVM ? false, # are we in a VM?
-  sopsFile ? null,
   stateVersion ? "26.05", # initial release of nixos which this machine was installed
   system ? "x86_64-linux", # target cpu architecture
   modules ? [ ], # send extra modules to the function
   specialArgs ? { }, # send extra special arguments to the function
-  configDir ? null, # path to the directory containing this hosts configuration
+  configDir ? self + /${hostname}, # path to the directory containing this hosts configuration
 }:
 lib.nixosSystem {
   inherit system; # used for legacy nixos < 22.05, but it doesn't hurt to have it here
   inherit specialArgs;
   modules =
     let
-      hostConfig =
-        if (configDir != null) && builtins.pathExists (configDir) then
-          inputs.import-tree configDir
-        else
-          { };
+      # hostConfig = if builtins.pathExists (configDir) then inputs.import-tree configDir else { };
+      hostConfig = inputs.import-tree configDir;
     in
     [ outputs.nixosModules.default ]
     ++ [
@@ -38,7 +35,7 @@ lib.nixosSystem {
         nixpkgs.hostPlatform = system;
 
         # set secrets file
-        sops.defaultSopsFile = lib.mkIf (sopsFile != null) sopsFile;
+        sops.defaultSopsFile = slib.setDefault "${configDir}/secrets.yaml";
 
         # populate system options with hardware specific config
         system = {
