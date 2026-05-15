@@ -417,7 +417,7 @@ _install_nixos() {
 		swapon /mnt/tmp/swap || _errormsg "\nError: Could not activate the swap file with swapon."
 	fi
 
-	if [ -n "$APPEND_MODE" ]; then
+	if [ "$REPO_DIR" ]; then
 		# the infamous bug with nix flakes where if the new files are not added to git they cannot be realized to the /nix/store
 		git -C "$CONFIG_ROOT" add "$CONFIG_ROOT"
 	fi
