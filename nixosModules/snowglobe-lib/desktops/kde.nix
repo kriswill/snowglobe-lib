@@ -47,17 +47,13 @@ in
       '';
     };
 
-    snowglobe-lib = {
-      display-manager.enable = false; # allow kde to use its own display-manager config
-    };
-
     # make sure plasma can manage the QT configuration independent of nix
     qt.platformTheme = lib.mkOverride 899 null;
     qt.style = lib.mkOverride 899 null;
 
     services = {
-      # make sure sddm is enabled
-      displayManager.sddm.enable = true;
+      # make sure ly is disabled
+      displayManager.ly.enable = false;
       # enable plasma6
       desktopManager.plasma6 = {
         enable = true;

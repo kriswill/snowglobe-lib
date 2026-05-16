@@ -12,13 +12,8 @@ in
   options.snowglobe-lib.desktop.enable = lib.mkEnableOption "Snowglobe-Lib's modules for systems with a desktop environment";
 
   config = lib.mkIf cfg.enable {
-    snowglobe-lib = {
-      # TODO maybe redo this module
-      # uses sddm with astronaut qt6 theme by default
-      # can also be set to use "ly"
-      display-manager.enable = slib.setDefault true;
-    };
-
+    # add a lightweight display-manager
+    services.displayManager.ly.enable = slib.setDefault true;
     # make sure all parts of the networkmanager GUI work
     networking.networkmanager.plugins = builtins.attrValues {
       inherit (pkgs)

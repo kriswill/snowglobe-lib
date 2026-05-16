@@ -17,8 +17,6 @@ in
     inputs.jovian-nixos.nixosModules.jovian
   ];
 
-  snowglobe-lib.display-manager.enable = false;
-
   jovian = {
     steam = {
       enable = slib.setDefault true;
