@@ -80,8 +80,12 @@ in
         ;
     };
 
-    # free fonts that support many languges and locales
-    fonts.packages = [ pkgs.noto-fonts ];
+    fonts.packages = [
+      # free fonts that support many locales
+      pkgs.noto-fonts
+      # ensure a nerd font is installed
+      pkgs.nerd-fonts.meslo-lg
+    ];
 
     # configures the xdg-desktop-portal, allowing standardized interprocess communication between applications
     # EX: opening a link from some app in the default browser
