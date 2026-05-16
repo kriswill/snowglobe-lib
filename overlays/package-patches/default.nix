@@ -20,6 +20,24 @@
     runtimeInputs = prev.ani-cli.runtimeInputs ++ [ prev.libressl ];
   });
 
+  # labwc from nixpkgs does not include the new labwc-session.target for systemd
+  labwc = prev.labwc.overrideAttrs (_: rec {
+    version = "0.9.5";
+    src = prev.fetchFromGitHub {
+      owner = "labwc";
+      repo = "labwc";
+      rev = "8473ea4b722b7f255590078ac9868538d853f5dd";
+      hash = "sha256-0JfOhTDAS7la6OGWPCOmFShLI+d8ThYXfh1dXhQ8M5M=";
+    };
+
+    # replace wlroots 0.19 with 0.20
+    buildInputs = (prev.lib.remove prev.wlroots_0_19 (prev.labwc.buildInputs)) ++ [
+      prev.wlroots_0_20
+    ];
+
+    patches = [ ./labwc-meson-build.patch ];
+  });
+
   # fix the symlinks in zsh-syntax-highlighting
   zsh-syntax-highlighting = prev.zsh-syntax-highlighting.overrideAttrs {
     installPhase = ''
