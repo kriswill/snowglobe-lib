@@ -35,6 +35,7 @@ in
     desktop = {
       niri.enable = true;
       kde.enable = true;
+      labwc.enable = true;
     };
     libvirtd-qemu.enable = true;
     profiles = {
