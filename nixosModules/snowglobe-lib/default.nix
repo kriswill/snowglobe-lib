@@ -17,10 +17,9 @@ in
     # -----------------------------
     snowglobe-lib =
       let
-        hasDesktop = (config.snowglobe-lib.desktop.enable);
+        hasDesktop = (config.snowglobe-lib.system.hasDesktop);
       in
       {
-
         # enable gpu configurations
         gpu =
           let

@@ -15,6 +15,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    snowglobe-lib.system.hasDesktop = lib.mkForce true;
     # shared desktop configuration
     snowglobe-lib.desktop = {
       enable = lib.mkForce true;

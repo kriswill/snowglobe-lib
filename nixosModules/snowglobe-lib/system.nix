@@ -33,6 +33,13 @@
       default = false;
     };
 
+    hasDesktop = lib.mkOption {
+      description = "Whether this host has a desktop environment";
+      type = lib.types.bool;
+      example = true;
+      default = false;
+    };
+
     firmware = lib.mkOption {
       description = "Firmware implmentation";
       type = lib.types.nullOr (
