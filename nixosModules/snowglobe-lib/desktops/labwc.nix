@@ -12,7 +12,10 @@ in
   options.snowglobe-lib.desktop.labwc.enable = lib.mkEnableOption "Snowglobe-Lib's labwc module";
 
   config = lib.mkIf cfg.enable {
-    snowglobe-lib.desktop.enable = true;
+    snowglobe-lib.desktop = {
+      enable = lib.mkForce true;
+      installWaylandDeps = lib.mkForce true;
+    };
     programs = {
       labwc.enable = true;
       # default terminal

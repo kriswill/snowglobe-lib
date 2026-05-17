@@ -17,6 +17,8 @@ in
     user = "bob";
     desktopSession = "niri";
   };
+
+  services.displayManager.sddm.enable = lib.mkForce false;
   # custom program options
   programs =
     let
