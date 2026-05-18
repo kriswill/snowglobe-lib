@@ -23,10 +23,17 @@ in
 
     # install programs for hyprland's default config
     programs = {
+      hyprland = {
+        enable = true;
+        # use uwsm to start graphical-session.target by default
+        withUWSM = slib.setDefault true;
+      };
       # default terminal
       kitty.enable = slib.setDefault true;
       # default filemanager
       dolphin.enable = slib.setDefault true;
+      # default menu
+      hyprlauncher.enable = slib.setDefault true;
     };
   };
 }
