@@ -591,12 +591,17 @@ _select_desktop_environment() {
 Very similar to Microsoft Windows 11.
 Perfect for beginners."
 
+	LABWC_DESCRIPTION="A very simple and lightweight wayland compositor that uses
+a stacking window layout."
+
+	HYPRLAND_DESCRIPTION="A high-quality, modern DIY wayland window manager.
+Uses a traditional dynamic tiling layout. with an emphasis on looks and visuals."
+
 	NIRI_DESCRIPTION="A high-quality, modern DIY wayland window manager.
-Uses infinite scrolling windows in a tiled format.
-Recommended for enthusists / advanced users only."
+Uses infinite scrolling windows in a tiled format."
 
 	# TODO support some more desktops
-	DESKTOPS=("Niri" "KDE" "None")
+	DESKTOPS=("Niri" "KDE" "LabWC" "Hyprland" "None")
 
 	while [ -z "$SELECTED_DESKTOP" ]; do
 		SELECTED_DESKTOP=$(
