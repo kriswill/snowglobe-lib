@@ -18,7 +18,10 @@ in
       installWaylandDeps = lib.mkForce true;
     };
     programs = {
-      labwc.enable = true;
+      labwc = {
+        enable = true;
+        withUWSM = slib.setDefault true;
+      };
       # default terminal
       foot.enable = slib.setDefault true;
       # applications and dmenu
