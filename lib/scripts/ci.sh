@@ -32,31 +32,66 @@ _end_sequence() {
 	exit 0
 }
 
-# for arg in "$@"; do
-# 	ARG_NAME=$(printf "%s" "$arg" | cut -d= -f1)
-# 	ARG_VAL=$(printf "%s" "$arg" | cut -d= -f2)
-# 	case "$ARG_NAME" in
-# 	"--check-only")
-# 		CHECK_ONLY=1
-# 		;;
-# 	"--clear-cache")
-# 		rm -rf "$XDG_CACHE_HOME/snowglobe-CI"
-# 		;;
-# 	"--check-registered-repos")
-# 		CHECK_REGISTERED_REPOS=1
-# 		;;
-# 	esac
-# done
+# auto builds, signs, and uploads all installer images to the cache website
+_build_installers() {
+	WEBSITE_IP="192.168.25.85"
 
-MODE="$(printf "build testmonkey\ncheck repo flakes\nbuild all" | fzf)"
+	if ! ping -c 1 $WEBSITE_IP; then
+		printf "Unable to reach cache server at: %s\n" "$WEBSITE_IP"
+		exit 1
+	fi
+
+	# stop the post-build-hook-queue so the images aren't uploaded to the nix cache
+	if systemctl is-active nix-post-build-hook-queue >/dev/null 2>&1; then
+		printf "nix-post-build-hook-queue is enabled. Authenticate to disable.\n"
+		sudo systemctl stop nix-post-build-hook-queue.socket
+		sudo systemctl stop nix-post-build-hook-queue
+	fi
+
+	INSTALLERS=$(
+		for configuration in $(nix eval ".#nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"'); do
+			printf "%s\n" "$configuration"
+		done | grep 'snowglobe-installer'
+	)
+
+	mkdir -p "$XDG_CACHE_HOME/snowglobe-CI/installers" || exit 1
+
+	for image in $INSTALLERS; do
+		# store isos so they can be shared between hosts
+		ISO_DEST_PATH=~/src/isos/$image.iso
+		HASH_DEST_PATH="$XDG_CACHE_HOME/snowglobe-CI/installers/$image.iso.sha256"
+		nixos-rebuild build-image --image-variant iso-installer --flake .\#"$image" || {
+			printf "Could not build the installer image: %s" "$image"
+			exit 1
+		}
+
+		if [ -e "$ISO_DEST_PATH" ]; then
+			rm -f "$ISO_DEST_PATH"
+		fi
+
+		cp result/iso/* "$ISO_DEST_PATH"
+
+		sha256sum "$ISO_DEST_PATH" | cut -d ' ' -f1 >"$HASH_DEST_PATH"
+		gpg --sign --default-key 'EarthGman@protonmail.com' "$HASH_DEST_PATH"
+
+		scp "$ISO_DEST_PATH" "$HASH_DEST_PATH"".gpg" "root@$WEBSITE_IP:/srv/snowglobe-installers"
+		rm "$HASH_DEST_PATH"
+	done
+}
+
+MODE="$(printf "build testmonkey\ncheck repo flakes\nbuild registered\nbuild installers" | fzf)"
 case "$MODE" in
 "build testmonkey") ;;
 "check repo flakes")
 	CHECK_ONLY=1
 	CHECK_REGISTERED_REPOS=1
 	;;
-"build all")
+"build registered")
 	CHECK_REGISTERED_REPOS=1
+	;;
+"build installers")
+	_build_installers || exit 1
+	exit 0
 	;;
 *)
 	printf "nothing selected\n"
