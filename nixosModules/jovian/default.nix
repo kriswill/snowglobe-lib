@@ -28,6 +28,9 @@ in
     decky-loader.enable = slib.setDefault true;
   };
 
+  # disable ly as jovian enables sddm
+  services.displayManager.ly.enable = false;
+
   system.userActivationScripts = {
     enable-decky = ''
       ENABLE_DEBUGGING_PATH="$HOME/.steam/steam/.cef-enable-remote-debugging"
