@@ -16,7 +16,11 @@ y_or_n() {
 _notify() {
 	STATUS=$1
 	MSG=$2
-	notify-send -a "snowglobe-rebuild" "$STATUS" "$MSG" || printf "%s\n" "$MSG"
+	if command -v notify-send >/dev/null 2>&1; then
+		notify-send -a "snowglobe-rebuild" "$STATUS" "$MSG" || printf "%s\n" "$MSG"
+	else
+		printf "%s: %s" "$STATUS" "$MSG"
+	fi
 	[ "$STATUS" = "Error" ] && exit 1
 }
 
