@@ -59,12 +59,7 @@ for arg in "$@"; do
 		;;
 
 	"--update-inputs")
-		# TODO list of inputs to update
 		INPUTS_TO_UPDATE=$(printf "%s" "$ARG_VAL" | tr ',' ' ')
-		if [ -z "$INPUTS_TO_UPDATE" ]; then
-			INPUTS_TO_UPDATE='snowglobe-lib'
-		fi
-		nix flake update "$INPUTS_TO_UPDATE"
 		;;
 	"--config-dir")
 		if [ -z "$ARG_VAL" ]; then
@@ -95,6 +90,12 @@ if [ -d "$CONFIG_DIR/.git" ]; then
 fi
 
 cd "$CONFIG_DIR" || printf "Error: could not change working directory to %s" "$CONFIG_DIR"
+
+if [ "$INPUTS_TO_UPDATE" ]; then
+	for input in $INPUTS_TO_UPDATE; do
+		nix flake update "$input"
+	done
+fi
 
 if [ "$GIT_REPO_PRESENT" ]; then
 	git ls-remote || {
