@@ -66,10 +66,6 @@ in
         hardware.bluetooth.enable = slib.setDefault true;
         # GTK gui for bluetooth
         services.blueman.enable = slib.setDefault true;
-        # add a virtual camera for obs
-        boot.extraModulePackages = [
-          config.boot.kernelPackages.v4l2loopback
-        ];
 
         # polkit agent written in gtk for any desktop
         security.soteria.enable = slib.setDefault true;
