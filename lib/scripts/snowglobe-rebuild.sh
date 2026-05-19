@@ -19,7 +19,7 @@ _notify() {
 	if command -v notify-send >/dev/null 2>&1; then
 		notify-send -a "snowglobe-rebuild" "$STATUS" "$MSG" || printf "%s\n" "$MSG"
 	else
-		printf "%s: %s" "$STATUS" "$MSG"
+		printf "%s: %s\n" "$STATUS" "$MSG"
 	fi
 	[ "$STATUS" = "Error" ] && exit 1
 }
@@ -85,7 +85,7 @@ fi
 CONFIG_DIR="$(readlink -f "$CONFIG_DIR")"
 
 if [ ! -e "$CONFIG_DIR/flake.nix" ]; then
-	printf "Error: no flake.nix was found in the specified configuration directory: %s" "$CONFIG_DIR"
+	printf "Error: no flake.nix was found in the specified configuration directory: %s\n" "$CONFIG_DIR"
 	exit 1
 fi
 
