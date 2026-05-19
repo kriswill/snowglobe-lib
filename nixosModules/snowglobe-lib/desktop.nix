@@ -115,6 +115,8 @@ in
           firefox.enable = slib.setDefault true;
           # file manager
           nautilus.enable = slib.setDefault true;
+          # lightweight notepad clone
+          mousepad.enable = slib.setDefault true;
           # low battery notifier for laptops
           batsignal = {
             enable = slib.setDefault true;
