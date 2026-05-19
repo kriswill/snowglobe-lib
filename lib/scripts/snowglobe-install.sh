@@ -243,6 +243,7 @@ _select_disk() {
 }
 
 _format_disks() {
+	clear
 	DISKO_CONFIG_PATH="/tmp/selected-disko-config.nix"
 	# edge case where it is unknown what is mounted so the user's input is required
 	if [ -n "$(ls -A /mnt 2>/dev/null)" ]; then
@@ -587,21 +588,22 @@ _select_xkb_layout() {
 _select_desktop_environment() {
 	unset SELECTED_DESKTOP
 
-	KDE_DESCRIPTION="A modern all inclusive desktop environment for wayland.
+	KDE_DESCRIPTION="A modern all inclusive desktop environment.
 Very similar to Microsoft Windows 11.
 Perfect for beginners."
 
-	LABWC_DESCRIPTION="A very simple and lightweight wayland compositor that uses
-a stacking window layout."
+	LABWC_DESCRIPTION="A very simple and lightweight DIY wayland compositor
+that uses a stacking window layout."
 
 	HYPRLAND_DESCRIPTION="A high-quality, modern DIY wayland window manager.
-Uses a traditional dynamic tiling layout. with an emphasis on looks and visuals."
+Uses a traditional dynamic tiling layout
+with an emphasis on visual appearance."
 
 	NIRI_DESCRIPTION="A high-quality, modern DIY wayland window manager.
 Uses infinite scrolling windows in a tiled format."
 
 	# TODO support some more desktops
-	DESKTOPS=("Niri" "KDE" "LabWC" "Hyprland" "None")
+	DESKTOPS=("KDE" "Niri" "LabWC" "Hyprland" "None")
 
 	while [ -z "$SELECTED_DESKTOP" ]; do
 		SELECTED_DESKTOP=$(
@@ -615,11 +617,21 @@ Uses infinite scrolling windows in a tiled format."
 				--border-label='Select a desktop environment' \
 				--preview-window 'right,75%,border-left' \
 				--preview "
-  if [ {} = 'Niri' ]; then
-    printf '$NIRI_DESCRIPTION'
-  elif [ {} = 'KDE' ]; then
+case {} in
+  'KDE')
     printf '$KDE_DESCRIPTION'
-  fi
+    ;;
+  'Niri')
+    printf '$NIRI_DESCRIPTION'
+    ;;
+  'LabWC')
+    printf '$LABWC_DESCRIPTION'
+    ;;
+  'Hyprland')
+    printf '$HYPRLAND_DESCRIPTION'
+    ;;
+  *) ;;
+esac
 	" | tr '[:upper:]' '[:lower:]'
 		)
 		if [ -z "$SELECTED_DESKTOP" ]; then
@@ -814,7 +826,7 @@ if [ -z "$APPEND_MODE" ]; then
 			#	  ...
 			# })
 			];
-	}" | install -D /dev/stdin "$DEFAULT_MODULES_DIR"
+	}" | install -D /dev/stdin "$DEFAULT_MODULES_DIR/default.nix"
 
 	# packages
 	printf "
