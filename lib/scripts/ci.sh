@@ -25,7 +25,7 @@ y_or_n() {
 }
 
 _end_sequence() {
-	notify-send -a "snowglobe-CI" "ci.sh" "Configuration Checks successful\!"
+	notify-send -a "snowglobe-CI" "ci.sh" "Configuration Checks complete"
 	if systemctl is-active nix-post-build-hook-queue >/dev/null; then
 		y_or_n "disable post-build-hook-queue?" && sudo systemctl stop nix-post-build-hook-queue
 	fi
@@ -110,7 +110,7 @@ if [ ! -d nixosConfigurations/testmonkey ]; then
 fi
 
 # use nix-post-build-hook-queue to push modified packages to nix-store.earthgman.dev
-if [ -z "$CHECK_ONLY" ] && ! systemctl is-active nix-post-build-hook-queue >/dev/null; then
+if [ -z "$CHECK_ONLY" ] && systemctl list-units | grep -q nix-post-build-hook-queue && ! systemctl is-active nix-post-build-hook-queue >/dev/null; then
 	printf "Build hook queue is not enabled Authenticate to enable the service.\n"
 	if ! systemctl is-active nix-post-build-hook-queue.socket >/dev/null; then
 		sudo systemctl start nix-post-build-hook-queue.socket

@@ -117,6 +117,10 @@ in
           nautilus.enable = slib.setDefault true;
           # lightweight notepad clone
           mousepad.enable = slib.setDefault true;
+          # volume control for pipewire-pulse
+          pwvucontrol.enable = slib.setDefault true;
+          # calculator app
+          gnome-calculator.enable = slib.setDefault true;
           # low battery notifier for laptops
           batsignal = {
             enable = slib.setDefault true;

@@ -12,6 +12,21 @@ in
   options.snowglobe-lib.desktop.kde.enable = lib.mkEnableOption "Snowglobe-Lib's KDE plasma module";
 
   config = lib.mkIf cfg.enable {
+    # ensure KDE cannot be enabled with DIY desktops, too many things will break due to KDE's invasiveness
+    assertions =
+      lib.mkIf
+        (
+          config.snowglobe-lib.desktop.niri.enable
+          || config.snowglobe-lib.desktop.hyprland.enable
+          || config.snowglobe-lib.desktop.labwc.enable
+        )
+        [
+          {
+            assertion = false;
+            message = "You cannot use other snowglobe-lib.desktop modules in conjuction with KDE.";
+          }
+        ];
+
     snowglobe-lib = {
       system.hasDesktop = lib.mkForce true;
       desktop = {
@@ -75,11 +90,7 @@ in
       };
     };
 
-    # plasma does not come with a calculator
     programs = {
-      wl-clipboard.enable = true; # needed for some stuff
-      gnome-calculator.enable = slib.setDefault true; # kde does not come with a calculator
-
       # disable pwvucontrol in favor of the default plasma volume control
       pwvucontrol.enable = lib.mkDefault false;
     };
