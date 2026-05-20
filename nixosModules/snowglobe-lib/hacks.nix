@@ -23,9 +23,11 @@ in
       lib.mkIf (config.services.displayManager.ly.enable) "X-NIXOS-SYSTEMD-AWARE";
 
     # force polkit soteria to tear itself down properly on sessions not using uwsm like Niri
-    systemd.user.services.polkit-soteria.unitConfig = lib.mkIf config.security.soteria.enable {
-      Requisite = [ "graphical-session.target" ];
-    };
+    systemd.user.services.polkit-soteria = lib.mkIf config.security.soteria.enable ({
+      unitConfig = {
+        Requisite = [ "graphical-session.target" ];
+      };
+    });
 
     systemd.user.services.polkit-gnome-autentication-agent-1 = lib.mkIf cfg.polkit-gnome.enable (
       slib.mkGraphicalService {
