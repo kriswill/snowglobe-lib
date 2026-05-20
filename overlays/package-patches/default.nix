@@ -6,20 +6,6 @@
     doCheck = !prev.stdenv.hostPlatform.isi686;
   });
 
-  # version from nixpkgs fails to download media
-  # https://github.com/pystardust/ani-cli/issues/1688
-  ani-cli = prev.ani-cli.overrideAttrs (_: {
-    version = "4.14.0";
-    src = prev.fetchFromGitHub {
-      repo = "ani-cli";
-      owner = "pystardust";
-      rev = "6803b8a15faafa41cb79271e9a4f7f9c70a53651";
-      hash = "sha256-OyCKDN89sBz59+3JncMDyNOq8UMqqjara+A0Owo3oko=";
-    };
-
-    runtimeInputs = prev.ani-cli.runtimeInputs ++ [ prev.libressl ];
-  });
-
   # labwc from nixpkgs does not include the new labwc-session.target for systemd
   labwc = prev.labwc.overrideAttrs (_: rec {
     version = "0.9.5";
