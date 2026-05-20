@@ -67,6 +67,10 @@ in
     qt.platformTheme = lib.mkOverride 899 null;
     qt.style = lib.mkOverride 899 null;
 
+    # disable other polkit-agents in favor of kde polkit agent
+    security.soteria.enable = false;
+    snowglobe-lib.hacks.polkit-gnome.enable = false;
+
     services = {
       # use builtin plasma bluetooth
       blueman.enable = false;

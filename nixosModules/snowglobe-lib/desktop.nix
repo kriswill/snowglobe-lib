@@ -54,6 +54,8 @@ in
       {
         # add a lightweight display-manager
         services.displayManager.ly.enable = slib.setDefault true;
+        # ensure that polkit is enabled
+        security.polkit.enable = true;
         # add some vpn plugins to network manager
         networking.networkmanager.plugins = builtins.attrValues {
           inherit (pkgs)
@@ -67,14 +69,12 @@ in
         # GTK gui for bluetooth
         services.blueman.enable = slib.setDefault true;
 
-        # polkit agent written in gtk for any desktop
-        security.soteria.enable = slib.setDefault true;
-        systemd.user.services = {
-          # has caused alot of issues when exiting desktops unless graphical-session is a requisite
-          polkit-soteria.unitConfig = {
-            Requisite = [ "graphical-session.target" ];
-          };
-        };
+        # TODO does not work under UWSM due to UWSM 26 not passing XDG_SESSION_ID to dbus automatically
+        # This cant be solved from this project without the user adding a hackfix to the desktop's config in the home directory
+        # security.soteria.enable = slib.setDefault true;
+
+        # instead opt to use a hacked together systemd unit for polkit_gnome
+        snowglobe-lib.hacks.polkit-gnome.enable = slib.setDefault true;
 
         # use pipewire for the sound server
         security.rtkit.enable = slib.setDefault true; # hands out realtime scheduling priority to user processes on demand. Improves performance of pulse

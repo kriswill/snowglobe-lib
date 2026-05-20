@@ -36,7 +36,7 @@ in
     desktop = {
       niri.enable = true;
       labwc.enable = true;
-      kde.enable = true;
+      # kde.enable = true;
       hyprland.enable = true;
     };
     libvirtd-qemu.enable = true;

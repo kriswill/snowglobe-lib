@@ -16,9 +16,10 @@
   wantedBy = [ "graphical-session.target" ];
   serviceConfig = {
     Type = lib.mkDefault "exec";
-    ExecStart =
+    ExecStart = lib.mkDefault (
       "${package}/bin/${binName}"
-      + (lib.optionalString (programArgs != [ ]) " " + (lib.concatStringsSep " " programArgs));
+      + (lib.optionalString (programArgs != [ ]) " " + (lib.concatStringsSep " " programArgs))
+    );
     Restart = lib.mkDefault "on-failure";
     RestartSec = lib.mkDefault 5;
     Slice = lib.mkDefault "app.slice";
