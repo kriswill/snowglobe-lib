@@ -77,6 +77,7 @@ in
 
       # use sddm
       displayManager.ly.enable = false;
+      displayManager.sddm.enable = true;
 
       flatpak.enable = slib.setDefault true;
 
