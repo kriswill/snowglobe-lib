@@ -108,6 +108,8 @@ in
       gnome-software.enable = lib.mkDefault false;
       # use dolphin instead of nautilus
       nautilus.enable = lib.mkDefault false;
+      # prevent 2 network manager applets
+      networkmanagerapplet.enable = lib.mkDefault false;
     };
   };
 }
