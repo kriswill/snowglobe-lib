@@ -34,6 +34,17 @@ in
         installWaylandDeps = true;
       };
     };
+
+    # small debloat effort
+    environment = {
+      plasma6.excludePackages = builtins.attrValues {
+        inherit (pkgs.kdePackages)
+          khelpcenter
+          kinfocenter
+          ;
+      };
+    };
+
     # script which will repair imperative icons pinned to taskbar and desktop by users
     system.userActivationScripts = {
       fix-plasma-icons.text = ''
@@ -63,7 +74,7 @@ in
       '';
     };
 
-    # make sure plasma can manage the QT configuration independent of nix
+    # make sure plasma can manage the QT configuration independent of nix by default
     qt.platformTheme = lib.mkOverride 899 null;
     qt.style = lib.mkOverride 899 null;
 
@@ -72,32 +83,31 @@ in
     snowglobe-lib.hacks.polkit-gnome.enable = false;
 
     services = {
-      # use builtin plasma bluetooth
-      blueman.enable = false;
-
-      # use sddm
-      displayManager.ly.enable = false;
-      displayManager.sddm.enable = true;
-
-      flatpak.enable = slib.setDefault true;
-
       desktopManager.plasma6 = {
         enable = true;
       };
-    };
 
-    environment = {
-      plasma6.excludePackages = builtins.attrValues {
-        inherit (pkgs.kdePackages)
-          khelpcenter
-          kinfocenter
-          ;
-      };
+      # use builtin plasma bluetooth
+      blueman.enable = lib.mkDefault false;
+
+      # use sddm as display manager
+      displayManager.ly.enable = false;
+      displayManager.sddm.enable = true;
     };
 
     programs = {
       # disable pwvucontrol in favor of the default plasma volume control
       pwvucontrol.enable = lib.mkDefault false;
+      # disable swaync for plasma's notification daemon
+      swaync.enable = lib.mkDefault false;
+      # disable batsignal
+      batsignal.enable = false;
+      # kde has its own notepad
+      mousepad.enable = lib.mkDefault false;
+      # use discover instead of gnome-software
+      gnome-software.enable = lib.mkDefault false;
+      # use dolphin instead of nautilus
+      nautilus.enable = lib.mkDefault false;
     };
   };
 }
