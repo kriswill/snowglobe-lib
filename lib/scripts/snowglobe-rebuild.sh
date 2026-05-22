@@ -130,7 +130,7 @@ fi
 
 if [ "$PERSISTENT_CONFIGURATION_CHANGE" ]; then
 	# keep a log file of your system updates
-	UPDATE_LOG="$CONFIG_DIR/updates.log"
+	UPDATE_LOG="$FLAKE_DIR/updates.log"
 	HOSTNAME="$(cat /etc/hostname)"
 	if [ ! -e "$UPDATE_LOG" ]; then
 		if [ "$IS_ROOT" ]; then
