@@ -1,6 +1,6 @@
 #!/bin/sh
-# wrapper around nixos-rebuild, ensuring configuration switches are automaically logged and commited to git
 
+# wrapper around nixos-rebuild, ensuring configurations are automaically logged and commited to git
 y_or_n() {
 	while true; do
 		printf "%s [y/n]: " "$@"
@@ -13,93 +13,69 @@ y_or_n() {
 	done
 }
 
+_errormsg() {
+	MSG="$1"
+	printf "Error: %s\n" "$MSG"
+	exit 1
+}
+
 _notify() {
 	STATUS=$1
 	MSG=$2
 	if command -v notify-send >/dev/null 2>&1; then
-		notify-send -a "snowglobe-rebuild" "$STATUS" "$MSG" || printf "%s\n" "$MSG"
+		notify-send -a "snowglobe-rebuild" "$STATUS" "$MSG"
 	else
+		[ "$STATUS" = "Error" ] && _errormsg "$MSG"
 		printf "%s: %s\n" "$STATUS" "$MSG"
 	fi
-	[ "$STATUS" = "Error" ] && exit 1
 }
 
 # main
+if [ ! "$1" ]; then
+	_errormsg "Unknown usage."
+fi
+
 case "$1" in
 "help" | "--help")
+	printf "Wrapper around nixos-rebuild that provides some quality of life features for nixos-users.\n"
 	printf "  --help - prints this menu\n"
-	printf "\n  Arg 1:\n"
-	printf "  ------\n"
-	printf "  switch - Switch configuration. Log and commit to your bootloader and git repository (if present)\n"
-	printf "  test - Switch configuration temporarily. Changes will be reverted after boot\n"
-	printf "  boot - Identical to switch except the configuration is only applied when the system is rebooted.\n"
-	printf "  build - Build the targeted configuration\n"
-	printf "\n  Optional Flags:\n"
-	printf "  ------\n"
-	printf "  --config-dir=path - the root location of your NixOS configuration flake. Defaults to /etc/nixos.\n"
-	printf "  --update-inputs=input1,input2 - comma seperated list of flake inputs to update. Defaults to 'snowglobe-lib'\n"
 	exit 0
 	;;
-
+"test")
+	NEEDS_SUDO=1
+	;;
 "switch" | "boot")
-	PERSISTENT_UPDATE=true
+	PERSISTENT_CONFIGURATION_CHANGE=true
+	NEEDS_SUDO=1
+	CAN_USE_NH_OS=1
 	;;
-"test" | "build")
-	# do nothing
+"repl" | "info" | "rollback")
+	CAN_USE_NH_OS=1
 	;;
-*)
-	printf "Unsupported usage. Use --help for a list of commands\n"
-	exit 1
-	;;
+*) ;;
 esac
 
+ARG_IDX=1
 for arg in "$@"; do
-	ARG_NAME="$(printf "%s" "$arg" | cut -d= -f1)"
-	ARG_VAL="$(printf "%s" "$arg" | cut -d= -f2)"
-	case "$ARG_NAME" in
-	# ignore first argument
-	"$1")
-		continue
-		;;
-
-	"--update-inputs")
-		INPUTS_TO_UPDATE=$(printf "%s" "$ARG_VAL" | tr ',' ' ')
-		;;
-	"--config-dir")
-		if [ -z "$ARG_VAL" ]; then
-			printf "Error: No directory provided to --config-dir\n"
-			exit 1
-		fi
-		CONFIG_DIR="$ARG_VAL"
-		if [ ! -d "$CONFIG_DIR" ]; then
-			printf "Error: specified directory for --config-dir was not found.\n"
-			exit 1
-		fi
-		;;
-	esac
+	NEXT_ARG=$(printf "%s " "$@" | cut -d' ' -f$((ARG_IDX + 1)))
+	if [ "$arg" = "--flake" ]; then
+		FLAKE_DIR="$(readlink -f "$(printf "%s" "$NEXT_ARG" | cut -d'#' -f1)")"
+	fi
+	ARG_IDX=$((ARG_IDX + 1))
 done
 
-if [ -z "$CONFIG_DIR" ]; then
-	CONFIG_DIR="/etc/nixos"
-fi
-CONFIG_DIR="$(readlink -f "$CONFIG_DIR")"
-
-if [ ! -e "$CONFIG_DIR/flake.nix" ]; then
-	printf "Error: no flake.nix was found in the specified configuration directory: %s\n" "$CONFIG_DIR"
-	exit 1
+if [ -z ${FLAKE_DIR+x} ]; then
+	FLAKE_DIR="/etc/nixos"
 fi
 
-if [ -d "$CONFIG_DIR/.git" ]; then
+if [ ! -d "$FLAKE_DIR" ] || [ ! -e "$FLAKE_DIR/flake.nix" ]; then
+	_errormsg "no flake found "$FLAKE_DIR""
+fi
+if [ -d "$FLAKE_DIR/.git" ]; then
 	GIT_REPO_PRESENT=true
 fi
 
-cd "$CONFIG_DIR" || printf "Error: could not change working directory to %s" "$CONFIG_DIR"
-
-if [ "$INPUTS_TO_UPDATE" ]; then
-	for input in $INPUTS_TO_UPDATE; do
-		nix flake update "$input"
-	done
-fi
+cd "$FLAKE_DIR" || _errormsg "Could not change working directory to $FLAKE_DIR"
 
 if [ "$GIT_REPO_PRESENT" ]; then
 	git ls-remote || {
@@ -110,7 +86,7 @@ if [ "$GIT_REPO_PRESENT" ]; then
 			IGNORE_GIT_SYNCHRONIZATION=1
 			;;
 		"N" | "n")
-			exit 1
+			_errormsg "Aborted"
 			;;
 		esac
 	}
@@ -119,7 +95,7 @@ if [ "$GIT_REPO_PRESENT" ]; then
 	git add .
 
 	# make sure that your module modifications are logged with a standalone commit
-	if [ "$PERSISTENT_UPDATE" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
+	if [ "$PERSISTENT_CONFIGURATION_CHANGE" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
 		if ! git status | grep -q 'nothing to commit, working tree clean'; then
 			git status
 			printf "Detected these uncommitted changes in your repository, You should commit them now (Press Ctrl+C to abort)\n"
@@ -127,29 +103,49 @@ if [ "$GIT_REPO_PRESENT" ]; then
 			read -r COMMIT_MSG
 			git commit -m "$COMMIT_MSG"
 		fi
-		# TODO working auto conflict resolving
+		# TODO working auto conflict resolution?
 		git pull || exit 1
 	fi
 fi
 
-# use _notify so a desktop notification is sent when the rebuild fails or succeeds.
-ERRORMSG="Rebuild failed or sudo timed out."
-# nh complains if you run it as root
-if type nh >/dev/null && [ "$(whoami)" != "root" ] >/dev/null; then
-	nh os "$1" "$CONFIG_DIR" || _notify "Error" "$ERRORMSG"
-else
-	# TODO build functionality
-	nixos-rebuild "$1" --flake "$CONFIG_DIR" || _notify "Error" "$ERRORMSG"
+if [ "$(whoami)" = "root" ]; then
+	IS_ROOT=1
+	unset CAN_USE_NH_OS
 fi
 
-if [ "$PERSISTENT_UPDATE" ]; then
+if ! command -v nh >/dev/null 2>&1 && [ ${CAN_USE_NH_OS+x} ]; then
+	unset CAN_USE_NH_OS
+fi
+
+if [ ${CAN_USE_NH_OS+x} ]; then
+	#	https://github.com/NixOS/nix/issues/8013
+	CMD="nh os"
+else
+	CMD="nixos-rebuild"
+fi
+
+ERRORMSG="Rebuild failed or timeout reached."
+if [ "$NEEDS_SUDO" ] && [ ! ${CAN_USE_NH_OS} ]; then
+	sudo $CMD "$@" || _notify "Error" "$ERRORMSG"
+elif [ ${CAN_USE_NH_OS+x} ]; then
+	NH_OS_FLAKE="$(readlink -f "$FLAKE_DIR")" export NH_OS_FLAKE
+	$CMD "$@" || _notify "Error" "$ERRORMSG"
+else
+	$CMD "$@" || _notify "Error" "$ERRORMSG"
+fi
+
+if [ "$PERSISTENT_CONFIGURATION_CHANGE" ]; then
 	# keep a log file of your system updates
-	# TODO cannot create if owned by root
 	UPDATE_LOG="$CONFIG_DIR/updates.log"
 	HOSTNAME="$(cat /etc/hostname)"
 	if [ ! -e "$UPDATE_LOG" ]; then
-		touch "$UPDATE_LOG"
+		if [ "$IS_ROOT" ]; then
+			touch "$UPDATE_LOG"
+		else
+			sudo touch "$UPDATE_LOG"
+		fi
 	fi
+
 	UPDATE_MSG="$(printf "%s\nUpdated System - %s\n\n" "$(date)" "$HOSTNAME")"
 	printf "%s\n\n" "$UPDATE_MSG" | cat - "$UPDATE_LOG" >/tmp/nixos-update.log && mv /tmp/nixos-update.log "$UPDATE_LOG"
 
