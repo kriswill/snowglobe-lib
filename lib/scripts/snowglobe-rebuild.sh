@@ -104,14 +104,22 @@ fi
 if [ "$GIT_REPO_PRESENT" ]; then
 	git ls-remote || {
 		printf "Could not reach the remote repository, Maybe it is down or you do not have access rights?\n"
-		exit 1
+		y_or_n "Continue without git synchronization features?"
+		case "$yn" in
+		"Y" | "y")
+			IGNORE_GIT_SYNCHRONIZATION=1
+			;;
+		"N" | "n")
+			exit 1
+			;;
+		esac
 	}
 
 	# ensure all changes are staged so nix doesn't yell at you
 	git add .
 
 	# make sure that your module modifications are logged with a standalone commit
-	if [ "$PERSISTENT_UPDATE" ]; then
+	if [ "$PERSISTENT_UPDATE" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
 		if ! git status | grep -q 'nothing to commit, working tree clean'; then
 			git status
 			printf "Detected these uncommitted changes in your repository, You should commit them now (Press Ctrl+C to abort)\n"
@@ -137,7 +145,7 @@ fi
 if [ "$PERSISTENT_UPDATE" ]; then
 	# keep a log file of your system updates
 	# TODO cannot create if owned by root
-	UPDATE_LOG="/etc/nixos/updates.log"
+	UPDATE_LOG="$CONFIG_DIR/updates.log"
 	HOSTNAME="$(cat /etc/hostname)"
 	if [ ! -e "$UPDATE_LOG" ]; then
 		touch "$UPDATE_LOG"
@@ -145,7 +153,7 @@ if [ "$PERSISTENT_UPDATE" ]; then
 	UPDATE_MSG="$(printf "%s\nUpdated System - %s\n\n" "$(date)" "$HOSTNAME")"
 	printf "%s\n\n" "$UPDATE_MSG" | cat - "$UPDATE_LOG" >/tmp/nixos-update.log && mv /tmp/nixos-update.log "$UPDATE_LOG"
 
-	if [ "$GIT_REPO_PRESENT" ]; then
+	if [ "$GIT_REPO_PRESENT" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
 		# commit the changes to the updates.log
 		git add .
 		git commit -m "Updated System - $HOSTNAME"

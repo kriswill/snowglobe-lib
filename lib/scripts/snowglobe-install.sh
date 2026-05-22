@@ -134,7 +134,7 @@ _get_hardware_info() {
 	elif lscpu | grep -i "amd" >/dev/null; then
 		CPU_VENDOR="amd"
 	else
-		CPU_VENDOR="unknown"
+		CPU_VENDOR="other-nonx86"
 	fi
 
 	if lscpu | grep 'Hypervisor vendor:' >/dev/null; then
@@ -323,8 +323,8 @@ _format_disks() {
 				printf "\nYou will now be prompted for a passphrase to encrypt your disk.\n"
 				printf "For the greatest level of security you should ensure the following:\n"
 				printf "	1. Your password should be different than any used for websites or services.\n"
-				printf "	2. Easy to remember. If you lose this password you will never be able to recover your files.\n"
-				printf "	3. Moderately sized (recommended is between 15-25 characters).\n"
+				printf "	2. Easy to remember. If you lose this password, you will never be able to recover your files.\n"
+				printf "	3. Pretty long (recommended is between 15-25 characters).\n"
 				while [ -z "$PASSWORD" ] || [ "$PASSWORD" != "$PASSWORD2" ]; do
 					printf "\n"
 					read -rs -p "Enter Password: " PASSWORD
@@ -526,7 +526,6 @@ y_or_n --msg="Append to your existing repository?" --default="no" && {
 
 _format_disks
 
-# Gather various information from the user
 _set_hostname() {
 	printf "Warning: Hostname will be cleansed of characters that are not [a-z][A-Z][0-9], -, or _\n"
 	while :; do
@@ -534,6 +533,11 @@ _set_hostname() {
 		HOSTNAME=$(printf "%s" "$HOSTNAME" | tr -d '[`"=;:$%#^<>+(){}*!&[]~|][:blank:][:cntrl:]')
 		if [ -z "$HOSTNAME" ]; then
 			printf "Hostname cannot be empty.\n"
+			continue
+		fi
+
+		if [ "$APPEND_MODE" ] && cat "$REPO_DIR/nixosConfigurations/default.nix" | grep -q "$HOSTNAME = slib.mkNixosHost {"; then
+			printf "A host with that hostname already exists in your repository. Try again.\n"
 			continue
 		fi
 		break
@@ -549,6 +553,24 @@ printf "The installer will let you modify any configuration before installing.\n
 _set_hostname
 
 mkdir -p "$CONFIG_ROOT"
+
+_select_timezone() {
+	unset TIMEZONE
+	printf "\nNote: If you do not set a static time zone, it will be configured automatically by your geolocation.\n"
+	y_or_n --msg="Set a static time zone for this host?" --default="no" && {
+		while :; do
+			TIMEZONE=$(timedatectl list-timezones | fzf \
+				--border \
+				--border-label-pos 1:bottom \
+				--border-label="Select time zone")
+			if [ -z "$TIMEZONE" ]; then
+				y_or_n --msg="No time zone selected. Try again?" --default="yes" || return 1
+			else
+				break
+			fi
+		done
+	}
+}
 
 _select_locale() {
 	unset LOCALE
@@ -662,6 +684,7 @@ _select_optional_profiles() {
 	y_or_n --msg="Would you like to harden your configuration? This disables some features (like password-based ssh authentication) for increased security." --default="yes" && ENABLED_PROFILES+=("harden")
 }
 
+_select_timezone
 _select_locale
 _select_xkb_layout
 _select_desktop_environment
@@ -686,6 +709,11 @@ while :; do
 	printf "Hostname - %s\n" "$HOSTNAME"
 	printf "Locale - %s\n" "$LOCALE"
 	printf "Keyboard Layout - %s\n" "$XKB_LAYOUT"
+	if [ -z "$TIMEZONE" ]; then
+		printf "Timezone - Dynamic\n"
+	else
+		printf "Timezone - %s\n" "$TIMEZONE"
+	fi
 	if [ -z "$SELECTED_DESKTOP" ]; then
 		printf "Desktop - None\n"
 	else
@@ -699,7 +727,7 @@ while :; do
 
 	y_or_n --msg="Are you satisfied with the current configuration?" --default="yes" && break
 	clear
-	OPTIONS=("Hostname" "Desktop" "Locale" "Keyboard Layout" "Optional Profiles")
+	OPTIONS=("Hostname" "Desktop" "Locale" "Keyboard Layout" "Timezone" "Optional Profiles")
 	SELECTED="$(for option in "${OPTIONS[@]}"; do
 		printf "%s\n" "$option"
 	done | fzf \
@@ -720,6 +748,9 @@ while :; do
 	"Keyboard Layout")
 		_select_xkb_layout
 		;;
+	"Timezone")
+		_select_timezone
+		;;
 	"Optional Profiles")
 		_select_optional_profiles
 		;;
@@ -729,7 +760,6 @@ while :; do
 	esac
 done
 
-# Begin config write
 if [ -d "$CONFIG_ROOT" ]; then
 	rm -rf "$CONFIG_ROOT"
 fi
@@ -862,7 +892,6 @@ else
 	fi
 fi
 
-# always ensure the keyring is generated
 if [ ! -e "$KEYRING_FILE" ]; then
 	printf "# do not remove this file! It is used by the installer to manage and reference your keys
 {
@@ -1013,13 +1042,16 @@ fi
 chmod 600 "$KEY_FILE_PATH"
 
 # write configuration files
-# create configuration.nix
 printf '{ pkgs, lib, config, ... }:
 	{
 		i18n.defaultLocale = "%s";
 		services.xserver.xkb.layout = "%s";
 ' \
 	"$LOCALE" "$XKB_LAYOUT" >"$HOST_CONFIG_DIR/configuration.nix"
+
+if [ ${TIMEZONE+x} ]; then
+	printf "time.timeZone = \"%s\";\n" "$TIMEZONE" >>"$HOST_CONFIG_DIR/configuration.nix"
+fi
 
 if [ ${SELECTED_DESKTOP+x} ]; then
 	printf "snowglobe-lib.desktop.%s.enable = true;\n" "$SELECTED_DESKTOP" >>"$HOST_CONFIG_DIR/configuration.nix"
@@ -1175,12 +1207,10 @@ _configure_ssh_keys() {
 		}
 	fi
 
-	# allow the users to enter additional ssh keys and register them to the keyring
 	if [ ${#AUTHORIZED_SSH_KEYS[@]} != 0 ]; then
 		y_or_n --msg="Would you like to configure additional ssh keys not present on your keyring?" || return 0
 	fi
 
-	# ensure a keyvalue table exists
 	if [ -z "$KEY_HASHTABLE" ]; then
 		_build_key_hashtable
 	fi
@@ -1199,7 +1229,6 @@ _configure_ssh_keys() {
 			fi
 		done
 
-		# validate the name and prevent duplicates
 		KEY_NAMES=$(ls -A "$KEY_HASHTABLE")
 		while :; do
 			printf "Warning: key name will be stripped of numbers and special characters. (excluding - and _)\n"
@@ -1228,7 +1257,6 @@ _configure_ssh_keys() {
 		done
 
 		AUTHORIZED_SSH_KEYS+=("$SSH_KEY_NAME")
-		# write ssh key to the keyring and temporary table
 		sed -i "s|\(ssh = {\)\([^}]*\)|\1\n\t$SSH_KEY_NAME = \"$SSH_KEY_VALUE\";|" "$KEYRING_FILE"
 		printf "%s" "$SSH_KEY_VALUE" >"$KEY_HASHTABLE/$SSH_KEY_NAME"
 
@@ -1244,7 +1272,6 @@ _set_permissions() {
 	y_or_n --msg="Should this user have access to privilege escalation? (able to run sudo)" --default="yes" && USER_PERMISSIONS+=("Wheel")
 	if [ -n "$SELECTED_DESKTOP" ]; then
 		y_or_n --msg="Should this user be allowed to manage network connections?" --default="yes" && USER_PERMISSIONS+=("Networkmanager Admin")
-		y_or_n --msg="Should this user be allowed to configure the CUPS printing server?" --default="yes" && USER_PERMISSIONS+=("CUPS Admin")
 	fi
 }
 
@@ -1380,9 +1407,6 @@ while :; do
 			"Networkmanager Admin")
 				printf "\"networkmanager\"\n" >>"$USER_CONFIG_DIR/default.nix"
 				;;
-			"CUPS Admin")
-				printf "\"lpadmin\"\n" >>"$USER_CONFIG_DIR/default.nix"
-				;;
 			esac
 		done
 		printf "];\n" >>"$USER_CONFIG_DIR/default.nix"
@@ -1397,7 +1421,6 @@ while :; do
 		printf "%s\n" "$user"
 	done
 	printf "\n"
-	# write to sops secrets
 	printf "%s_password: %s\n" "$USERNAME" "$(mkpasswd -s "$PASSWORD")" >>"$HOST_CONFIG_DIR/secrets.yaml"
 
 	unset USERNAME
@@ -1410,7 +1433,7 @@ while :; do
 	y_or_n --msg="Add/Configure another user?" --default="no" || break
 done
 
-# use the keys generated by the installer for this host
+# use the ssh keys randomly generated by the installer for this host
 cat /etc/ssh/ssh_host_ed25519_key.pub | sed "s|root@nixos-installer|root@$HOSTNAME|" >"$HOST_CONFIG_DIR/ssh_host_ed25519_key.pub"
 cat /etc/ssh/ssh_host_rsa_key.pub | sed "s|root@nixos-installer|root@$HOSTNAME|" >"$HOST_CONFIG_DIR/ssh_host_rsa_key.pub"
 
