@@ -24,7 +24,10 @@ in
         };
 
         # rgb control
-        services.hardware.openrgb.enable = slib.setDefault true;
+        services.hardware.openrgb = {
+          enable = slib.setDefault true;
+          motherboard = config.snowglobe-lib.system.cpu-vendor;
+        };
 
         hardware = {
           # just in case

@@ -36,11 +36,6 @@ if [ ! "$1" ]; then
 fi
 
 case "$1" in
-"help" | "--help")
-	printf "Wrapper around nixos-rebuild that provides some quality of life features for nixos-users.\n"
-	printf "  --help - prints this menu\n"
-	exit 0
-	;;
 "test")
 	NEEDS_SUDO=1
 	CAN_USE_NH_OS=1
