@@ -14,7 +14,7 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
-        programs.corefreq = slib.setDefault true;
+        programs.corefreq.enable = slib.setDefault true;
         environment.systemPackages = builtins.attrValues {
           inherit (pkgs)
             usbutils
