@@ -2,6 +2,12 @@
 # This script is used to verify all host configurations for the registered repositories
 # It ensures that all configurations that depend on the module set do not have failing builds after a flake update.
 # additionally it will ensure all packages are cached, preventing local builds for these hosts.
+
+_errormsg() {
+	printf "Error: %s\n" "$1"
+	exit 1
+}
+
 y_or_n() {
 	printf "%s: [y/n] " "$1"
 	read -r yn
@@ -110,12 +116,13 @@ if [ ! -d nixosConfigurations/testmonkey ]; then
 fi
 
 # use nix-post-build-hook-queue to push modified packages to nix-store.earthgman.dev
-if [ -z "$CHECK_ONLY" ] && systemctl list-units | grep -q nix-post-build-hook-queue && ! systemctl is-active nix-post-build-hook-queue >/dev/null; then
+if [ -z "$CHECK_ONLY" ] && ! systemctl is-active nix-post-build-hook-queue >/dev/null; then
 	printf "Build hook queue is not enabled Authenticate to enable the service.\n"
 	if ! systemctl is-active nix-post-build-hook-queue.socket >/dev/null; then
-		sudo systemctl start nix-post-build-hook-queue.socket
+		sudo systemctl start nix-post-build-hook-queue.socket || _errormsg "Could not start post-build-hook-queue.sock"
 	fi
-	sudo systemctl start nix-post-build-hook-queue
+	printf "Starting nix-post-build-hook-queue\n"
+	sudo systemctl start nix-post-build-hook-queue || _errormsg "Could not start post-build-hook-queue.service"
 fi
 
 if [ "$CHECK_ONLY" ]; then
