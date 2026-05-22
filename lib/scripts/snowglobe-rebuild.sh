@@ -43,6 +43,7 @@ case "$1" in
 	;;
 "test")
 	NEEDS_SUDO=1
+	CAN_USE_NH_OS=1
 	;;
 "switch" | "boot")
 	PERSISTENT_CONFIGURATION_CHANGE=true
@@ -117,21 +118,14 @@ if ! command -v nh >/dev/null 2>&1 && [ ${CAN_USE_NH_OS+x} ]; then
 	unset CAN_USE_NH_OS
 fi
 
-if [ ${CAN_USE_NH_OS+x} ]; then
-	#	https://github.com/NixOS/nix/issues/8013
-	CMD="nh os"
-else
-	CMD="nixos-rebuild"
-fi
-
 ERRORMSG="Rebuild failed or timeout reached."
 if [ "$NEEDS_SUDO" ] && [ ! ${CAN_USE_NH_OS} ]; then
-	sudo $CMD "$@" || _notify "Error" "$ERRORMSG"
+	sudo nixos-rebuild "$@" || _notify "Error" "$ERRORMSG"
 elif [ ${CAN_USE_NH_OS+x} ]; then
 	NH_OS_FLAKE="$(readlink -f "$FLAKE_DIR")" export NH_OS_FLAKE
-	$CMD "$@" || _notify "Error" "$ERRORMSG"
+	nh os "$@" || _notify "Error" "$ERRORMSG"
 else
-	$CMD "$@" || _notify "Error" "$ERRORMSG"
+	nixos-rebuild "$@" || _notify "Error" "$ERRORMSG"
 fi
 
 if [ "$PERSISTENT_CONFIGURATION_CHANGE" ]; then
