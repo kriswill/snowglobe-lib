@@ -24,6 +24,16 @@
     patches = [ ./labwc-meson-build.patch ];
   });
 
+  ani-cli = prev.ani-cli.overrideAttrs (_: rec {
+    version = "master";
+    src = prev.fetchFromGitHub {
+      owner = "pystardust";
+      repo = "ani-cli";
+      rev = "b8032b72901721a1ce859ca2816e8e2c914bc616";
+      hash = "sha256-+fR46bWXJ58LkXFvWAO/LyCd5THi7oMcqmhRoCKBZfM=";
+    };
+  });
+
   # fix the symlinks in zsh-syntax-highlighting
   zsh-syntax-highlighting = prev.zsh-syntax-highlighting.overrideAttrs {
     installPhase = ''
