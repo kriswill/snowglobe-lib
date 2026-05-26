@@ -18,6 +18,7 @@ in
         environment.systemPackages = builtins.attrValues {
           inherit (pkgs)
             usbutils
+            smartmontools
             hdparm
             nvme-cli
             lm_sensors
