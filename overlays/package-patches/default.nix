@@ -1,4 +1,8 @@
-{ final, prev }:
+{
+  nixpkgs-stable,
+  final,
+  prev,
+}:
 {
   # fails to build due to failing checks for the i686 version of the package
   # https://github.com/NixOS/nixpkgs/issues/513245
@@ -7,6 +11,7 @@
   });
 
   # labwc from nixpkgs does not include the new labwc-session.target for systemd
+  # https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/la/labwc/package.nix#L89
   labwc = prev.labwc.overrideAttrs (_: rec {
     version = "0.9.5";
     src = prev.fetchFromGitHub {
@@ -24,8 +29,9 @@
     patches = [ ./labwc-meson-build.patch ];
   });
 
+  # ani-cli cant download media from version in nixpkgs
   ani-cli = prev.ani-cli.overrideAttrs (_: rec {
-    version = "master";
+    version = "4.14.1";
     src = prev.fetchFromGitHub {
       owner = "pystardust";
       repo = "ani-cli";

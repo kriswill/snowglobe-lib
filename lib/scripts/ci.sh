@@ -128,7 +128,11 @@ fi
 if [ "$CHECK_ONLY" ]; then
 	nix flake check
 else
-	nixos-rebuild build --flake .#testmonkey
+	if command -v nh >/dev/null 2>&1; then
+		nh os build .#testmonkey
+	else
+		nixos-rebuild build --flake .#testmonkey
+	fi
 fi
 
 # early escape if no repo checks are being done

@@ -13,7 +13,7 @@ in
   cpu-vendor ? null, # cpu vendor, "intel" or "amd"
   gpu-vendors ? [ ], # list of gpu vendors, "intel" "nvidia" "amd"
   isVM ? false, # are we in a VM?
-  stateVersion ? "26.05", # initial release of nixos which this machine was installed
+  stateVersion ? "26.11", # initial release of nixos which this machine was installed
   system ? "x86_64-linux", # target cpu architecture
   modules ? [ ], # send extra modules to the function
   specialArgs ? { }, # send extra special arguments to the function
