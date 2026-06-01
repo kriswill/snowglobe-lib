@@ -84,6 +84,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    flux = {
+      url = "github:iogamaster/flux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     jovian-nixos = {
       url = "github:Jovian-Experiments/Jovian-NixOS";
       inputs.nixpkgs.follows = "nixpkgs";

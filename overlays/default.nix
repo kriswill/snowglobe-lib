@@ -15,6 +15,6 @@ rec {
     );
 
   nix-post-build-hook-queue = inputs.nix-post-build-hook-queue.overlays.default;
-
+  flux = inputs.flux.overlays.default;
   default = packages;
 }
