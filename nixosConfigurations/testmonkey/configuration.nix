@@ -9,23 +9,25 @@
 }:
 let
   mkForce = lib.mkForce;
+  enableAllModules =
+    moduleType:
+    let
+      moduleNames = (builtins.attrNames (builtins.readDir ../../nixosModules/nixos/${moduleType}));
+    in
+    lib.genAttrs moduleNames (module: {
+      enable = true;
+    });
 in
 {
+  programs = enableAllModules "programs";
+  services = enableAllModules "services";
+
   # build decky and other jovian plugins
   imports = [ outputs.nixosModules.jovian ];
   jovian.steam = {
     user = "bob";
     desktopSession = "niri";
   };
-
-  # custom program options
-  programs =
-    let
-      programNames = (builtins.attrNames (builtins.readDir ../../nixosModules/nixos/programs));
-    in
-    lib.genAttrs programNames (program: {
-      enable = true;
-    });
 
   snowglobe-lib = {
     gpu = {
