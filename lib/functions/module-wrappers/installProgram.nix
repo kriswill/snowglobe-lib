@@ -20,8 +20,10 @@ lib.mkMerge [
         lib.genAttrs programcfg.installForUsers (username: lib.mkOverride 1350 programPackage)
       );
     };
-    users.users = (
-      lib.genAttrs programcfg.installForUsers (
+  })
+  {
+    users.users = lib.mkIf (programcfg.userPackages != { }) (
+      lib.genAttrs (lib.attrNames programcfg.userPackages) (
         username:
         let
           userPackage = programcfg.userPackages.${username};
@@ -31,7 +33,7 @@ lib.mkMerge [
         }
       )
     );
-  })
+  }
 
   extraModules
 
