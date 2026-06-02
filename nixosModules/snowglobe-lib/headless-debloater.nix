@@ -15,26 +15,26 @@
     environment = {
       defaultPackages = [ ];
       variables.BROWSER = "echo";
-      stub-ld.enable = lib.mkForce false;
+      stub-ld.enable = lib.mkDefault false;
     };
 
     xdg = {
-      autostart.enable = lib.mkForce false;
-      icons.enable = lib.mkForce false;
-      menus.enable = lib.mkForce false;
-      mime.enable = lib.mkForce false;
-      sounds.enable = lib.mkForce false;
+      autostart.enable = lib.mkDefault false;
+      icons.enable = lib.mkDefault false;
+      menus.enable = lib.mkDefault false;
+      mime.enable = lib.mkDefault false;
+      sounds.enable = lib.mkDefault false;
     };
 
     documentation = {
-      enable = lib.mkForce false;
-      doc.enable = lib.mkForce false;
-      info.enable = lib.mkForce false;
-      man.enable = lib.mkForce false;
-      nixos.enable = lib.mkForce false;
+      enable = lib.mkDefault false;
+      doc.enable = lib.mkDefault false;
+      info.enable = lib.mkDefault false;
+      man.enable = lib.mkDefault false;
+      nixos.enable = lib.mkDefault false;
     };
 
-    fonts.fontconfig.enable = lib.mkForce false;
+    fonts.fontconfig.enable = lib.mkDefault false;
 
     programs = {
       git.package = lib.mkDefault pkgs.gitMinimal;

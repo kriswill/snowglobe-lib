@@ -22,7 +22,7 @@ in
     };
 
     # prevent users from being imperatively modified
-    users.mutableUsers = false;
+    users.mutableUsers = slib.setDefault false;
 
     # prevent password login over ssh
     services = {
@@ -31,8 +31,5 @@ in
         KbdInteractiveAuthentication = false;
       };
     };
-
-    # tool to determine how hard you are
-    programs.kernel-hardening-checker.enable = slib.setDefault true;
   };
 }
