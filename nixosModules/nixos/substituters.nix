@@ -16,16 +16,23 @@ in
         {
           options = {
             enable = lib.mkEnableOption "whether to trust this substituter";
-            priority = lib.mkOption {
-              description = "priority for this substituter cache (lower values = higher priority)";
-              type = lib.types.int;
-              default = 40;
+            protocol = lib.mkOption {
+              description = "The protocol to use for this substituter";
+              type = lib.types.str;
+              default = "https";
+              example = "s3";
             };
             publicKey = lib.mkOption {
               description = "The public key for this substituter";
               type = lib.types.str;
               default = "";
             };
+            priority = lib.mkOption {
+              description = "priority for this substituter cache (lower values = higher priority)";
+              type = lib.types.int;
+              default = 40;
+            };
+
           };
         }
       )
@@ -52,8 +59,9 @@ in
           substituter:
           let
             priority = "?priority=${toString cfg.${substituter}.priority}";
+            protocol = cfg.${substituter}.protocol;
           in
-          if (cfg.${substituter}.enable) then "https://" + substituter + priority else ""
+          if (cfg.${substituter}.enable) then "${protocol}://" + substituter + priority else ""
         )
       );
       trusted-public-keys = lib.remove "" (

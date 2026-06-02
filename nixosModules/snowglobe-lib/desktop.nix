@@ -5,7 +5,7 @@
   ...
 }:
 let
-  cfg = config.snowglobe-lib.desktop;
+  cfg = config.snowglobe-lib.nixosConfig.desktop;
   slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
@@ -67,14 +67,14 @@ in
         # enable bluetooth
         hardware.bluetooth.enable = slib.setDefault true;
         # GTK gui for bluetooth
-        services.blueman.enable = slib.setDefault true;
+        services.blueman.enable = slib.setDefault config.hardware.bluetooth.enable;
 
         # TODO does not work under UWSM due to UWSM 26 not passing XDG_SESSION_ID to dbus automatically
         # This cant be solved from this project without the user adding a hackfix to the desktop's config in the home directory
         # security.soteria.enable = slib.setDefault true;
 
         # instead opt to use a hacked together systemd unit for polkit_gnome
-        snowglobe-lib.hacks.polkit-gnome.enable = slib.setDefault true;
+        services.polkit-gnome.enable = slib.setDefault true;
 
         # use pipewire for the sound server
         security.rtkit.enable = slib.setDefault true; # hands out realtime scheduling priority to user processes on demand. Improves performance of pulse

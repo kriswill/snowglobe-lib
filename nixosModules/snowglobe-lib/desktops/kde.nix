@@ -80,7 +80,7 @@ in
 
     # disable other polkit-agents in favor of kde polkit agent
     security.soteria.enable = false;
-    snowglobe-lib.hacks.polkit-gnome.enable = false;
+    services.polkit-gnome.enable = false;
 
     services = {
       desktopManager.plasma6 = {

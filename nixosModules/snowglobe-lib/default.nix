@@ -8,9 +8,7 @@ let
   slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
-  options.snowglobe-lib = {
-    enable = lib.mkEnableOption "Snowglobe-Lib's nixos modules and configurations";
-  };
+  options.snowglobe-lib.enable = lib.mkEnableOption "Snowglobe-Lib's default NixOS configuration";
 
   config = lib.mkIf config.snowglobe-lib.enable {
     # custom patches and configs
@@ -48,7 +46,7 @@ in
     # use of custom substitutor module. see nixosModules/nixos/substituters.nix;
     substituters = {
       # Warning: Personal server for ensuring package patches in overlays/package-patches get cached.
-      # TODO figure out some way to allow users to disable this in the installer. I cannot be trusted >:)
+      # Users have the option to enable or disable this per-host depending on the installer type used.
       "nix-store.earthgman.dev" = {
         enable = slib.setDefault true;
         publicKey = "nix-store.earthgman.dev:2Qrw9kS+K2c00ikcgaz5Y0M7j5XmkhFJz3d7oNgJdLw=";
@@ -87,13 +85,11 @@ in
     documentation.nixos.enable = slib.setDefault false;
 
     # enable the linux-firmware repository if not in a virtual machine
-    # TODO only qemu is supported
     hardware.enableRedistributableFirmware = slib.setDefault (!config.snowglobe-lib.system.isVM);
 
     networking = {
       # use networkmanager for connections
       networkmanager.enable = slib.setDefault true;
-      hostName = slib.setDefault config.system.name;
     };
 
     boot = {
@@ -121,6 +117,7 @@ in
       binsh = lib.mkOverride 899 "${pkgs.dash}/bin/dash";
 
       # these are not set properly on nixos by default for some reason
+      # TODO check on status of this: https://github.com/NixOS/nixpkgs/issues/286283
       sessionVariables = {
         SYSTEMD_KEYMAP_DIRECTORIES = slib.setDefault "${pkgs.kbd}/share/keymaps";
       };
@@ -131,6 +128,7 @@ in
         age
 
         # make sure terminfo for popular terminals is installed for smooth ssh connections
+        # TODO add more if needed
         kitty.terminfo
         alacritty.terminfo
         foot.terminfo
@@ -144,15 +142,15 @@ in
     # comes with syntaxhighlighting and autosuggesions enabled
     users.defaultUserShell = lib.mkOverride 899 config.programs.zsh.package;
 
-    # make sure that the virtual consoles (TTY) respect the keymap chosen in the installer
+    # make sure that the virtual consoles (TTY) respect the xserver keyboard keymap chosen in the installer
     console.useXkbConfig = slib.setDefault true;
 
     # enable tools / software and their configurations
     programs = {
-      # use neovim and alias
-      vim.enable = lib.mkForce false;
+      # use neovim and alias vim to it by default
+      vim.enable = slib.setDefault false;
       # cat with colorized output
-      bat.enable = slib.setDefault config.programs.tmux.enable;
+      bat.enable = slib.setDefault true;
       # brightness control
       brightnessctl.enable = slib.setDefault true;
       # many useful unix utilities
@@ -161,6 +159,7 @@ in
       nh = {
         enable = slib.setDefault true;
         flake = slib.setDefault "/etc/nixos";
+        # by default clean contents of the nix-store not related to this machine's nixos config every so often.
         clean = {
           enable = slib.setDefault true;
         };
@@ -181,9 +180,8 @@ in
       tmux.enable = slib.setDefault true;
       # make sure libreoffice is bleeding edge
       libreoffice.package = slib.setDefault pkgs.libreoffice-fresh;
-      # editor
+      # alias to neovim if enabled
       neovim = {
-        enable = slib.setDefault true;
         viAlias = slib.setDefault true;
         vimAlias = slib.setDefault true;
       };
@@ -226,8 +224,6 @@ in
     services = {
       # run openssh by default
       openssh.enable = slib.setDefault true;
-      # improved dbus
-      dbus.implementation = slib.setDefault "broker";
     };
   };
 }

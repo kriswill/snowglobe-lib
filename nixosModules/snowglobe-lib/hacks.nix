@@ -1,3 +1,4 @@
+# TODO check up on this file every once in awhile
 {
   pkgs,
   lib,
@@ -5,14 +6,9 @@
   ...
 }:
 let
-  cfg = config.snowglobe-lib.hacks;
   slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
-  options.snowglobe-lib.hacks = {
-    polkit-gnome.enable = lib.mkEnableOption "the systemd unit for polkit gnome";
-  };
-
   config = lib.mkIf config.snowglobe-lib.enable {
     # add labwc-session.target
     systemd.packages = lib.optionals config.programs.labwc.enable [ config.programs.labwc.package ];
@@ -28,16 +24,5 @@ in
         Requisite = [ "graphical-session.target" ];
       };
     });
-
-    systemd.user.services.polkit-gnome-autentication-agent-1 = lib.mkIf cfg.polkit-gnome.enable (
-      slib.mkGraphicalService {
-        serviceName = "polkit-gnome-1";
-        package = pkgs.polkit_gnome;
-        extraServiceConfig = {
-          Type = "simple";
-          ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-        };
-      }
-    );
   };
 }

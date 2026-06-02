@@ -39,8 +39,8 @@ lib.nixosSystem {
         # populate system options with hardware specific config
         system = {
           inherit stateVersion;
-          name = hostname;
         };
+        networking.hostName = hostname;
         snowglobe-lib.system = {
           inherit
             cpu-vendor
