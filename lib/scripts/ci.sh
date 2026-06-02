@@ -125,9 +125,7 @@ if [ -z "$CHECK_ONLY" ] && ! systemctl is-active nix-post-build-hook-queue >/dev
 	sudo systemctl start nix-post-build-hook-queue || _errormsg "Could not start post-build-hook-queue.service"
 fi
 
-if [ "$CHECK_ONLY" ]; then
-	nix flake check
-else
+if [ -z "$CHECK_ONLY" ]; then
 	if command -v nh >/dev/null 2>&1; then
 		nh os build .#testmonkey
 	else
@@ -158,12 +156,13 @@ y_or_n() {
 }
 
 for repo in $REPOSITORIES; do
-	REPO_OWNER=$(echo "$repo" | rev | cut -d "/" -f2 | rev)
-	REPO_NAME=$(echo "$repo" | rev | cut -d "/" -f1 | rev)
+	REPO_DOMAIN=$(printf "%s" "$repo" | cut -d/ -f3)
+	REPO_OWNER=$(printf "%s" "$repo" | rev | cut -d/ -f2 | rev)
+	REPO_NAME=$(printf "%s" "$repo" | rev | cut -d/ -f1 | rev)
 	if [ -z "$XDG_CACHE_HOME" ]; then
-		REPO_DIR="/tmp/snowglobe-CI/repos/$REPO_OWNER/$REPO_NAME"
+		REPO_DIR="/tmp/snowglobe-CI/repos/$REPO_DOMAIN/$REPO_OWNER/$REPO_NAME"
 	else
-		REPO_DIR="$XDG_CACHE_HOME/snowglobe-CI/repos/$REPO_OWNER/$REPO_NAME"
+		REPO_DIR="$XDG_CACHE_HOME/snowglobe-CI/repos/$REPO_DOMAIN/$REPO_OWNER/$REPO_NAME"
 	fi
 
 	if [ ! -d "$REPO_DIR/.git" ]; then
