@@ -5,7 +5,7 @@
   ...
 }:
 let
-  cfg = config.snowglobe-lib.nixosConfig.desktop;
+  cfg = config.snowglobe-lib.desktop;
   slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
