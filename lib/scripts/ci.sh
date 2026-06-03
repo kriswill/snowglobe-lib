@@ -85,7 +85,7 @@ _build_installers() {
 	done
 }
 
-MODE="$(printf "build testmonkey\ncheck repo flakes\nbuild registered\nbuild installers" | fzf)"
+MODE="$(printf "build testmonkey\ncheck repo flakes\nbuild registered\nbuild installers\nunstable -> main" | fzf)"
 case "$MODE" in
 "build testmonkey") ;;
 "check repo flakes")
@@ -94,6 +94,14 @@ case "$MODE" in
 	;;
 "build registered")
 	CHECK_REGISTERED_REPOS=1
+	;;
+"unstable -> main")
+	git checkout main
+	git merge unstable || ERROR=1
+	[ -z "$ERROR" ] && git push
+	git checkout unstable
+	[ "$ERROR" ] && exit 1
+	exit 0
 	;;
 "build installers")
 	_build_installers || exit 1
