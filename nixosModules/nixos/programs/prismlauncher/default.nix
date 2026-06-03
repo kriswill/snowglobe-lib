@@ -23,7 +23,7 @@ in
       extraModules = {
         # install runtime environment to system path
         # to prevent prismlauncher from asking every flake update
-        environment.systemPackages = [ pkgs.jre ];
+        programs.java.enable = true;
       };
     }
   );
