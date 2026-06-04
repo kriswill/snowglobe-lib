@@ -13,6 +13,10 @@ in
   config = lib.mkIf moduleEnabled {
     hardware.graphics.enable = true;
     # good tool for monitoring and control of your gpu
-    services.lact.enable = slib.setDefault true;
+    services.lact.enable =
+      let
+        cfgp = config.snowglobe-lib.profiles;
+      in
+      slib.setDefault (cfgp.hardware-tools.enable || cfgp.gaming.enable);
   };
 }

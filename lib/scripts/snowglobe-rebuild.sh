@@ -88,7 +88,7 @@ if [ "$GIT_REPO_PRESENT" ]; then
 	}
 
 	# ensure all changes are staged so nix doesn't yell at you
-	git add .
+	git add . || _errormsg "Could not stage changes"
 
 	# make sure that your module modifications are logged with a standalone commit
 	if [ "$PERSISTENT_CONFIGURATION_CHANGE" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
@@ -97,7 +97,7 @@ if [ "$GIT_REPO_PRESENT" ]; then
 			printf "Detected these uncommitted changes in your repository, You should commit them now (Press Ctrl+C to abort)\n"
 			printf "Commit Message: "
 			read -r COMMIT_MSG
-			git commit -m "$COMMIT_MSG"
+			git commit -m "$COMMIT_MSG" || _errormsg "failed to commit to git"
 		fi
 		# TODO working auto conflict resolution?
 		git pull || exit 1
@@ -140,11 +140,8 @@ if [ "$PERSISTENT_CONFIGURATION_CHANGE" ]; then
 
 	if [ "$GIT_REPO_PRESENT" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
 		# commit the changes to the updates.log
-		git add .
-		git commit -m "Updated System - $HOSTNAME"
-		git push || {
-			printf "Failed to push to remote repository\n"
-			exit 1
-		}
+		git add . || _errormsg "could not stage updates.log"
+		git commit -m "Updated System - $HOSTNAME" || _errormsg "Could not commit updates.log to git"
+		git push || _errormsg "Could not push to remote repository"
 	fi
 fi
