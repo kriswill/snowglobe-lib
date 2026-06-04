@@ -36,6 +36,7 @@
               inputs.disko.nixosModules.default
               # queue system for nix post-build-hook when uploading to binary caches
               inputs.nix-post-build-hook-queue.nixosModules.default
+              inputs.nix-index-database.nixosModules.default
             ])
             # secrets storage and key management
             # does not work with import-tree for some reason
@@ -100,6 +101,11 @@
 
     nixos-hardware = {
       url = "https://flakehub.com/f/NixOS/nixos-hardware/*.tar.gz";
+    };
+
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-post-build-hook-queue = {

@@ -133,6 +133,26 @@
         "type": "github"
       }
     },
+    "nix-index-database": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1780210899,
+        "narHash": "sha256-4axz3OBPTKa6LIkXV8n0lc63MQU+et2CB5DGobEAi6k=",
+        "owner": "nix-community",
+        "repo": "nix-index-database",
+        "rev": "97df9dc0b7c924344b793a15c1e8e4522ebb854e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-index-database",
+        "type": "github"
+      }
+    },
     "nix-post-build-hook-queue": {
       "inputs": {
         "nixpkgs": [
@@ -221,6 +241,7 @@
         "flux": "flux",
         "import-tree": "import-tree",
         "jovian-nixos": "jovian-nixos",
+        "nix-index-database": "nix-index-database",
         "nix-post-build-hook-queue": "nix-post-build-hook-queue",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",

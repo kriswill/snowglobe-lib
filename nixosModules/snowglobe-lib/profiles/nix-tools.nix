@@ -15,13 +15,15 @@ in
 
   config = lib.mkIf cfg.enable {
     programs = {
-      nix-output-monitor.enable = true;
-      nix-fast-build.enable = true;
-      nvd.enable = slib.setDefault true;
-      nh.enable = true;
-      direnv = {
-        enable = true;
+      nix-output-monitor.enable = slib.setDefault true;
+      nix-index-database = {
+        enable = slib.setDefault true;
+        comma.enable = slib.setDefault true;
       };
+      nix-fast-build.enable = slib.setDefault true;
+      nvd.enable = slib.setDefault true;
+      nh.enable = slib.setDefault true;
+      direnv.enable = slib.setDefault true;
     };
 
     environment.systemPackages = builtins.attrValues {

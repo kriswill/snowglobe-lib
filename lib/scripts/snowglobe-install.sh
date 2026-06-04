@@ -432,6 +432,8 @@ _install_nixos() {
 		nixos-install --no-channel-copy --no-root-password --flake "/mnt/etc/nixos#$HOSTNAME" || _errormsg "\nERROR: Installation failed or aborted."
 	fi
 
+	y_or_n --msg="Installation completed. Do you wish to reboot now?" && reboot
+
 	exit 0
 }
 
