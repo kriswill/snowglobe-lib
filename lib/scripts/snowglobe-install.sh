@@ -1043,30 +1043,36 @@ fi
 # ensure secure permissions are set
 chmod 600 "$KEY_FILE_PATH"
 
+CONFIGURATION_NIX="$HOST_CONFIG_DIR/configuration.nix"
 # write configuration files
 printf '{ pkgs, lib, config, ... }:
 	{
 		i18n.defaultLocale = "%s";
 		services.xserver.xkb.layout = "%s";
 ' \
-	"$LOCALE" "$XKB_LAYOUT" >"$HOST_CONFIG_DIR/configuration.nix"
+	"$LOCALE" "$XKB_LAYOUT" >"$CONFIGURATION_NIX"
 
 if [ ${TIMEZONE+x} ]; then
-	printf "time.timeZone = \"%s\";\n" "$TIMEZONE" >>"$HOST_CONFIG_DIR/configuration.nix"
+	printf "time.timeZone = \"%s\";\n" "$TIMEZONE" >>"$CONFIGURATION_NIX"
 fi
 
 if [ ${SELECTED_DESKTOP+x} ]; then
-	printf "snowglobe-lib.desktop.%s.enable = true;\n" "$SELECTED_DESKTOP" >>"$HOST_CONFIG_DIR/configuration.nix"
+	printf "snowglobe-lib.desktop.%s.enable = true;\n" "$SELECTED_DESKTOP" >>"$CONFIGURATION_NIX"
 fi
 
 if [ "$ENABLED_PROFILES" ]; then
-	printf "\n# custom profiles\n" >>"$HOST_CONFIG_DIR/configuration.nix"
+	printf "\n# custom profiles\n" >>"$CONFIGURATION_NIX"
 	for profile in "${ENABLED_PROFILES[@]}"; do
-		printf "snowglobe-lib.profiles.%s.enable = true;\n" "$profile" >>"$HOST_CONFIG_DIR/configuration.nix"
+		printf "snowglobe-lib.profiles.%s.enable = true;\n" "$profile" >>"$CONFIGURATION_NIX"
 	done
 fi
 
-printf "}" >>"$HOST_CONFIG_DIR/configuration.nix"
+if [ "$CACHE_UNTRUSTED" ]; then
+	printf "\n# Don't trust cache server\n" >>"$CONFIGURATION_NIX"
+	printf "substituters.\"nix-store.homelab.earthgman.dev\".enable = false;\n" >>"$CONFIGURATION_NIX"
+fi
+
+printf "}" >>"$CONFIGURATION_NIX"
 
 # write new host to the global hosts configuration file
 if [ "$APPEND_MODE" ]; then

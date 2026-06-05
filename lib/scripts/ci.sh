@@ -40,7 +40,8 @@ _end_sequence() {
 
 # auto builds, signs, and uploads all installer images to the cache website
 _build_installers() {
-	WEBSITE_IP="192.168.25.85"
+	WEBSITE_IP="192.168.25.69"
+	WEBSITE_ROOT="/srv/www"
 
 	if ! ping -c 1 $WEBSITE_IP; then
 		printf "Unable to reach cache server at: %s\n" "$WEBSITE_IP"
@@ -60,12 +61,13 @@ _build_installers() {
 		done | grep 'snowglobe-installer'
 	)
 
-	mkdir -p "$XDG_CACHE_HOME/snowglobe-CI/installers" || exit 1
+	CACHE_DIR="$XDG_CACHE_HOME/snowglobe-CI/installers-hashes"
+	mkdir -p "$CACHE_DIR" || exit 1
 
 	for image in $INSTALLERS; do
 		# store isos so they can be shared between hosts
 		ISO_DEST_PATH=~/src/isos/$image.iso
-		HASH_DEST_PATH="$XDG_CACHE_HOME/snowglobe-CI/installers/$image.iso.sha256"
+		HASH_DEST_PATH="$CACHE_DIR/$image.iso.sha256"
 		nixos-rebuild build-image --image-variant iso-installer --flake .\#"$image" || {
 			printf "Could not build the installer image: %s" "$image"
 			exit 1
@@ -80,9 +82,10 @@ _build_installers() {
 		sha256sum "$ISO_DEST_PATH" | cut -d ' ' -f1 >"$HASH_DEST_PATH"
 		gpg --sign --default-key 'EarthGman@protonmail.com' "$HASH_DEST_PATH"
 
-		scp "$ISO_DEST_PATH" "$HASH_DEST_PATH"".gpg" "root@$WEBSITE_IP:/srv/snowglobe-installers"
-		rm "$HASH_DEST_PATH"
+		scp "$ISO_DEST_PATH" "$HASH_DEST_PATH"".gpg" "earthgman@$WEBSITE_IP:$WEBSITE_ROOT/snowglobe-installers"
 	done
+
+	rm -r "$CACHE_DIR"
 }
 
 MODE="$(printf "build testmonkey\ncheck repo flakes\nbuild registered\nbuild installers\nunstable -> main" | fzf)"

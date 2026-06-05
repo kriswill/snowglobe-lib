@@ -17,7 +17,8 @@
     configDir = ./snowglobe-installer;
     modules = [
       {
-        environment.sesionVariables.CACHE_UNTRUSTED = "1";
+        substituters."nix-store.homelab.earthgman.dev".enable = false;
+        environment.sessionVariables.CACHE_UNTRUSTED = "1";
       }
     ];
   };
@@ -42,6 +43,7 @@
     configDir = ./snowglobe-installer;
     modules = [
       {
+        substituters."nix-store.homelab.earthgman.dev".enable = false;
         environment.sessionVariables.CACHE_UNTRUSTED = "1";
         hardware = {
           enableRedistributableFirmware = lib.mkForce false;
