@@ -15,7 +15,6 @@ in
     programName = programName;
     inherit pkgs;
     extraOptions = {
-      defaultEditor = lib.mkEnableOption "Neovim as your default editor";
       viAlias = lib.mkEnableOption "vi aliased to nvim";
       vimAlias = lib.mkEnableOption "vim aliased to nvim";
     };
@@ -26,7 +25,6 @@ in
       inherit programName config;
       extraModules = {
         environment = {
-          sessionVariables.EDITOR = lib.mkIf (cfg.defaultEditor) (lib.mkForce "nvim");
           systemPackages =
             let
               viAlias =

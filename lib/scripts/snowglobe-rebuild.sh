@@ -123,6 +123,7 @@ else
 	nixos-rebuild "$@" || _notify "Error" "$ERRORMSG"
 fi
 
+# TODO updates.log is broken depending on ownership of repo
 if [ "$PERSISTENT_CONFIGURATION_CHANGE" ]; then
 	# keep a log file of your system updates
 	UPDATE_LOG="$FLAKE_DIR/updates.log"
@@ -136,7 +137,13 @@ if [ "$PERSISTENT_CONFIGURATION_CHANGE" ]; then
 	fi
 
 	UPDATE_MSG="$(printf "%s\nUpdated System - %s\n\n" "$(date)" "$HOSTNAME")"
-	printf "%s\n\n" "$UPDATE_MSG" | cat - "$UPDATE_LOG" >/tmp/nixos-update.log && mv /tmp/nixos-update.log "$UPDATE_LOG"
+	printf "%s\n\n" "$UPDATE_MSG" | cat - "$UPDATE_LOG" >/tmp/nixos-update.log && {
+		if [ "$NEEDS_SUDO" ]; then
+			sudo mv /tmp/nixos-update.log "$UPDATE_LOG"
+		else
+			mv /tmp/nixos-update.log "$UPDATE_LOG"
+		fi
+	}
 
 	if [ "$GIT_REPO_PRESENT" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
 		# commit the changes to the updates.log
