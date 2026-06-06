@@ -7,6 +7,6 @@ in
   # omori-font = callPackage ./omori-font { };
   # _8-bit-operator-font = callPackage ./8-bit-operator-font { };
   star-pixel-icons = callPackage ./star-pixel-icons { };
-  steamServers = import ./steamServers { inherit pkgs; };
+  corekeeper-dedictated-server = callPackage ./steamServers/corekeeper.nix { };
 }
 // import ./snowglobe-rebuild { inherit pkgs; }
