@@ -182,6 +182,7 @@ in
       libreoffice.package = slib.setDefault pkgs.libreoffice-fresh;
       # alias to neovim if enabled
       neovim = {
+        enable = slib.setDefault true;
         viAlias = slib.setDefault true;
         vimAlias = slib.setDefault true;
       };
