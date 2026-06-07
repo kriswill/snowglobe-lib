@@ -110,6 +110,8 @@ in
       nautilus.enable = lib.mkDefault false;
       # prevent 2 network manager applets
       networkmanagerapplet.enable = lib.mkDefault false;
+      # disable nwg-look
+      nwg-look.enable = lib.mkDefault false;
     };
   };
 }

@@ -15,7 +15,7 @@ in
     snowglobe-lib.system.hasDesktop = lib.mkForce true;
     snowglobe-lib.desktop = {
       enable = lib.mkForce true;
-      installWaylandDeps = lib.mkForce true;
+      installWaylandDeps = true;
     };
     programs = {
       labwc = {

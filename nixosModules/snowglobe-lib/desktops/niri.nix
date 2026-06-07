@@ -18,8 +18,8 @@ in
     snowglobe-lib.system.hasDesktop = lib.mkForce true;
     # shared desktop configuration
     snowglobe-lib.desktop = {
-      enable = lib.mkForce true;
-      installWaylandDeps = lib.mkForce true;
+      enable = true;
+      installWaylandDeps = true;
     };
     programs = {
       niri = {

@@ -113,6 +113,8 @@ in
           nautilus.enable = slib.setDefault true;
           # lightweight notepad clone
           mousepad.enable = slib.setDefault true;
+          # GTK management app for fonts icons cursors, etc for independent WMs
+          nwg-look.enable = slib.setDefault true;
           # volume control for pipewire-pulse
           pwvucontrol.enable = slib.setDefault true;
           # calculator app
