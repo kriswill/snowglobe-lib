@@ -1,4 +1,8 @@
-{ inputs, lib }:
+{ flake, nixpkgs }:
+let
+  lib = nixpkgs.lib;
+  inputs = flake.inputs;
+in
 rec {
   packages =
     # custom packages

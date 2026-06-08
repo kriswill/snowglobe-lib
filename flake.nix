@@ -9,7 +9,8 @@
         "aarch64-linux"
       ];
 
-      outputs = self.outputs;
+      flake = self;
+      outputs = flake.outputs;
       lib = nixpkgs.lib;
       import-tree = inputs.import-tree;
 
@@ -63,16 +64,19 @@
           pkgs = import nixpkgs {
             config.allowUnfree = true;
             inherit system;
-            overlays = builtins.attrValues self.outputs.overlays;
+            overlays = builtins.attrValues flake.outputs.overlays;
           };
         in
         import ./packages { inherit pkgs; }
       );
 
-      overlays = import ./overlays { inherit inputs lib; };
+      overlays = import ./overlays { inherit flake nixpkgs; };
 
       devShells = lib.genAttrs supportedSystems (system: {
-        default = import ./devShells { pkgs = nixpkgs.legacyPackages.${system}; };
+        default = import ./devShells {
+          inherit flake;
+          pkgs = nixpkgs.legacyPackages.${system};
+        };
       });
     };
 

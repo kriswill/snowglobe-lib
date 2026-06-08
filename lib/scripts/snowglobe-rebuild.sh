@@ -134,26 +134,32 @@ if [ "$PERSISTENT" ]; then
 	GENERATION=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f1)
 	TIMESTAMP=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f2-3)
 	KERNEL_VERSION=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f5)
-	UPDATE_MSG="$(
-		printf "%s - %s
+
+	PREVIOUS_GENERATIION=$(cat $UPDATE_LOG | head --lines 3 | grep Generation | cut -d'-' -f2 | tr -d ' ')
+	LOG=1
+	[ "$GENERATION" = "$PREVIOUS_GENERATIION" ] && unset LOG
+
+	if [ ${LOG+x} ]; then
+		UPDATE_MSG="$(
+			printf "%s\n%s
 Generation - %s
 Kernel - %s\n\n" \
-			"$TIMESTAMP" "$HOSTNAME" "$GENERATION" "$KERNEL_VERSION"
-	)"
-	printf "%s\n\n" "$UPDATE_MSG" | cat - "$UPDATE_LOG" >/tmp/snowglobe-system-update.log
-	if [ "$(whoami)" = "$FLAKE_DIR_OWNER" ]; then
-		mv /tmp/snowglobe-system-update.log "$FLAKE_DIR/updates.log" || _errormsg "Could not move updates.log into place"
-	else
-		sudo mv /tmp/snowglobe-system-update.log "$FLAKE_DIR/updates.log" || _errormsg "Could not move updates.log into place"
-	fi
+				"$HOSTNAME" "$TIMESTAMP" "$GENERATION" "$KERNEL_VERSION"
+		)"
+		printf "%s\n\n" "$UPDATE_MSG" | cat - "$UPDATE_LOG" >/tmp/snowglobe-system-update.log
+		if [ "$(whoami)" = "$FLAKE_DIR_OWNER" ]; then
+			mv /tmp/snowglobe-system-update.log "$FLAKE_DIR/updates.log" || _errormsg "Could not move updates.log into place"
+		else
+			sudo mv /tmp/snowglobe-system-update.log "$FLAKE_DIR/updates.log" || _errormsg "Could not move updates.log into place"
+		fi
 
-	if [ "$GIT_REPO_PRESENT" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
-		# commit the changes to the updates.log
-		printf "Successfully switched configuration. Now commit your changes.\n"
-		printf "Commit message: "
-		read -r COMMIT_MSG
-		git add . || _errormsg "could not stage changes"
-		git commit -m "$COMMIT_MSG" || _errormsg "Could not commit to git"
-		git push || _errormsg "Could not push to remote repository"
+		if [ "$GIT_REPO_PRESENT" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
+			printf "Successfully switched configuration. Now commit your changes.\n"
+			printf "Commit message: "
+			read -r COMMIT_MSG
+			git add . || _errormsg "could not stage changes"
+			git commit -m "$COMMIT_MSG" || _errormsg "Could not commit to git"
+			git push || _errormsg "Could not push to remote repository"
+		fi
 	fi
 fi
