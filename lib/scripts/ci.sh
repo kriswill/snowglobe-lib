@@ -66,7 +66,7 @@ _build_installers() {
 
 	for image in $INSTALLERS; do
 		# store isos so they can be shared between hosts
-		ISO_DEST_PATH=~/src/isos/$image.iso
+		ISO_DEST_PATH=~/Archive/isos/$image.iso
 		HASH_DEST_PATH="$CACHE_DIR/$image.iso.sha256"
 		nixos-rebuild build-image --image-variant iso-installer --flake .\#"$image" || {
 			printf "Could not build the installer image: %s" "$image"
