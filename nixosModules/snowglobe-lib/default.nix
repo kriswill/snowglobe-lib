@@ -47,7 +47,7 @@ in
     substituters = {
       # Warning: Personal server for ensuring package patches in overlays/package-patches get cached.
       # Users have the option to enable or disable this per-host depending on the installer type used.
-      "nix-store.homelab.earthgman.dev" = {
+      "nix-store.earthgman.dev" = {
         enable = slib.setDefault true;
         publicKey = "nix-store.earthgman.dev:2Qrw9kS+K2c00ikcgaz5Y0M7j5XmkhFJz3d7oNgJdLw=";
         # set lower priority than cache.nixos.org by default
