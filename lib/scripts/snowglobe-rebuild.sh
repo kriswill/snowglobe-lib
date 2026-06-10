@@ -157,12 +157,12 @@ Kernel - %s\n\n" \
 		fi
 
 		if [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
+			git add . || _errormsg "could not stage changes to git."
 			printf "Successfully switched configuration. Now commit your changes.\n"
 			# give a brief overview of what will be committed
 			git status
 			printf "Commit message: "
 			read -r COMMIT_MSG
-			git add . || _errormsg "could not stage changes"
 			git commit -m "$COMMIT_MSG" || _errormsg "Could not commit to git"
 			git push || _errormsg "Could not push to remote repository"
 		fi
