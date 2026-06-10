@@ -66,9 +66,8 @@ fi
 if [ ! -d "$FLAKE_DIR" ] || [ ! -e "$FLAKE_DIR/flake.nix" ]; then
 	_errormsg "no flake found $FLAKE_DIR"
 fi
-if [ -d "$FLAKE_DIR/.git" ]; then
-	GIT_REPO_PRESENT=true
-fi
+
+[ -d "$FLAKE_DIR/.git" ] && GIT_REPO_PRESENT=1
 
 cd "$FLAKE_DIR" || _errormsg "Could not change working directory to $FLAKE_DIR"
 
@@ -87,14 +86,18 @@ if [ "$GIT_REPO_PRESENT" ]; then
 		_disable_git_sync
 	}
 
-	# disable git stuff if you have no local changes to commit
-	git status | grep -q 'nothing to commit, working tree clean' && IGNORE_GIT_SYNCHRONIZATION=1
+	# dont stash if you have no local changes to commit
+	git status | grep -q 'nothing to commit, working tree clean' && SKIP_STASH
 
 	# ensure that your repo is synced with your remote in case you pushed from another host in your fleet
 	if [ "$PERSISTENT" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
-		git stash || _disable_git_sync
-		[ "$IGNORE_GIT_SYNCHRONIZATION" ] || git pull || _disable_git_sync
-		[ "$IGNORE_GIT_SYNCHRONIZATION" ] || git stash apply >/dev/null || _disable_git_sync
+		if [ "$SKIP_STASH" ]; then
+			git pull || _disable_git_sync
+		else
+			git stash || _disable_git_sync
+			[ "$IGNORE_GIT_SYNCHRONIZATION" ] || git pull || _disable_git_sync
+			[ "$IGNORE_GIT_SYNCHRONIZATION" ] || git stash apply >/dev/null || _errormsg "Could not apply git stash"
+		fi
 	fi
 
 	# ensure all changes are staged so nix doesn't yell at you
@@ -153,8 +156,10 @@ Kernel - %s\n\n" \
 			sudo mv /tmp/snowglobe-system-update.log "$FLAKE_DIR/updates.log" || _errormsg "Could not move updates.log into place"
 		fi
 
-		if [ "$GIT_REPO_PRESENT" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
+		if [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
 			printf "Successfully switched configuration. Now commit your changes.\n"
+			# give a brief overview of what will be committed
+			git status
 			printf "Commit message: "
 			read -r COMMIT_MSG
 			git add . || _errormsg "could not stage changes"
