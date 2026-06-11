@@ -87,7 +87,7 @@ if [ "$GIT_REPO_PRESENT" ]; then
 	}
 
 	# dont stash if you have no local changes to commit
-	git status | grep -q 'nothing to commit, working tree clean' && SKIP_STASH
+	git status | grep -q 'nothing to commit, working tree clean' && SKIP_STASH=1
 
 	# ensure that your repo is synced with your remote in case you pushed from another host in your fleet
 	if [ "$PERSISTENT" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then

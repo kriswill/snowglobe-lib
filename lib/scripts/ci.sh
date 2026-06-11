@@ -189,7 +189,10 @@ for repo in $REPOSITORIES; do
 		sed -i "s|/earthgman/snowglobe-lib.*|/earthgman/snowglobe-lib?ref=$GIT_BRANCH\";|" "$REPO_DIR/flake.nix"
 	fi
 
-	nix flake update snowglobe-lib || _errormsg "failed to update snowglobe-lib input for $repo"
+	nix flake update snowglobe-lib || {
+		mv -f flake.nix.bak flake.nix
+		_errormsg "failed to update snowglobe-lib input for $repo"
+	}
 
 	if [ "$CHECK_ONLY" ]; then
 		nix flake check || exit 1
@@ -203,7 +206,7 @@ for repo in $REPOSITORIES; do
 			msg="build for $host from repo: $REPO_OWNER/$REPO_NAME has failed"
 			printf "%s\n" "$msg"
 			notify-send -a "snowglobe-CI" "ci.sh" "Error: $msg"
-			mv flake.nix.bak flake.nix
+			mv -f flake.nix.bak flake.nix
 			exit 1
 		}
 	done
