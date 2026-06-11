@@ -96,6 +96,7 @@ _build_installers() {
 	rm -r "$CACHE_DIR"
 }
 
+[ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="/tmp"
 MODE="$(printf "build testmonkey
 check repo flakes
 build registered repos
@@ -158,11 +159,8 @@ for repo in $REPOSITORIES; do
 	REPO_DOMAIN=$(printf "%s" "$repo" | cut -d/ -f3)
 	REPO_OWNER=$(printf "%s" "$repo" | rev | cut -d/ -f2 | rev)
 	REPO_NAME=$(printf "%s" "$repo" | rev | cut -d/ -f1 | rev)
-	if [ -z "$XDG_CACHE_HOME" ]; then
-		REPO_DIR="/tmp/snowglobe-CI/repos/$REPO_DOMAIN/$REPO_OWNER/$REPO_NAME"
-	else
-		REPO_DIR="$XDG_CACHE_HOME/snowglobe-CI/repos/$REPO_DOMAIN/$REPO_OWNER/$REPO_NAME"
-	fi
+
+	REPO_DIR="$XDG_CACHE_HOME/snowglobe-CI/repos/$REPO_DOMAIN/$REPO_OWNER/$REPO_NAME"
 
 	if [ ! -d "$REPO_DIR/.git" ]; then
 		mkdir -p "$REPO_DIR"
