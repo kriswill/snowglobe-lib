@@ -184,7 +184,7 @@ in
       neovim = {
         enable = slib.setDefault true;
         viAlias = slib.setDefault true;
-        vimAlias = slib.setDefault true;
+        vimAlias = slib.setDefault (!config.programs.vim.enable);
       };
       # give otp support for 2fa with pass
       password-store.package = slib.setDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));

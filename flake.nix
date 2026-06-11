@@ -70,7 +70,7 @@
         import ./packages { inherit pkgs; }
       );
 
-      overlays = import ./overlays { inherit flake nixpkgs; };
+      overlays = import ./overlays { inherit flake; };
 
       devShells = lib.genAttrs supportedSystems (system: {
         default = import ./devShells {

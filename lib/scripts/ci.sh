@@ -9,51 +9,59 @@ _errormsg() {
 }
 
 y_or_n() {
-	printf "%s: [y/n] " "$1"
-	read -r yn
+	while :; do
+		printf "%s: [y/n] " "$1"
+		read -r yn
 
-	if [ -z "$yn" ]; then
-		return 1
-	fi
-
-	case "$yn" in
-	"Y" | "y")
-		return 0
-		;;
-
-	"N" | "n")
-		return 1
-		;;
-	*)
-		printf "Not a valid response\n"
-		;;
-	esac
+		case "$yn" in
+		"Y" | "y") return 0 ;;
+		"N" | "n") return 1 ;;
+		*) printf "Not a valid response\n" ;;
+		esac
+	done
 }
 
 _end_sequence() {
 	notify-send -a "snowglobe-CI" "ci.sh" "Configuration Checks complete"
 	if systemctl is-active nix-post-build-hook-queue >/dev/null; then
-		y_or_n "disable post-build-hook-queue?" && sudo systemctl stop nix-post-build-hook-queue
+		y_or_n "disable post-build-hook-queue?" && _disable_nix_uploader
 	fi
 	exit 0
+}
+
+_enable_nix_uploader() {
+	if ! systemctl is-active nix-post-build-hook-queue.socket >/dev/null; then
+		printf "Build hook queue is not enabled Authenticate to enable the service.\n"
+		printf "Starting nix-post-build-hook-queue\n"
+		sudo systemctl start nix-post-build-hook-queue.socket || _errormsg "Could not start post-build-hook-queue.sock"
+		sudo systemctl start nix-post-build-hook-queue || _errormsg "Could not start post-build-hook-queue.service"
+	fi
+}
+
+_disable_nix_uploader() {
+	if systemctl is-active nix-post-build-hook-queue >/dev/null 2>&1; then
+		printf "nix-post-build-hook-queue is enabled. Authenticate to disable.\n"
+		sudo systemctl stop nix-post-build-hook-queue.socket || return 1
+		sudo systemctl stop nix-post-build-hook-queue || return 1
+	fi
+}
+
+# TODO build custom packages and package overlays
+_build_packages() {
+	SYSTEM_ARCH="$(lscpu | grep Arch | tr -d " " | cut -d: -f2)""-linux"
+	_enable_nix_uploader
+	for package in $(nix eval .\#packages."$SYSTEM_ARCH" --apply builtins.attrNames | tr -d '[]'); do
+		nom build .#"$package" || _errormsg "Failed to build $package"
+	done
+	_end_sequence
 }
 
 # auto builds, signs, and uploads all installer images to the cache website
 _build_installers() {
 	WEBSITE_IP="192.168.25.69"
-	WEBSITE_ROOT="/srv/www"
+	UPLOAD_DIR="/tmp"
 
-	if ! ping -c 1 $WEBSITE_IP; then
-		printf "Unable to reach cache server at: %s\n" "$WEBSITE_IP"
-		exit 1
-	fi
-
-	# stop the post-build-hook-queue so the images aren't uploaded to the nix cache
-	if systemctl is-active nix-post-build-hook-queue >/dev/null 2>&1; then
-		printf "nix-post-build-hook-queue is enabled. Authenticate to disable.\n"
-		sudo systemctl stop nix-post-build-hook-queue.socket
-		sudo systemctl stop nix-post-build-hook-queue
-	fi
+	ping -c 1 $WEBSITE_IP || _errormsg "Unable to reach webserver at: $WEBSITE_IP"
 
 	INSTALLERS=$(
 		for configuration in $(nix eval ".#nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"'); do
@@ -64,6 +72,8 @@ _build_installers() {
 	CACHE_DIR="$XDG_CACHE_HOME/snowglobe-CI/installers-hashes"
 	mkdir -p "$CACHE_DIR" || exit 1
 
+	ssh earthgman@$WEBSITE_IP 'mkdir -p /tmp/snowglobe-installers' || exit 1
+
 	for image in $INSTALLERS; do
 		# store isos so they can be shared between hosts
 		ISO_DEST_PATH=~/Archive/isos/$image.iso
@@ -73,30 +83,34 @@ _build_installers() {
 			exit 1
 		}
 
-		if [ -e "$ISO_DEST_PATH" ]; then
-			rm -f "$ISO_DEST_PATH"
-		fi
+		[ -e "$ISO_DEST_PATH" ] && rm -f "$ISO_DEST_PATH"
 
-		cp result/iso/* "$ISO_DEST_PATH"
+		cp result/iso/* "$ISO_DEST_PATH" || _errormsg "Could not copy image to $ISO_DEST_PATH"
 
 		sha256sum "$ISO_DEST_PATH" | cut -d ' ' -f1 >"$HASH_DEST_PATH"
-		gpg --sign --default-key 'EarthGman@protonmail.com' "$HASH_DEST_PATH"
+		gpg --sign --default-key 'EarthGman@protonmail.com' "$HASH_DEST_PATH" || _errormsg "Failed to sign iso image hash for $image"
 
-		scp "$ISO_DEST_PATH" "$HASH_DEST_PATH"".gpg" "earthgman@$WEBSITE_IP:$WEBSITE_ROOT/snowglobe-installers"
+		scp "$ISO_DEST_PATH" "$HASH_DEST_PATH"".gpg" "earthgman@$WEBSITE_IP:$UPLOAD_DIR/snowglobe-installers" || _errormsg "Could not copy image to the server."
 	done
 
 	rm -r "$CACHE_DIR"
 }
 
-MODE="$(printf "build testmonkey\ncheck repo flakes\nbuild registered\nbuild installers\nunstable -> main" | fzf)"
+MODE="$(printf "build testmonkey
+check repo flakes
+build registered repos
+build installers
+build packages
+unstable -> main" | fzf)"
+
 case "$MODE" in
 "build testmonkey") ;;
 "check repo flakes")
 	CHECK_ONLY=1
-	CHECK_REGISTERED_REPOS=1
+	BUILD_REGISTERED_REPOS=1
 	;;
-"build registered")
-	CHECK_REGISTERED_REPOS=1
+"build registered repos")
+	BUILD_REGISTERED_REPOS=1
 	;;
 "unstable -> main")
 	git checkout main
@@ -106,35 +120,21 @@ case "$MODE" in
 	[ "$ERROR" ] && exit 1
 	exit 0
 	;;
+"build packages")
+	_build_packages || exit 1
+	exit 0
+	;;
 "build installers")
 	_build_installers || exit 1
 	exit 0
 	;;
-*)
-	printf "nothing selected\n"
-	exit 1
-	;;
+*) _errormsg "Nothing selected" ;;
 esac
 
-if [ ! -e .secrets/repo-urls.txt ] && [ "$CHECK_REGISTERED_REPOS" ]; then
-	printf "Error: repo-urls were not found or you are not in the project root.\n"
-	exit 1
+if [ ! -e .secrets/repo-urls.txt ] && [ "$BUILD_REGISTERED_REPOS" ]; then
+	_errormsg "repo-urls were not found or you are not in the project root."
 fi
-
-if [ ! -d nixosConfigurations/testmonkey ]; then
-	printf "testmonkey config missing or not in project root\n"
-	exit 1
-fi
-
-# use nix-post-build-hook-queue to push modified packages to nix-store.earthgman.dev
-if [ -z "$CHECK_ONLY" ] && ! systemctl is-active nix-post-build-hook-queue >/dev/null; then
-	printf "Build hook queue is not enabled Authenticate to enable the service.\n"
-	if ! systemctl is-active nix-post-build-hook-queue.socket >/dev/null; then
-		sudo systemctl start nix-post-build-hook-queue.socket || _errormsg "Could not start post-build-hook-queue.sock"
-	fi
-	printf "Starting nix-post-build-hook-queue\n"
-	sudo systemctl start nix-post-build-hook-queue || _errormsg "Could not start post-build-hook-queue.service"
-fi
+[ -d nixosConfigurations/testmonkey ] || _errormsg "testmonkey config missing or not in project root"
 
 if [ -z "$CHECK_ONLY" ]; then
 	if command -v nh >/dev/null 2>&1; then
@@ -145,27 +145,15 @@ if [ -z "$CHECK_ONLY" ]; then
 fi
 
 # early escape if no repo checks are being done
-if [ ! ${CHECK_REGISTERED_REPOS+x} ]; then
-	_end_sequence
-fi
+[ "$BUILD_REGISTERED_REPOS" ] || _end_sequence
 
 GIT_BRANCH="$(git branch | grep '\*' | cut -d' ' -f2)"
 
 REPOSITORIES=$(cat ".secrets/repo-urls.txt")
+[ "$REPOSITORIES" ] || _errormsg "no repositories found in repo urls"
 PROJECT_ROOT="$PWD"
 
-y_or_n() {
-	while true; do
-		printf "%s [y/n]: " "$@"
-		read -r yn
-		case $yn in
-		[Yy]) return 0 ;;
-		[Nn]) return 1 ;;
-		*) printf "Not a valid response\n" ;;
-		esac
-	done
-}
-
+[ ! "$CHECK_ONLY" ] && _enable_nix_uploader
 for repo in $REPOSITORIES; do
 	REPO_DOMAIN=$(printf "%s" "$repo" | cut -d/ -f3)
 	REPO_OWNER=$(printf "%s" "$repo" | rev | cut -d/ -f2 | rev)
@@ -195,14 +183,15 @@ for repo in $REPOSITORIES; do
 	cp flake.nix flake.nix.bak
 
 	# edit the flake.nix to point to the development branch
-	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep 'ref=unstable')" ]; then
+	# TODO allow arbitrary branches
+	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep "ref=$GIT_BRANCH")" ]; then
 		# do nothing
-		printf "already on dev branch\n"
+		printf "already on branch\n"
 	else
-		sed -i 's|/earthgman/snowglobe-lib|/earthgman/snowglobe-lib?ref=unstable|' "$REPO_DIR/flake.nix"
+		sed -i "s|/earthgman/snowglobe-lib.*|/earthgman/snowglobe-lib?ref=$GIT_BRANCH\";|" "$REPO_DIR/flake.nix"
 	fi
 
-	nix flake update snowglobe-lib
+	nix flake update snowglobe-lib || _errormsg "failed to update snowglobe-lib input for $repo"
 
 	if [ "$CHECK_ONLY" ]; then
 		nix flake check || exit 1
@@ -214,8 +203,8 @@ for repo in $REPOSITORIES; do
 	for host in $HOSTS; do
 		nh os build ".#nixosConfigurations.$host" || {
 			msg="build for $host from repo: $REPO_OWNER/$REPO_NAME has failed"
-			echo "$msg"
-			notify-send -a "snowglobe-CI" "ci.sh" "$msg"
+			printf "%s\n" "$msg"
+			notify-send -a "snowglobe-CI" "ci.sh" "Error: $msg"
 			mv flake.nix.bak flake.nix
 			exit 1
 		}

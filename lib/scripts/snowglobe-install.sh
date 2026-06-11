@@ -4,9 +4,7 @@ _errormsg() {
 	exit 1
 }
 
-if [ "$(whoami)" != "root" ]; then
-	_errormsg "You must be root."
-fi
+[ "$(whoami)" = "root" ] || _errormsg "You must be root."
 
 clear
 # ensure that the nix daemon is running
@@ -683,7 +681,7 @@ _select_optional_profiles() {
 	fi
 	y_or_n --msg="Install penetration and security testing tools from Kali Linux? (nmap, tor-browser, john-the-ripper, wireshark, etc)" --default="no" && ENABLED_PROFILES+=("hacker-mode")
 	y_or_n --msg="Install additional nix tools? (recommended for developers)" --default="no" && ENABLED_PROFILES+=("nix-tools")
-	y_or_n --msg="Would you like to harden your configuration? This disables some features (like password-based ssh authentication) for increased security." --default="yes" && ENABLED_PROFILES+=("harden")
+	y_or_n --msg="Would you like to harden your configuration? This disables some features like password-based ssh authentication and mutable user configuration for increased security." --default="yes" && ENABLED_PROFILES+=("harden")
 }
 
 _select_timezone
@@ -1312,6 +1310,21 @@ while :; do
 
 	if [ "$NORMAL_USER" ]; then
 		_set_permissions
+		if [ -z "$PASSWORD" ]; then
+			for permission in "${USER_PERMISSIONS[@]}"; do
+				[ "$permission" = "Wheel" ] && WHEEL_SET=1
+			done
+			for profile in "${ENABLED_PROFILES[@]}"; do
+				[ "$profile" = "harden" ] && HARDEN_CONFIG_SET=1
+			done
+			if [ "$WHEEL_SET" ] && [ "$HARDEN_CONFIG_SET" ]; then
+				printf "\nWARNING:\nWheel permission is set, but the user has no password, and users.mutableUsers = false;\n"
+				printf "You will not be able to run commands as sudo without a password.\n"
+				y_or_n --msg="Set a password for this user?" --default="yes" && _set_password
+			fi
+			[ "$WHEEL_SET" ] && unset WHEEL_SET
+			[ "$HARDEN_CONFIG_SET" ] && unset HARDEN_CONFIG_SET
+		fi
 	fi
 
 	while :; do
@@ -1383,45 +1396,49 @@ while :; do
 	done
 
 	USER_CONFIG_DIR="$HOST_CONFIG_DIR/users/$USERNAME"
+	USER_CONFIG_FILE="$USER_CONFIG_DIR/default.nix"
 	mkdir -p "$USER_CONFIG_DIR"
 
-	printf "{ config, ... }:
-{
-	sops.secrets.%s_password.neededForUsers = true;
+	printf "{ config, ... }:\n{\n" >"$USER_CONFIG_FILE"
 
-	users.users.%s = {
-		hashedPasswordFile = config.sops.secrets.%s_password.path;
-" "$USERNAME" "$USERNAME" "$USERNAME" >"$USER_CONFIG_DIR/default.nix"
+	if [ "$PASSWORD" ]; then
+		printf "sops.secrets.%s_password.neededForUsers = true;\n" "$USERNAME" >>"$USER_CONFIG_FILE"
+	fi
+
+	printf "users.users.%s = {\n" "$USERNAME" >>"$USER_CONFIG_FILE"
+	if [ "$PASSWORD" ]; then
+		printf "hashedPasswordFile = config.sops.secrets.%s_password.path;\n" "$USERNAME" >>"$USER_CONFIG_FILE"
+	fi
 
 	if [ "$NORMAL_USER" ]; then
-		printf "isNormalUser = true;\n" >>"$USER_CONFIG_DIR/default.nix"
+		printf "isNormalUser = true;\n" >>"$USER_CONFIG_FILE"
 	fi
 
 	if [ "$AUTHORIZED_SSH_KEYS" ]; then
-		printf "openssh.authorizedKeys.keys = with config.keyring.ssh; [\n" >>"$USER_CONFIG_DIR/default.nix"
+		printf "openssh.authorizedKeys.keys = with config.keyring.ssh; [\n" >>"$USER_CONFIG_FILE"
 		for key in "${AUTHORIZED_SSH_KEYS[@]}"; do
-			printf "%s\n" "$key" >>"$USER_CONFIG_DIR/default.nix"
+			printf "%s\n" "$key" >>"$USER_CONFIG_FILE"
 		done
-		printf "];\n" >>"$USER_CONFIG_DIR/default.nix"
+		printf "];\n" >>"$USER_CONFIG_FILE"
 	fi
 
 	if [ "$USER_PERMISSIONS" ]; then
-		printf "extraGroups = [ " >>"$USER_CONFIG_DIR/default.nix"
+		printf "extraGroups = [ " >>"$USER_CONFIG_FILE"
 		for permission in "${USER_PERMISSIONS[@]}"; do
 			case $permission in
 			"Wheel")
-				printf "\"wheel\"\n" >>"$USER_CONFIG_DIR/default.nix"
+				printf "\"wheel\"\n" >>"$USER_CONFIG_FILE"
 				;;
 			"Networkmanager Admin")
-				printf "\"networkmanager\"\n" >>"$USER_CONFIG_DIR/default.nix"
+				printf "\"networkmanager\"\n" >>"$USER_CONFIG_FILE"
 				;;
 			esac
 		done
-		printf "];\n" >>"$USER_CONFIG_DIR/default.nix"
+		printf "];\n" >>"$USER_CONFIG_FILE"
 	fi
 
 	printf "};
-}" >>"$USER_CONFIG_DIR/default.nix"
+}" >>"$USER_CONFIG_FILE"
 
 	USERS+=("$USERNAME")
 	printf "\nConfigured Users:\n"
@@ -1429,7 +1446,9 @@ while :; do
 		printf "%s\n" "$user"
 	done
 	printf "\n"
-	printf "%s_password: %s\n" "$USERNAME" "$(mkpasswd -s "$PASSWORD")" >>"$HOST_CONFIG_DIR/secrets.yaml"
+	if [ "$PASSWORD" ]; then
+		printf "%s_password: %s\n" "$USERNAME" "$(mkpasswd -s "$PASSWORD")" >>"$HOST_CONFIG_DIR/secrets.yaml"
+	fi
 
 	unset USERNAME
 	unset PASSWORD

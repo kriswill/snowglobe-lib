@@ -1,6 +1,5 @@
-{ flake, nixpkgs }:
+{ flake }:
 let
-  lib = nixpkgs.lib;
   inputs = flake.inputs;
 in
 rec {
