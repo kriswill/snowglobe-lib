@@ -73,7 +73,7 @@
       overlays = import ./overlays { inherit flake; };
 
       devShells = lib.genAttrs supportedSystems (system: {
-        default = import ./devShells {
+        default = import ./devshell.nix {
           inherit flake;
           pkgs = nixpkgs.legacyPackages.${system};
         };

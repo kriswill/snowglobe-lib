@@ -113,6 +113,15 @@ case "$MODE" in
 "build registered repos")
 	BUILD_REGISTERED_REPOS=1
 	;;
+"current -> unstable")
+	CURRENT_BRANCH=$(git branch | grep '\*' | cut -d' ' -f2)
+	[ "$CURRENT_BRANCH" = "unstable" ] && _errormsg "You are already on unstable"
+	git checkout unstable
+	git merge "$CURRENT_BRANCH" || _errormsg "Branches failed to merge."
+	y_or_n "Delete the remote branch" && {
+		git push -d origin "$CURRENT_BRANCH" || _errormsg "Failed to remove this branch from origin"
+	}
+	;;
 "unstable -> main")
 	git checkout main
 	git merge unstable || ERROR=1
@@ -211,7 +220,7 @@ for repo in $REPOSITORIES; do
 		}
 	done
 	# return the flake to its original state
-	mv flake.nix.bak flake.nix
+	mv -f flake.nix.bak flake.nix
 done
 
 cd "$PROJECT_ROOT" || exit 1

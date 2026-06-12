@@ -4,31 +4,6 @@
   prev,
 }:
 {
-  # fails to build due to failing checks for the i686 version of the package
-  # https://github.com/NixOS/nixpkgs/issues/513245
-  # openldap = prev.openldap.overrideAttrs (_: {
-  #   doCheck = !prev.stdenv.hostPlatform.isi686;
-  # });
-
-  # labwc from nixpkgs does not include the new labwc-session.target for systemd
-  # https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/la/labwc/package.nix#L89
-  # labwc = prev.labwc.overrideAttrs (_: {
-  #   version = "0.9.5";
-  #   src = prev.fetchFromGitHub {
-  #     owner = "labwc";
-  #     repo = "labwc";
-  #     rev = "8473ea4b722b7f255590078ac9868538d853f5dd";
-  #     hash = "sha256-0JfOhTDAS7la6OGWPCOmFShLI+d8ThYXfh1dXhQ8M5M=";
-  #   };
-  #
-  #   # replace wlroots 0.19 with 0.20
-  #   buildInputs = (prev.lib.remove prev.wlroots_0_19 (prev.labwc.buildInputs)) ++ [
-  #     prev.wlroots_0_20
-  #   ];
-  #
-  #   patches = [ ./labwc-meson-build.patch ];
-  # });
-
   freetube = prev.freetube.overrideAttrs (finalAttrs: {
     version = "0.24.1";
     src = prev.fetchFromGitHub {
