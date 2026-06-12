@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # wrapper around nixos-rebuild, ensuring configurations are automaically logged and commited to git
-# TODO add generation and maybe hash to commit log
 y_or_n() {
 	while true; do
 		printf "%s [y/n]: " "$@"
@@ -53,15 +52,14 @@ esac
 ARG_IDX=1
 for arg in "$@"; do
 	NEXT_ARG=$(printf "%s " "$@" | cut -d' ' -f$((ARG_IDX + 1)))
-	if [ "$arg" = "--flake" ]; then
-		FLAKE_DIR="$(readlink -f "$(printf "%s" "$NEXT_ARG" | cut -d'#' -f1)")"
-	fi
+	case "$arg" in
+	"--flake") FLAKE_DIR="$(readlink -f "$(printf "%s" "$NEXT_ARG" | cut -d'#' -f1)")" ;;
+	"--target-host") TARGET_HOST=$(printf "%s" "$NEXT_ARG" | cut -d'@' -f2) ;;
+	esac
 	ARG_IDX=$((ARG_IDX + 1))
 done
 
-if [ -z ${FLAKE_DIR+x} ]; then
-	FLAKE_DIR="/etc/nixos"
-fi
+[ "$FLAKE_DIR" ] || FLAKE_DIR="/etc/nixos"
 
 if [ ! -d "$FLAKE_DIR" ] || [ ! -e "$FLAKE_DIR/flake.nix" ]; then
 	_errormsg "no flake found $FLAKE_DIR"
@@ -126,7 +124,7 @@ fi
 if [ "$PERSISTENT" ]; then
 	# keep a log file of your system updates
 	UPDATE_LOG="$FLAKE_DIR/updates.log"
-	HOSTNAME="$(cat /etc/hostname)"
+	[ "$TARGET_HOST" ] || TARGET_HOST="$(cat /etc/hostname)"
 	FLAKE_DIR_OWNER=$(stat -c '%U' -L "$FLAKE_DIR")
 	if [ ! -e "$UPDATE_LOG" ]; then
 		# sudo use should already be cached from nixos-rebuild or nh os
@@ -138,7 +136,7 @@ if [ "$PERSISTENT" ]; then
 	TIMESTAMP=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f2-3)
 	KERNEL_VERSION=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f5)
 
-	PREVIOUS_GENERATIION=$(cat $UPDATE_LOG | head --lines 3 | grep Generation | cut -d'-' -f2 | tr -d ' ')
+	PREVIOUS_GENERATIION=$(cat "$UPDATE_LOG" | head --lines 3 | grep Generation | cut -d'-' -f2 | tr -d ' ')
 	LOG=1
 	[ "$GENERATION" = "$PREVIOUS_GENERATIION" ] && unset LOG
 
@@ -147,7 +145,7 @@ if [ "$PERSISTENT" ]; then
 			printf "%s\n%s
 Generation - %s
 Kernel - %s\n\n" \
-				"$HOSTNAME" "$TIMESTAMP" "$GENERATION" "$KERNEL_VERSION"
+				"$TARGET_HOST" "$TIMESTAMP" "$GENERATION" "$KERNEL_VERSION"
 		)"
 		printf "%s\n\n" "$UPDATE_MSG" | cat - "$UPDATE_LOG" >/tmp/snowglobe-system-update.log
 		if [ "$(whoami)" = "$FLAKE_DIR_OWNER" ]; then
