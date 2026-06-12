@@ -102,6 +102,7 @@ check repo flakes
 build registered repos
 build installers
 build packages
+current -> unstable
 unstable -> main" | fzf)"
 
 case "$MODE" in
@@ -118,9 +119,11 @@ case "$MODE" in
 	[ "$CURRENT_BRANCH" = "unstable" ] && _errormsg "You are already on unstable"
 	git checkout unstable
 	git merge "$CURRENT_BRANCH" || _errormsg "Branches failed to merge."
+	git branch -d "$CURRENT_BRANCH" || _errormsg "Failed to delete the local branch."
 	y_or_n "Delete the remote branch" && {
-		git push -d origin "$CURRENT_BRANCH" || _errormsg "Failed to remove this branch from origin"
+		git push -d origin "$CURRENT_BRANCH" || _errormsg "Failed to remove this branch from origin."
 	}
+	exit 0
 	;;
 "unstable -> main")
 	git checkout main
