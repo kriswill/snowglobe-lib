@@ -1,6 +1,4 @@
-{
-  lib,
-}:
+{ lib }:
 {
   program,
   alias,

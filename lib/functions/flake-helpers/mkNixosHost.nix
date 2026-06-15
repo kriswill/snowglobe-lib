@@ -1,10 +1,11 @@
 {
-  inputs,
-  outputs,
+  flake,
   lib,
   ...
 }:
 let
+  inputs = flake.inputs;
+  outputs = flake.outputs;
   slib = outputs.lib;
 in
 {

@@ -1,9 +1,12 @@
 {
-  outputs,
+  flake,
   lib,
   slib,
   ...
 }:
+let
+  outputs = flake.outputs;
+in
 {
   snowglobe-installer-x86_64 = slib.mkNixosHost {
     hostname = "nixos-installer";

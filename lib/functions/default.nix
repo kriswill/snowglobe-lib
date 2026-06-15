@@ -1,15 +1,10 @@
 {
-  inputs,
-  outputs,
+  flake,
   lib,
 }:
 let
   flake-helpers = import ./flake-helpers {
-    inherit
-      inputs
-      outputs
-      lib
-      ;
+    inherit flake lib;
   };
 
   module-wrappers = import ./module-wrappers { inherit lib; };

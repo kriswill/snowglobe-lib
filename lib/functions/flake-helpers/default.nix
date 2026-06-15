@@ -1,6 +1,5 @@
 {
-  inputs,
-  outputs,
+  flake,
   lib,
   ...
 }:
@@ -8,8 +7,7 @@
   # wrapper for lib.nixosSystem
   mkNixosHost = import ./mkNixosHost.nix {
     inherit
-      inputs
-      outputs
+      flake
       lib
       ;
   };

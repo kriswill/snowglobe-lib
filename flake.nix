@@ -2,7 +2,7 @@
   description = "Core modules for the NixOS snowglobes framework.";
 
   outputs =
-    { nixpkgs, self, ... }@inputs:
+    { nixpkgs, self, ... }:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -10,14 +10,14 @@
       ];
 
       flake = self;
+      inputs = flake.inputs;
       outputs = flake.outputs;
       lib = nixpkgs.lib;
       import-tree = inputs.import-tree;
 
       snowglobe-lib = import ./lib/functions {
         inherit
-          inputs
-          outputs
+          flake
           lib
           ;
       };
@@ -54,7 +54,7 @@
       };
 
       nixosConfigurations = import ./nixosConfigurations {
-        inherit outputs lib;
+        inherit flake lib;
         slib = snowglobe-lib;
       };
 
