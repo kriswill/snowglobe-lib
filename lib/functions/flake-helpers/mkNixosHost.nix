@@ -1,11 +1,8 @@
-{
-  flake,
-  lib,
-  ...
-}:
+{ flake }:
 let
   inputs = flake.inputs;
   outputs = flake.outputs;
+  lib = inputs.nixpkgs.lib;
   slib = outputs.lib;
 in
 {

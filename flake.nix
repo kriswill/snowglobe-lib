@@ -4,27 +4,35 @@
   outputs =
     { nixpkgs, self, ... }:
     let
-      supportedSystems = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-
       flake = self;
       inputs = flake.inputs;
       outputs = flake.outputs;
       lib = nixpkgs.lib;
       import-tree = inputs.import-tree;
 
-      snowglobe-lib = import ./lib/functions {
-        inherit
-          flake
-          lib
-          ;
-      };
+      perSystem =
+        let
+          systems = [
+            "x86_64-linux"
+            "aarch64-linux"
+          ];
+        in
+        src:
+        lib.genAttrs systems (
+          system:
+          import src {
+            inherit flake;
+            pkgs = import nixpkgs {
+              inherit system;
+              config.allowUnfree = true;
+              overlays = builtins.attrValues outputs.overlays;
+            };
+          }
+        );
     in
     {
       # expose custom functions for use with other flakes and projects
-      lib = snowglobe-lib;
+      lib = import ./lib/functions { inherit flake; };
 
       nixosModules = rec {
         snowglobe-lib = {
@@ -53,31 +61,10 @@
         default = snowglobe-lib;
       };
 
-      nixosConfigurations = import ./nixosConfigurations {
-        inherit flake lib;
-        slib = snowglobe-lib;
-      };
-
-      packages = lib.genAttrs supportedSystems (
-        system:
-        let
-          pkgs = import nixpkgs {
-            config.allowUnfree = true;
-            inherit system;
-            overlays = builtins.attrValues flake.outputs.overlays;
-          };
-        in
-        import ./packages { inherit pkgs; }
-      );
-
+      nixosConfigurations = import ./nixosConfigurations { inherit flake; };
       overlays = import ./overlays { inherit flake; };
-
-      devShells = lib.genAttrs supportedSystems (system: {
-        default = import ./devshell.nix {
-          inherit flake;
-          pkgs = nixpkgs.legacyPackages.${system};
-        };
-      });
+      packages = perSystem ./packages;
+      devShells = perSystem ./devshell.nix;
     };
 
   inputs = {

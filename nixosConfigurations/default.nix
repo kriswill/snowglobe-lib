@@ -1,11 +1,9 @@
-{
-  flake,
-  lib,
-  slib,
-  ...
-}:
+{ flake }:
 let
+  inputs = flake.inputs;
   outputs = flake.outputs;
+  lib = inputs.nixpkgs.lib;
+  slib = outputs.lib;
 in
 {
   snowglobe-installer-x86_64 = slib.mkNixosHost {

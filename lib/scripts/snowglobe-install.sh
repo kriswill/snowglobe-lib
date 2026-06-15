@@ -768,7 +768,7 @@ mkdir -p "$CONFIG_ROOT"
 # if the configuration is new
 if [ -z "$APPEND_MODE" ]; then
 	# flake.nix
-	printf " {
+	printf "{
 			description = \"my NixOS configurations\";
 
 			inputs = {
@@ -779,7 +779,7 @@ if [ -z "$APPEND_MODE" ]; then
 				};
 
 				nixpkgs.follows = \"snowglobe-lib/nixpkgs\";
-        # comment above and uncomment below to pin your own nixpkgs revision in the flake.lock.
+				# comment above and uncomment below to pin your own nixpkgs revision in the flake.lock.
 				# Could cause instabilities, use at your own risk.
 				# nixpkgs = {
 				#   url = \"github:NixOS/nixpkgs/nixos-unstable\";
@@ -788,48 +788,56 @@ if [ -z "$APPEND_MODE" ]; then
 				import-tree.follows = \"snowglobe-lib/import-tree\";
 			};
 
-			outputs = { self, nixpkgs, snowglobe-lib, ... }@inputs:
+			outputs = { self, nixpkgs, snowglobe-lib, ... }:
 			let
-			  lib = nixpkgs.lib;
-				outputs = self.outputs;
+				flake = self;
+				lib = nixpkgs.lib;
+				inputs = flake.inputs;
+				outputs = flake.outputs;
 				import-tree = inputs.import-tree;
+
+				# helper function for outputs that require an output for each system arch
+				perSystem =
+				let
+					# add more systems as you need
+					systems = [
+						\"x86_64-linux\"
+						\"aarch64-linux\"
+					];
+				in
+				src:
+				lib.genAttrs systems (
+					system:
+					import src {
+						inherit flake;
+						pkgs = import nixpkgs {
+							inherit system;
+							config.allowUnfree = true;
+							overlays = builtins.attrValues outputs.overlays;
+						};
+					}
+				);
 			in
 			{
 				# expose hosts configured under this flake
-				nixosConfigurations = import ./nixosConfigurations { inherit lib inputs outputs; };
+				nixosConfigurations = import ./nixosConfigurations { inherit flake; };
 
 				# expose your custom modules.
 				nixosModules.default = import-tree [
 					./nixosModules/default
-					# apply your nixpkgs overlays
+					# transform set of your overlays to a list
 					{ nixpkgs.overlays = builtins.attrValues outputs.overlays; }
 				];
 
-				# expose your overlays
-				overlays = import ./overlays { inherit inputs; };
+				# expose your package set modifications
+				overlays = import ./overlays { inherit flake; };
 
-				# your custom derivations
-				packages =
-				let
-					supported-systems = [
-						# add more system targets if you need.
-						\"%s-linux\"
-					];
-				in
-				# generate a package attribute set for each supported architecture
-				lib.genAttrs supported-systems (
-					system:
-					import ./packages {
-						pkgs = import nixpkgs {
-							config.allowUnfree = true;
-							inherit system;
-							# give your packages access to your overlays
-							overlays = builtins.attrValues outputs.overlays; # transform the set of overlays to a list
-						};
-					}
-				);
+				# expose your custom derivations
+				packages = perSystem ./packages;
+				# example devshell
+				devShells = perSystem ./devshell.nix;
 			};
-		}" "$CPU_ARCH" >$CONFIG_ROOT/flake.nix
+		}" | install -D /dev/stdin "$CONFIG_ROOT/flake.nix"
 
 	# nixosModules/default/default.nix
 	printf "
@@ -858,27 +866,44 @@ if [ -z "$APPEND_MODE" ]; then
 			];
 	}" | install -D /dev/stdin "$DEFAULT_MODULES_DIR/default.nix"
 
+	# devshell
+	printf "
+	{ pkgs, flake }:
+	{
+		default = pkgs.mkShell {
+			packages = [ pkgs.cowsay ];
+		};
+	} " | install -D /dev/stdin "$CONFIG_ROOT/devshell.nix"
+
 	# packages
 	printf "
 	  # create custom derivations using pkgs.callPackage
-		{ pkgs, ... }:
+		{ pkgs, flake }:
 		{
-			# my-package = pkgs.callPackage ./my-package.nix { };
+			# some-package = pkgs.callPackage ./my-package.nix { };
 		}" | install -D /dev/stdin "$CONFIG_ROOT/packages/default.nix"
 
 	# overlays
 	printf "
 		# overlays are functions which modify the existing nix package set used by your flake.
 		# you can use them to add, remove, or modify packages.
-		{ inputs }:
+		{ flake }:
+		let
+			inputs = flake.inputs;
+		in
 		{
-			# add your custom packages
+			# make custom packages available to your nixos configurations from 'pkgs'
 			my-packages = final: prev: import ../packages {
+				inherit flake;
 				pkgs = final;
 			};
 
-			# example for installing rolling release of a popular project with a flake.nix
+			snowglobe-pkgs = inputs.snowglobe-lib.overlays.default;
+
+			# examples for installing rolling release of some popular projects.
+			# of course, you will need to add the input to your flake for them to work.
 			# ghostty-git = inputs.ghostty.overlays.default;
+			# hyprland-git = inputs.hyprland.overlays.packages;
 		}" | install -D /dev/stdin "$CONFIG_ROOT/overlays/default.nix"
 else
 	if [ -z "$REPO_DIR" ]; then
@@ -1078,11 +1103,14 @@ if [ "$APPEND_MODE" ]; then
 	sed -i '$ s/.$//' "$HOSTS_CONFIG_FILE"
 else
 	# add the function header if this is a new configuration
-	printf "{ lib, inputs, outputs, ... }:
-	let
-	  slib = inputs.snowglobe-lib.lib;
-	in
-		{\n" >"$HOSTS_CONFIG_FILE"
+	printf "{ flake }:
+let
+	inputs = flake.inputs;
+	outputs = flake.outputs;
+	lib = inputs.nixpkgs.lib;
+	slib = inputs.snowglobe-lib.lib;
+in
+	{\n" >"$HOSTS_CONFIG_FILE"
 fi
 
 printf '%s = slib.mkNixosHost {
