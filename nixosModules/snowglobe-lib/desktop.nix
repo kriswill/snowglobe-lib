@@ -93,7 +93,7 @@ in
         # flatpak frontend of choice
         programs.gnome-software.enable = slib.setDefault true;
         # service from nixos wiki to automatically add flathub
-        systemd.services.flatpak-repo = {
+        systemd.services.flatpak-repo = lib.mkIf cfgs.flatpak.enable {
           wantedBy = [ "multi-user.target" ];
           path = [ config.services.flatpak.package ];
           script = ''
