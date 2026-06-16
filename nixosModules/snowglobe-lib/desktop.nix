@@ -6,6 +6,8 @@
 }:
 let
   cfg = config.snowglobe-lib.desktop;
+  cfgs = config.services;
+  cfgp = config.programs;
   slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
@@ -19,8 +21,9 @@ in
       (lib.mkIf cfg.installWaylandDeps {
         environment.systemPackages = builtins.attrValues {
           inherit (pkgs)
-            # provide wlr-randr to system path
+            # wayland power management tools for wlr compositors
             wlr-randr
+            wlopm
             ;
         };
 
@@ -31,8 +34,6 @@ in
           grim.enable = slib.setDefault true;
           slurp.enable = slib.setDefault true;
           wl-clipboard.enable = slib.setDefault true;
-          # screen power manager
-          wlopm.enable = slib.setDefault true;
           # notification daemon for wayland
           swaync = {
             enable = slib.setDefault true;
@@ -116,7 +117,7 @@ in
           # GTK management app for fonts icons cursors, etc for independent WMs
           nwg-look.enable = slib.setDefault true;
           # volume control for pipewire-pulse
-          pwvucontrol.enable = slib.setDefault true;
+          pwvucontrol.enable = slib.setDefault (cfgs.pipewire.enable && cfgs.pipewire.pulse.enable);
           # calculator app
           gnome-calculator.enable = slib.setDefault true;
           # low battery notifier for laptops

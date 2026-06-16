@@ -7,6 +7,7 @@
 let
   slib = import ../../../lib/functions/module-wrappers { inherit lib; };
   cfg = config.snowglobe-lib.desktop.kde;
+  overrideDefault = object: lib.mkOverride 1300 object;
 in
 {
   options.snowglobe-lib.desktop.kde.enable = lib.mkEnableOption "Snowglobe-Lib's KDE plasma module";
@@ -31,7 +32,7 @@ in
       system.hasDesktop = lib.mkForce true;
       desktop = {
         enable = true;
-        installWaylandDeps = true;
+        installWaylandDeps = false;
       };
     };
 
@@ -88,7 +89,7 @@ in
       };
 
       # use builtin plasma bluetooth
-      blueman.enable = lib.mkDefault false;
+      blueman.enable = overrideDefault false;
 
       # use sddm as display manager
       displayManager.ly.enable = false;
@@ -97,21 +98,21 @@ in
 
     programs = {
       # disable pwvucontrol in favor of the default plasma volume control
-      pwvucontrol.enable = lib.mkDefault false;
+      pwvucontrol.enable = overrideDefault false;
       # disable swaync for plasma's notification daemon
-      swaync.enable = lib.mkDefault false;
+      swaync.enable = overrideDefault false;
       # disable batsignal
-      batsignal.enable = false;
+      batsignal.enable = overrideDefault false;
       # kde has its own notepad
-      mousepad.enable = lib.mkDefault false;
+      mousepad.enable = overrideDefault false;
       # use discover instead of gnome-software
-      gnome-software.enable = lib.mkDefault false;
+      gnome-software.enable = overrideDefault false;
       # use dolphin instead of nautilus
-      nautilus.enable = lib.mkDefault false;
+      nautilus.enable = overrideDefault false;
       # prevent 2 network manager applets
-      networkmanagerapplet.enable = lib.mkDefault false;
+      networkmanagerapplet.enable = overrideDefault false;
       # disable nwg-look
-      nwg-look.enable = lib.mkDefault false;
+      nwg-look.enable = overrideDefault false;
     };
   };
 }

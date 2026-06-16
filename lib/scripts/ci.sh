@@ -59,9 +59,11 @@ _build_packages() {
 # auto builds, signs, and uploads all installer images to the cache website
 _build_installers() {
 	WEBSITE_IP="192.168.25.69"
-	UPLOAD_DIR="/tmp"
+	UPLOAD_DIR="/tmp/snowglobe-installers"
 
 	ping -c 1 $WEBSITE_IP || _errormsg "Unable to reach webserver at: $WEBSITE_IP"
+	ssh earthgman@$WEBSITE_IP "rm -rf $UPLOAD_DIR" || exit 1
+	[ -d "$CACHE_DIR" ] && rm -r "$CACHE_DIR" || _errormsg "Could not remove/refresh: $CACHE_DIR"
 
 	INSTALLERS=$(
 		for configuration in $(nix eval ".#nixosConfigurations" --apply builtins.attrNames | sed 's/[][]//g' | tr -d '"'); do
@@ -72,7 +74,7 @@ _build_installers() {
 	CACHE_DIR="$XDG_CACHE_HOME/snowglobe-CI/installers-hashes"
 	mkdir -p "$CACHE_DIR" || exit 1
 
-	ssh earthgman@$WEBSITE_IP 'mkdir -p /tmp/snowglobe-installers' || exit 1
+	ssh earthgman@$WEBSITE_IP "mkdir -p $UPLOAD_DIR" || exit 1
 
 	for image in $INSTALLERS; do
 		# store isos so they can be shared between hosts
@@ -90,10 +92,10 @@ _build_installers() {
 		sha256sum "$ISO_DEST_PATH" | cut -d ' ' -f1 >"$HASH_DEST_PATH"
 		gpg --sign --default-key 'EarthGman@protonmail.com' "$HASH_DEST_PATH" || _errormsg "Failed to sign iso image hash for $image"
 
-		scp "$ISO_DEST_PATH" "$HASH_DEST_PATH"".gpg" "earthgman@$WEBSITE_IP:$UPLOAD_DIR/snowglobe-installers" || _errormsg "Could not copy image to the server."
+		scp "$ISO_DEST_PATH" "$HASH_DEST_PATH"".gpg" "earthgman@$WEBSITE_IP:$UPLOAD_DIR" || _errormsg "Could not copy image to the server."
 	done
 
-	rm -r "$CACHE_DIR"
+	rm -r "$CACHE_DIR" || _errormsg "Could not remove/refresh: $CACHE_DIR"
 }
 
 [ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="/tmp"
