@@ -114,7 +114,7 @@ in
     environment = {
       # use dash as /bin/sh of choice
       # once again, override weights are hardcoded into nixpkgs
-      binsh = lib.mkOverride 899 "${pkgs.dash}/bin/dash";
+      binsh = slib.overrideNixpkgsDefault "${pkgs.dash}/bin/dash";
 
       # these are not set properly on nixos by default for some reason
       # TODO check on status of this: https://github.com/NixOS/nixpkgs/issues/286283
@@ -140,7 +140,7 @@ in
 
     # give people zsh by default since most enthusists just replace bash with it anyway
     # comes with syntaxhighlighting and autosuggesions enabled
-    users.defaultUserShell = lib.mkOverride 899 config.programs.zsh.package;
+    users.defaultUserShell = slib.overrideNixpkgsDefault config.programs.zsh.package;
 
     # make sure that the virtual consoles (TTY) respect the xserver keyboard keymap chosen in the installer
     console.useXkbConfig = slib.setDefault true;

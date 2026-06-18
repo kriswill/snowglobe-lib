@@ -34,6 +34,9 @@ in
       dolphin.enable = slib.setDefault true;
       # default menu
       hyprlauncher.enable = slib.setDefault true;
+      # lockscreen
+      hyprlock.enable = slib.setDefault true;
+      swaylock.enable = slib.overrideDefault false;
     };
   };
 }

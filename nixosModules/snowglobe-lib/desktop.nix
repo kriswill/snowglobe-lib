@@ -126,6 +126,7 @@ in
             enable = slib.setDefault true;
             systemd.enable = slib.setDefault true;
           };
+          selectdefaultapplication.enable = slib.setDefault true;
           # xdg utilites for desktop shell scripting
           xdg-user-dirs.enable = slib.setDefault true;
           xdg-utils.enable = slib.setDefault true;
