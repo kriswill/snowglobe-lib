@@ -1,8 +1,4 @@
-{
-  inputs,
-  lib,
-  ...
-}:
+{ flake }:
 {
   pkgs,
   lib,
@@ -10,6 +6,8 @@
   ...
 }:
 let
+  inputs = flake.inputs;
+  cfg = config.jovian;
   slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
@@ -23,8 +21,6 @@ in
       autoStart = slib.setDefault true;
     };
 
-    # TODO add to a user activation script
-    # IMPERATIVE ACTION: touch ~/.steam/steam/.cef-enable-remote-debugging
     decky-loader.enable = slib.setDefault true;
   };
 
@@ -32,7 +28,7 @@ in
   services.displayManager.ly.enable = false;
 
   system.userActivationScripts = {
-    enable-decky = ''
+    enable-decky = lib.mkIf cfg.decky-loader.enable ''
       ENABLE_DEBUGGING_PATH="$HOME/.steam/steam/.cef-enable-remote-debugging"
       if [ ! -e "$ENABLE_DEBUGGING_PATH" ]; then
         touch "$ENABLE_DEBUGGING_PATH"

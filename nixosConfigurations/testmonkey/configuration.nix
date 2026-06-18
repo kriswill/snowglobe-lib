@@ -54,14 +54,9 @@ in
   hardware.enableAllFirmware = true;
 
   # add all custom packages
-  environment.systemPackages =
-    lib.forEach (builtins.attrNames (
-      import ../../packages {
-        inherit pkgs;
-      }
-    )) (package: pkgs.${package})
-    # extra packages I want to check
-    ++ (with pkgs; [
-      ly
-    ]);
+  environment.systemPackages = lib.forEach (builtins.attrNames (
+    import ../../packages {
+      inherit pkgs;
+    }
+  )) (package: pkgs.${package});
 }

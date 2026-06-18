@@ -19,14 +19,6 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       (lib.mkIf cfg.installWaylandDeps {
-        environment.systemPackages = builtins.attrValues {
-          inherit (pkgs)
-            # wayland power management tools for wlr compositors
-            wlr-randr
-            wlopm
-            ;
-        };
-
         xdg.portal.wlr.enable = slib.setDefault true;
 
         programs = {
@@ -34,6 +26,8 @@ in
           grim.enable = slib.setDefault true;
           slurp.enable = slib.setDefault true;
           wl-clipboard.enable = slib.setDefault true;
+          # output control cli for wlr-output-management
+          wlr-randr.enable = slib.setDefault true;
           # notification daemon for wayland
           swaync = {
             enable = slib.setDefault true;
@@ -91,19 +85,26 @@ in
         # configure flatpak
         services.flatpak.enable = slib.setDefault true;
         # flatpak frontend of choice
-        programs.gnome-software.enable = slib.setDefault true;
+        programs.gnome-software.enable = slib.setDefault cfgs.flatpak.enable;
+
+        # TODO redo this
         # service from nixos wiki to automatically add flathub
-        systemd.services.flatpak-repo = lib.mkIf cfgs.flatpak.enable {
-          wantedBy = [ "multi-user.target" ];
-          path = [ config.services.flatpak.package ];
-          script = ''
-            flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          '';
-        };
+        # systemd.user.services.add-flathub-repo = lib.mkIf cfgs.flatpak.enable {
+        #   wantedBy = [ "default.target" ];
+        #   path = [ config.services.flatpak.package ];
+        #   serviceConfig = {
+        #     Type = "simple";
+        #     ExecStart = ''
+        #       flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        #     '';
+        #   };
+        # };
 
         programs = {
           # control applet for networkmanager
           networkmanagerapplet.enable = slib.setDefault true;
+          # notification daemon api
+          notify-send.enable = slib.setDefault true;
           # gtk and gnome software database
           dconf.enable = slib.setDefault true;
           # frontend to manage dconf
@@ -125,19 +126,12 @@ in
             enable = slib.setDefault true;
             systemd.enable = slib.setDefault true;
           };
+          # xdg utilites for desktop shell scripting
+          xdg-user-dirs.enable = slib.setDefault true;
+          xdg-utils.enable = slib.setDefault true;
         };
 
-        environment.systemPackages = builtins.attrValues {
-          inherit (pkgs)
-            # ensure a fully functional cursor and icon theme are installed
-            adwaita-icon-theme
-            # xdg utilities
-            xdg-utils
-            xdg-user-dirs
-            # notification api
-            libnotify
-            ;
-        };
+        environment.systemPackages = [ pkgs.adwaita-icon-theme ];
 
         fonts.packages = [
           # free fonts that support many locales
