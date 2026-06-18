@@ -41,6 +41,16 @@
     };
   });
 
+  # puddletag's icon is located in the wrong spot.
+  # This causes some programs to display an empty icon entry
+  puddletag = prev.puddletag.overrideAttrs (_: {
+    postFixup = ''
+      ICON_DIR=$out/share/icons/hicolor/256x256/apps
+      mkdir -p $ICON_DIR
+      mv $out/share/icons/puddletag.png $ICON_DIR
+    '';
+  });
+
   # fix the symlinks in zsh-syntax-highlighting
   zsh-syntax-highlighting = prev.zsh-syntax-highlighting.overrideAttrs {
     installPhase = ''
