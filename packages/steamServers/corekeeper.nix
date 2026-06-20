@@ -9,7 +9,7 @@ mkSteamServer rec {
   src = fetchSteam {
     inherit name;
     appId = "1963720";
-    hash = "sha256-81OnQiy6mm0fcEA76H3WAJlm1uwQAc/2tytBKgKFy5k=";
+    hash = "sha256-k+KaQirLZLuMyVTDa3enUMGfIG9w8KooUltBPL0TdX8=";
   };
 
   buildInputs = [
@@ -19,5 +19,5 @@ mkSteamServer rec {
 
   startCmd = "_launch.sh";
 
-  hash = "sha256-81OnQiy6mm0fcEA76H3WAJlm1uwQAc/2tytBKgKFy5k=";
+  hash = "sha256-k+KaQirLZLuMyVTDa3enUMGfIG9w8KooUltBPL0TdX8=";
 }
