@@ -5,7 +5,7 @@
   fetchSteam,
 }:
 let
-  hash = "sha256-k+KaQirLZLuMyVTDa3enUMGfIG9w8KooUltBPL0TdX8=";
+  hash = "sha256-YZO507X0Cg/S1kYY1sp0HeFE7YupkcRPLqKI2RH4IW0=";
 in
 mkSteamServer rec {
   name = "corekeeper";
