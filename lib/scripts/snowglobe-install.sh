@@ -1092,7 +1092,7 @@ fi
 
 if [ "$CACHE_UNTRUSTED" ]; then
 	printf "\n# Don't trust cache server\n" >>"$CONFIGURATION_NIX"
-	printf "substituters.\"nix-store.homelab.earthgman.dev\".enable = false;\n" >>"$CONFIGURATION_NIX"
+	printf "substituters.\"nix-store.earthgman.dev\".enable = false;\n" >>"$CONFIGURATION_NIX"
 fi
 
 printf "}" >>"$CONFIGURATION_NIX"

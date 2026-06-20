@@ -19,14 +19,4 @@
       hash = "sha256-1rfEtD+II1uh6cn/dBxwGKxNFUwgoKXWtcJHIi6ydy4=";
     };
   };
-
-  vim-fern = pkgs.vimUtils.buildVimPlugin {
-    name = "vim-fern";
-    src = pkgs.fetchFromGitHub {
-      owner = "lambdalisue";
-      repo = "vim-fern";
-      rev = "main";
-      hash = "sha256-2XkM4Niq8FLxr/gNOBWaleggtgeb+SVIQZeLDtintR4=";
-    };
-  };
 }

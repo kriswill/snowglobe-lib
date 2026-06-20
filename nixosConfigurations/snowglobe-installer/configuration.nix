@@ -66,7 +66,6 @@ in
 
   boot = {
     # disables zfs, bcachefs
-    #TODO figure out how to use zfs
     supportedFilesystems = lib.mkForce [
       "auto"
       #"bcachefs"

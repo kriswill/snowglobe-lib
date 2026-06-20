@@ -12,7 +12,7 @@ in
   options.services.polkit-gnome.enable = lib.mkEnableOption "desktop polkit agent from GNOME";
 
   config = lib.mkIf cfg.enable {
-    systemd.user.services.polkit-gnome-autentication-agent-1 = slib.mkGraphicalService {
+    systemd.user.services.polkit-gnome-authentication-agent-1 = slib.mkGraphicalService {
       serviceName = "polkit-gnome-1";
       package = pkgs.polkit_gnome;
       extraServiceConfig = {

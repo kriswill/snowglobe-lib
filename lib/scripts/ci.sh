@@ -46,7 +46,6 @@ _disable_nix_uploader() {
 	fi
 }
 
-# TODO build custom packages and package overlays
 _build_packages() {
 	SYSTEM_ARCH="$(lscpu | grep Arch | tr -d " " | cut -d: -f2)""-linux"
 	_enable_nix_uploader
@@ -195,7 +194,6 @@ for repo in $REPOSITORIES; do
 	cp flake.nix flake.nix.bak
 
 	# edit the flake.nix to point to the development branch
-	# TODO allow arbitrary branches
 	if [ "$(cat "$REPO_DIR/flake.nix" | grep 'earthgman/snowglobe-lib' | grep "ref=$GIT_BRANCH")" ]; then
 		# do nothing
 		printf "already on branch\n"
