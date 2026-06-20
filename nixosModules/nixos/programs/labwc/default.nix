@@ -12,6 +12,9 @@ in
 
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
+      {
+        systemd.packages = [ cfg.package ];
+      }
       (lib.mkIf cfg.withUWSM {
         programs.uwsm = {
           enable = true;
