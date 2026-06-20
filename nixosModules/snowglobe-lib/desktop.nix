@@ -110,7 +110,7 @@ in
           # frontend to manage dconf
           dconf-editor.enable = slib.setDefault config.programs.dconf.enable;
           # web browser
-          firefox.enable = slib.setDefault true;
+          chromium.enable = slib.setDefault true;
           # file manager
           nautilus.enable = slib.setDefault true;
           # lightweight notepad clone

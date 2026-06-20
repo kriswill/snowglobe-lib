@@ -173,7 +173,8 @@ in
       # vencord
       discord.package = slib.setDefault pkgs.vesktop;
       # hardened firefox
-      firefox.package = slib.setDefault pkgs.librewolf;
+      # TODO librewolf marked as insecure nixpkgs-unstable 6-20-2026 due to no maintainer
+      # firefox.package = slib.setDefault pkgs.librewolf;
       # bloat finder
       ncdu.enable = slib.setDefault true;
       # terminal multiplexer
