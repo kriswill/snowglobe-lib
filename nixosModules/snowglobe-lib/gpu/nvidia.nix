@@ -27,9 +27,9 @@ in
       # accessible via `nvidia-settings`
       nvidiaSettings = lib.mkIf config.snowglobe-lib.desktop.enable (slib.setDefault true);
 
-      # latest nvidia drivers
+      # latest stable nvidia drivers
       # nvidia loves dropping support for old cards, a manual override might be required
-      package = slib.setDefault config.boot.kernelPackages.nvidiaPackages.beta;
+      package = slib.setDefault config.boot.kernelPackages.nvidiaPackages.production;
     };
   };
 }

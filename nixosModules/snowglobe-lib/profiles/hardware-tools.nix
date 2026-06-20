@@ -14,7 +14,8 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
-        programs.corefreq.enable = slib.setDefault true;
+        # corefreq does not build in nixpkgs-unstable 6-20-2026
+        # programs.corefreq.enable = slib.setDefault true;
         environment.systemPackages = builtins.attrValues {
           inherit (pkgs)
             usbutils
