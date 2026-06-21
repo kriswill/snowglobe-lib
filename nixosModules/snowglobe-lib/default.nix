@@ -16,27 +16,24 @@ in
     snowglobe-lib =
       let
         hasDesktop = (config.snowglobe-lib.system.hasDesktop);
+        gpu-vendors = config.snowglobe-lib.system.gpu-vendors;
+        hasElem = builtins.elem;
       in
       {
         # enable gpu configurations
-        gpu =
-          let
-            gpu-vendors = config.snowglobe-lib.system.gpu-vendors;
-            hasElem = builtins.elem;
-          in
-          {
-            amd.enable = hasElem "amd" gpu-vendors;
-            intel.enable = hasElem "intel" gpu-vendors;
-            nvidia.enable = hasElem "nvidia" gpu-vendors;
-          };
+        gpu = {
+          amd.enable = hasElem "amd" gpu-vendors;
+          intel.enable = hasElem "intel" gpu-vendors;
+          nvidia.enable = hasElem "nvidia" gpu-vendors;
+        };
 
-        # TODO I dont think I did this right. very hacky but works. look into ntp
-        dynamic-timezone.enable = slib.setDefault (
-          config.networking.networkmanager.enable && config.time.timeZone == null
-        );
         # config for how the system will start
         boot-config.enable = slib.setDefault true;
+        # module to strip out some fluff that headless linux systems dont need.
         headless-debloater.enable = slib.setDefault (!hasDesktop);
+        # use the timezone detector based on IP geolocation if a static timezone is not set
+        # Note: using a vpn can cause this module to give the incorrect timezone
+        timezone-detector.enable = slib.setDefault (config.time.timeZone == null);
       };
 
     # core nixos modules
