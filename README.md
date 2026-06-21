@@ -14,6 +14,18 @@ automatic setup tools, NixOS module tweaks, fleet management automation, and pre
 to assist with filling some of the holes and difficulties with managing your NixOS configurations.
 It aims to be non-invasive, allowing you to freely change the provided flake structure or default settings provided by the modules.
 
+**Why Use this?**
+I've been using NixOS for the past several years, and it is a very powerful Linux distribution.
+Unfortunately, there are several gotchas surrounding nix and the nixpkgs ecosystem that give it a rather high barrier to entry to new users.
+
+Additionally, learning how to properly maintain and modularize your NixOS configuration is a very daunting task. Example configurations you find in the wild are very personalized
+as there is no concrete way to structure them.
+
+So, I wrote this project as an attempt to construct an example NixOS configuration for you that just works out of the box. Which you can then tweak later if you wish.
+The provided flake provides a guide for how to use a flake based NixOS configuration.
+
+It is currently the daily driver for my personal fleet https://codeberg.org/earthgman/dotfiles and is highly maintained.
+
 **Some noteworthy features**
 - dash as /bin/sh.
 - lix instead of cppnix.
@@ -28,9 +40,9 @@ It aims to be non-invasive, allowing you to freely change the provided flake str
 
 # Getting Started
 
-You can consume the modules directly using a nix flake
+You can consume the modules directly from an existing nix flake
 
-```flake.nix
+```nix
 {
   inputs = {
     snowglobe-lib.url = "https://codeberg.org/earthgman/snowglobe-lib";
@@ -38,11 +50,8 @@ You can consume the modules directly using a nix flake
   };
 
   outputs = { snowglobe-lib, nixpkgs }: 
-  let
-    slib = snowglobe-lib.lib;
-  in
   {
-    nixosConfigurations.myhostname = slib.mkNixosHost {
+    nixosConfigurations.myhostname = snowglobe-lib.lib.mkNixosHost {
       hostname = "myhostname";
       system = "x86_64-linux";
       firmware = "UEFI";
