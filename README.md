@@ -15,6 +15,7 @@ to assist with filling some of the holes and difficulties with managing your Nix
 It aims to be non-invasive, allowing you to freely change the provided flake structure or default settings provided by the modules.
 
 **Why Use this?**
+
 I've been using NixOS for the past several years, and it is a very powerful Linux distribution.
 Unfortunately, there are several gotchas surrounding nix and the nixpkgs ecosystem that give it a rather high barrier to entry to new users.
 
