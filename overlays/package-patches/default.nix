@@ -4,34 +4,20 @@
   prev,
 }:
 {
-  freetube = prev.freetube.overrideAttrs (finalAttrs: {
-    version = "0.24.1";
+  # ran into this: https://github.com/j-evins/glabels-qt/issues/256
+  # the current nixpkgs version is very old for some reason.
+  glabels-qt = prev.glabels-qt.overrideAttrs (finalAttrs: {
+    version = "3.99-master638";
     src = prev.fetchFromGitHub {
-      owner = "FreeTubeApp";
-      repo = "FreeTube";
-      tag = "v${finalAttrs.version}-beta";
-      hash = "sha256-oo5ozdP3d82jY8OOYrt568MoSfPmwBoitdtgESiRMlE=";
+      owner = "j-evins";
+      repo = "glabels-qt";
+      tag = "3.99-master638";
+      hash = "sha256-oi9WOzt3o+5QpfHeosCnbvDmLirE7jXaQUJ5ADd3LY4=";
     };
-
-    yarnOfflineCache = prev.fetchYarnDeps {
-      yarnLock = "${finalAttrs.src}/yarn.lock";
-      hash = "sha256-9rO/XYfOf1TEQOpb5clCfdTiuDeynpnk6L4WpcIIWGk=";
-    };
-
-    patches =
-      let
-        replaceVars = prev.replaceVars;
-      in
-      [
-        (replaceVars ./freetube-build-script.patch {
-          electron-version = prev.electron.version;
-        })
-        ./freetube-targets.patch
-      ];
   });
 
   # ani-cli cant download media from version in nixpkgs
-  ani-cli = prev.ani-cli.overrideAttrs (_: rec {
+  ani-cli = prev.ani-cli.overrideAttrs (_: {
     version = "4.14.1";
     src = prev.fetchFromGitHub {
       owner = "pystardust";
