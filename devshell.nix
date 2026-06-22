@@ -1,13 +1,42 @@
 { flake, pkgs }:
 let
-  snowglobe-rebuild = flake.outputs.packages.${pkgs.stdenv.hostPlatform.system}.snowglobe-rebuild;
-  ci-sh = pkgs.writeScriptBin "ci.sh" (builtins.readFile ./lib/scripts/ci.sh);
+  lib = pkgs.lib;
+  stdenv = pkgs.stdenv;
+  system = stdenv.hostPlatform.system;
+  snowglobe-rebuild = flake.outputs.packages.${system}.snowglobe-rebuild;
+  ci-sh = pkgs.runCommandLocal "snowglobe-lib-ci" { } ''
+    mkdir -p $out/bin
+    cp ${flake + "/lib/scripts/ci.sh"} $out/bin/ci.sh
+  '';
+  nix-formatter = flake.outputs.formatter.${system};
 in
 {
+
   default = pkgs.mkShell {
+    shellHook = ''
+      echo Activated devshell
+      echo You can now run ci.sh
+      export SNOWGLOBE_DEVSHELL=1
+    '';
+
     packages = [
       ci-sh
       snowglobe-rebuild
+      nix-formatter
+      pkgs.openssh
+      pkgs.nixos-rebuild
+      pkgs.gnupg
+      pkgs.fzf
+      pkgs.git
+      pkgs.lix
+      pkgs.nix-output-monitor
+      pkgs.libnotify
+      pkgs.nvd
+      pkgs.nh
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
+      pkgs.systemd
+      pkgs.iputils
     ];
   };
 }

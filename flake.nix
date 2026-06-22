@@ -33,6 +33,13 @@
     {
       # expose custom functions for use with other flakes and projects
       lib = import ./lib/functions { inherit flake; };
+      overlays = import ./overlays { inherit flake; };
+
+      packages = perSystem ./packages;
+      devShells = perSystem ./devshell.nix;
+      formatter = perSystem ./formatter.nix;
+
+      nixosConfigurations = import ./nixosConfigurations { inherit flake; };
 
       nixosModules = rec {
         snowglobe-lib = {
@@ -60,11 +67,6 @@
         nixos-hardware = inputs.nixos-hardware.nixosModules;
         default = snowglobe-lib;
       };
-
-      nixosConfigurations = import ./nixosConfigurations { inherit flake; };
-      overlays = import ./overlays { inherit flake; };
-      packages = perSystem ./packages;
-      devShells = perSystem ./devshell.nix;
     };
 
   inputs = {

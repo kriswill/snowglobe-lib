@@ -1,6 +1,6 @@
-.secrets/
 result
 result-dev
 result-man
 result-lib
+ci/
 .direnv/
