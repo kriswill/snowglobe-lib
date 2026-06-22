@@ -229,26 +229,32 @@ case "$SELECTED_OPTION" in
 	ENABLE_CACHING=1
 	systemctl list-units | grep -q nix-post-build-hook-queue || unset ENABLE_CACHING
 
-	_activate_service() {
-		if ! systemctl is-active "$1" >/dev/null; then
-			printf "Trying to enable %s. Authentication is required.\n" "$1"
-			sudo systemctl start "$1" || _errormsg "Could not start requested unit."
+	_check_service_state() {
+		if ! systemctl is-active "$1"; then
+			_warnmsg "$1 is not enabled."
+			BUILD_UPLOADER_DISABLED=1
 		fi
 	}
 
 	if [ "$ENABLE_CACHING" ]; then
-		_activate_service "nix-post-build-hook-queue.socket"
-		_activate_service "nix-post-build-hook-queue.service"
+		_check_service_state "nix-post-build-hook-queue.socket"
+		if [ "$BUILD_UPLOADER_DISABLED" ]; then
+			y_or_n "The build upload queue is disabled. Do you wish to continue?" || _errormsg "Aborted"
+		fi
 	fi
 
 	if [ -e "$CI_ROOT/globes.txt" ]; then
 		# can be a url or a local path each separated by newlines
 		GLOBES=$(cat "$CI_ROOT/globes.txt" || _errormsg "Failed to read globes.txt")
 		[ -z "$GLOBES" ] && _errormsg "No globes found. Maybe globes.txt is blank?"
+	else
+		_errormsg "ci/globes.txt was not found."
 	fi
 
 	_restore_flake() {
 		mv -f "flake.nix.bak" "flake.nix" || _warnmsg "Could not return flake.nix for $globe to its original state!"
+		mv -f "flake.lock.bak" "flake.lock" || _warnmsg "Could not return flake.lock for $globe to its original state!"
+		rm -f "result" || _warnmsg "Could not remove the configuration build artifact, result, from your repo."
 	}
 
 	for globe in $GLOBES; do
@@ -308,7 +314,8 @@ case "$SELECTED_OPTION" in
 		}
 
 		# update your flake input to the current local repo state
-		cp flake.nix flake.nix.bak || _errormsg "Could not archive the current flake state."
+		cp flake.nix flake.nix.bak || _errormsg "Could not archive the current state of flake.nix"
+		cp flake.lock flake.lock.bak || _errormsg "Could not archive the current state of flake.lock"
 		sed -i "s|.*url =.*/earthgman/snowglobe-lib.*|url = \"$PROJECT_ROOT\";|" "flake.nix" || {
 			_restore_flake
 			_notify "Warning" "Failed to replace the snowglobe-lib input url of $GLOBE_DIR with this local repository via sed. skipping this repo."
@@ -341,7 +348,7 @@ case "$SELECTED_OPTION" in
 		cd "$OLDPWD" || _errormsg "Failed to return to the project root"
 	done
 
-	_notify "Notice" "Repo builds have completed."
+	_notify "Notice" "Build jobs have completed."
 	exit 0
 	;;
 
