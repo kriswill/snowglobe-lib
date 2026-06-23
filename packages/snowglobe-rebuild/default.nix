@@ -14,7 +14,7 @@ let
     mkdir -p $out/bin
     cp ${flake + "/lib/scripts/snowglobe-rebuild.sh"} $out/bin/snowglobe-rebuild
     substituteInPlace $out/bin/snowglobe-rebuild \
-      --replace-fail '#!/bin/sh' '${lib.getExe dash}'
+      --replace-fail '#!/bin/sh' '#!${lib.getExe dash}'
   '';
 
   runtimePackages = [
