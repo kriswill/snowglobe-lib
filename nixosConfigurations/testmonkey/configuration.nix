@@ -41,7 +41,7 @@ in
       # kde.enable = true;
       hyprland.enable = true;
     };
-    libvirtd-qemu.enable = true;
+    qemu.enable = true;
     profiles = {
       office.enable = true;
       hacker-mode.enable = true;

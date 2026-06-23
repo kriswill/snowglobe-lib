@@ -14,38 +14,20 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # enable a working printing server by default
-    services = {
-      avahi = {
-        enable = slib.setDefault true;
-        nssmdns4 = slib.setDefault true;
-        openFirewall = slib.setDefault true;
-      };
-      printing = {
-        enable = slib.setDefault true;
-        browsed.enable = slib.setDefault false;
-        drivers = (
-          builtins.attrValues {
-            inherit (pkgs)
-              # hp printers
-              hplip
-              # ghostscript
-              gutenprint
-              # samsung printers
-              splix
-              ;
-          }
-        );
-      };
-    };
+    # enable a working local print server by default
+    snowglobe-lib.cups.enable = slib.setDefault true;
 
     programs = {
-      # email
+      # email client
       thunderbird.enable = slib.setDefault true;
       # open source MSoffice
       libreoffice.enable = slib.setDefault true;
-      # provide chromium as a backup browser in case something on firefox doesn't work due to poor web engineering
-      chromium.enable = slib.setDefault true;
+      # scanning software
+      simple-scan.enable = slib.setDefault true;
+      # ftp client
+      filezilla.enable = slib.setDefault true;
+      # easily convert image formats
+      switcheroo.enable = slib.setDefault true;
     };
   };
 }

@@ -5,15 +5,16 @@
   ...
 }:
 let
-  module-name = "libvirtd-qemu";
+  module-name = "qemu";
   cfg = config.snowglobe-lib.${module-name};
   slib = import ../../lib/functions/module-wrappers { inherit lib; };
 in
 {
   options.snowglobe-lib.${module-name} = {
-    enable = lib.mkEnableOption "Snowglobe-Lib's ${module-name} configuration";
+    enable = lib.mkEnableOption "OOB configuration for qemu running under libvirtd for use with virt-manager.";
   };
 
+  # configuration mostly taken from https://wiki.nixos.org/wiki/Virt-manager
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
@@ -23,15 +24,15 @@ in
             cpu-vendor = config.snowglobe-lib.system.cpu-vendor;
           in
           lib.mkIf (cpu-vendor != null) [ "kvm-${cpu-vendor}" ];
-        networking.firewall.trustedInterfaces = [ "virbr0" ];
 
         virtualisation = {
-          spiceUSBRedirection.enable = true;
           libvirtd = {
             enable = true;
             qemu = {
+              # allow emulating TPM in qemu
               swtpm.enable = true;
-              package = pkgs.qemu_kvm;
+              # add maximum functionality to qemu
+              package = slib.setDefault pkgs.qemu_full;
               # fix for: https://discourse.nixos.org/t/virt-manager-cannot-find-virtiofsd/26752/6
               vhostUserPackages = [ pkgs.virtiofsd ];
             };

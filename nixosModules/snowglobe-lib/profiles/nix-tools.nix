@@ -10,22 +10,15 @@ let
 in
 {
   options.snowglobe-lib.profiles.nix-tools = {
-    enable = lib.mkEnableOption "Snowglobe-Lib's choice of tools for development with nix";
+    enable = lib.mkEnableOption "tools for development with nix";
   };
 
   config = lib.mkIf cfg.enable {
     programs = {
-      nix-output-monitor.enable = slib.setDefault true;
-      nix-index-database = {
-        enable = slib.setDefault true;
-        comma.enable = slib.setDefault true;
-      };
-      nix-fast-build.enable = slib.setDefault true;
-      nvd.enable = slib.setDefault true;
-      nh.enable = slib.setDefault true;
       direnv.enable = slib.setDefault true;
     };
 
+    # TODO maybe make all of these into program options?
     environment.systemPackages = builtins.attrValues {
       inherit (pkgs)
         nurl

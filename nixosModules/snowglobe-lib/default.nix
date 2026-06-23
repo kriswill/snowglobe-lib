@@ -152,6 +152,16 @@ in
       brightnessctl.enable = slib.setDefault true;
       # many useful unix utilities
       busybox.enable = slib.setDefault true;
+      # drop-in nix replacement with a fancy screen
+      nix-output-monitor.enable = slib.setDefault true;
+      # easily search through nixpkgs and try out software without actually installing it persistently
+      # use , programname
+      nix-index-database = {
+        enable = slib.setDefault true;
+        comma.enable = slib.setDefault true;
+      };
+      # nix version diff
+      nvd.enable = slib.setDefault true;
       # wrapper around several nixos tools like nom and nvd
       nh = {
         enable = slib.setDefault true;
