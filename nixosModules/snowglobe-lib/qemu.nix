@@ -31,8 +31,8 @@ in
             qemu = {
               # allow emulating TPM in qemu
               swtpm.enable = true;
-              # add maximum functionality to qemu
-              package = slib.setDefault pkgs.qemu_full;
+              # use kvm as for hypervisor
+              package = slib.setDefault pkgs.qemu_kvm;
               # fix for: https://discourse.nixos.org/t/virt-manager-cannot-find-virtiofsd/26752/6
               vhostUserPackages = [ pkgs.virtiofsd ];
             };
