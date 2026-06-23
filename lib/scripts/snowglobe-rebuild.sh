@@ -13,37 +13,68 @@ y_or_n() {
 	done
 }
 
+_msg() {
+	printf "%s\n" "$1"
+}
+
 _errormsg() {
-	MSG="$1"
-	printf "Error: %s\n" "$MSG"
+	_msg "Error: $1"
 	exit 1
 }
 
+_warnmsg() {
+	_msg "Warning: $1" || return 1
+}
+
+_exitmsg() {
+	_msg "$1"
+	exit 0
+}
+
+_desktop_active() {
+	[ "$XDG_CURRENT_DESKTOP" ] || [ "$DISPLAY" ] || [ "$WAYLAND_DISPLAY" ]
+}
+
+_is_on_path() {
+	command -v "$1" >/dev/null 2>&1
+}
+
 _notify() {
-	STATUS=$1
-	MSG=$2
-	if command -v notify-send >/dev/null 2>&1; then
-		notify-send -a "snowglobe-rebuild" "$STATUS" "$MSG"
-		[ "$STATUS" = "Error" ] && _errormsg "$MSG"
-	else
-		[ "$STATUS" = "Error" ] && _errormsg "$MSG"
-		printf "%s: %s\n" "$STATUS" "$MSG"
+	STATUS="$1"
+	MSG="$2"
+
+	_desktop_active && ENABLE_NOTIFICATIONS=1
+	if [ ${ENABLE_NOTIFICATIONS+x} ] && ! _is_on_path "notify-send"; then
+		_warnmsg "notify-send not on PATH. Desktop notifications will not be sent."
+		unset ENABLE_NOTIFICATIONS
 	fi
+
+	if [ ${ENABLE_NOTIFICATIONS+x} ]; then
+		notify-send -a "$SCRIPT_NAME" "$STATUS" "$MSG" || _warnmsg "Failed to send desktop notification with content: $MSG"
+	fi
+
+	case $STATUS in
+	"Error") _errormsg "$MSG" ;;
+	"Warning") _warnmsg "$MSG" || exit 1 ;;
+	"Success") _msg "Success: $MSG" || exit 1 ;;
+	*) _msg "$MSG" || exit 1 ;;
+	esac
 }
 
 # main
 [ "$1" ] || _errormsg "Unknown usage."
+
 case "$1" in
 "test")
 	NEEDS_SUDO=1
 	CAN_USE_NH_OS=1
 	;;
 "switch" | "boot")
-	PERSISTENT=true
+	PERSISTENT=1
 	NEEDS_SUDO=1
 	CAN_USE_NH_OS=1
 	;;
-"repl" | "info" | "rollback")
+"info" | "rollback")
 	CAN_USE_NH_OS=1
 	;;
 *) ;;
@@ -54,61 +85,116 @@ for arg in "$@"; do
 	NEXT_ARG=$(printf "%s " "$@" | cut -d' ' -f$((ARG_IDX + 1)))
 	case "$arg" in
 	"--flake") FLAKE_DIR="$(readlink -f "$(printf "%s" "$NEXT_ARG" | cut -d'#' -f1)")" ;;
-	"--target-host") TARGET_HOST=$(printf "%s" "$NEXT_ARG" | cut -d'@' -f2) ;;
+	# TODO if no target host is specified, use a menu with known hosts
+	# Also nh os and nixos-rebuild have different elevation strategy command syntax
+	"--target-host")
+		TARGET_HOST=$(printf "%s" "$NEXT_ARG" | cut -d'@' -f2)
+		[ "$TARGET_HOST" ] || _errormsg "No target host was specified"
+		;;
 	esac
 	ARG_IDX=$((ARG_IDX + 1))
 done
 
 [ "$FLAKE_DIR" ] || FLAKE_DIR="/etc/nixos"
+[ -e "$FLAKE_DIR/flake.nix" ] || _errormsg "no flake found $FLAKE_DIR"
 
-if [ ! -d "$FLAKE_DIR" ] || [ ! -e "$FLAKE_DIR/flake.nix" ]; then
-	_errormsg "no flake found $FLAKE_DIR"
-fi
+FLAKE_DIR_OWNER=$(stat -c '%U' -L "$FLAKE_DIR")
+WHOAMI="$(whoami)"
 
-[ -d "$FLAKE_DIR/.git" ] && GIT_REPO_PRESENT=1
-
-cd "$FLAKE_DIR" || _errormsg "Could not change working directory to $FLAKE_DIR"
-
-_disable_git_sync() {
-	y_or_n "Continue without git synchronization features?"
-
-	case "$yn" in
-	"Y" | "y") IGNORE_GIT_SYNCHRONIZATION=1 ;;
-	"N" | "n") _errormsg "Aborted" ;;
-	esac
-}
-
-if [ "$GIT_REPO_PRESENT" ]; then
-	git ls-remote || {
-		printf "Could not reach the remote repository, Maybe it is down or you do not have access rights?\n"
-		_disable_git_sync
-	}
-
-	# dont stash if you have no local changes to commit
-	git status | grep -q 'nothing to commit, working tree clean' && SKIP_STASH=1
-
-	# ensure that your repo is synced with your remote in case you pushed from another host in your fleet
-	if [ "$PERSISTENT" ] && [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
-		if [ "$SKIP_STASH" ]; then
-			git pull || _disable_git_sync
-		else
-			git stash || _disable_git_sync
-			[ "$IGNORE_GIT_SYNCHRONIZATION" ] || git pull || _disable_git_sync
-			[ "$IGNORE_GIT_SYNCHRONIZATION" ] || git stash apply >/dev/null || _errormsg "Could not apply git stash"
-		fi
-	fi
-
-	# ensure all changes are staged so nix doesn't yell at you
-	git add . || _errormsg "Could not stage changes. This is required by nix even without git synchronization from this script."
-fi
-
-if [ "$(whoami)" = "root" ]; then
+if [ "$WHOAMI" = "root" ]; then
 	unset CAN_USE_NH_OS
 	unset NEEDS_SUDO
 fi
 
-if ! command -v nh >/dev/null 2>&1 && [ ${CAN_USE_NH_OS+x} ]; then
+if ! _is_on_path "nh" && [ ${CAN_USE_NH_OS+x} ]; then
 	unset CAN_USE_NH_OS
+fi
+
+cd "$FLAKE_DIR" || _errormsg "Could not change working directory to $FLAKE_DIR"
+
+[ -d "$FLAKE_DIR/.git" ] && GIT_REPO_PRESENT=1
+
+_restore_git_stash() {
+	if [ "$GIT_STASHED" ]; then
+		git stash apply >/dev/null || _errormsg "Could not apply git stash. You may have to manually run git stash apply to recover your changes."
+		unset GIT_STASHED
+		# add applied stash to back to the work tree
+		git add .
+	fi
+}
+# if the remote is unreachable, allow users to still test their config
+
+_disable_git_sync() {
+	_restore_git_stash
+	[ "$PERSISTENT" ] && _errormsg "Git operations should not fail for persistent changes. Try with 'test' until issues are resolved."
+
+	if y_or_n "Continue without git synchronization features?"; then
+		IGNORE_GIT_SYNCHRONIZATION=1
+	else
+		_errormsg "Aborted"
+	fi
+}
+
+if [ "$GIT_REPO_PRESENT" ]; then
+	[ "$WHOAMI" = "$FLAKE_DIR_OWNER" ] || _errormsg "$FLAKE_DIR is not owned by the current user. Git operations cannot continue safely."
+	[ "$(git remote)" ] && REMOTE_PRESENT=1
+
+	# attempt to pull any changes from your configured remote to ensure that you are up to date locally
+	if [ "$REMOTE_PRESENT" ]; then
+		git ls-remote -q && REMOTE_REACHABLE=1
+		! git status | grep -q "nothing to commit, working tree clean" && DIRTY_WORKTREE=1
+		if [ "$REMOTE_REACHABLE" ]; then
+			git fetch || _errormsg "Failed to fetch from remote."
+			# pull with rebase if your local is behind your remote
+			if git status -sb | grep -q "behind"; then
+				# stash any local uncommitted changes to allow pulling via rebase
+				if [ "$DIRTY_WORKTREE" ]; then
+					if git stash >/dev/null; then
+						GIT_STASHED=1
+					else
+						_errormsg "Failed to stash uncommitted changes in your repo."
+					fi
+				fi
+
+				if git pull --rebase; then
+					_restore_git_stash
+				else
+					_errormsg "Could not pull with rebase"
+					_disable_git_sync
+				fi
+			fi
+		else
+			_disable_git_sync
+		fi
+
+		if [ ! "$IGNORE_GIT_SYNCHRONIZATION" ] && [ "$DIRTY_WORKTREE" ] && [ "$PERSISTENT" ]; then
+			SELECTED_OPTION=$(
+				printf "Commit (recommended)\nStash\nAbort" |
+					fzf \
+						--border \
+						--border-label-pos=1:bottom \
+						--border-label="Detected a dirty worktree. What would you like to do with your uncommitted changes?" \
+						--preview="git status"
+			)
+			case "$SELECTED_OPTION" in
+			"Commit (recommended)")
+				_restore_git_stash
+				git status
+				printf "Commit Message: "
+				read -r COMMIT_MSG
+				[ "$COMMIT_MSG" ] || _errormsg "No commit message was entered."
+				git commit -m "$COMMIT_MSG" || _errormsg "Could not commit these changes to git."
+				;;
+			"Stash")
+				git stash >/dev/null || _errormsg "Could not stash your local changes."
+				;;
+			*)
+				_restore_git_stash
+				_errormsg "Aborted"
+				;;
+			esac
+		fi
+	fi
 fi
 
 ERRORMSG="Rebuild failed or timeout reached."
@@ -125,12 +211,12 @@ if [ "$PERSISTENT" ]; then
 	# keep a log file of your system updates
 	UPDATE_LOG="$FLAKE_DIR/updates.log"
 	[ "$TARGET_HOST" ] || TARGET_HOST="$(cat /etc/hostname)"
-	FLAKE_DIR_OWNER=$(stat -c '%U' -L "$FLAKE_DIR")
 	if [ ! -e "$UPDATE_LOG" ]; then
 		# sudo use should already be cached from nixos-rebuild or nh os
 		touch "$UPDATE_LOG" >/dev/null 2>&1 || sudo touch "$UPDATE_LOG"
 	fi
 
+	# TODO use nvd to create a log that's more useful than just an excuse to create an updated: $system commit
 	NIXOS_GENERATION_INFO=$(nixos-rebuild list-generations | grep True | tr -s ' ' | cut -d' ' -f1-5)
 	GENERATION=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f1)
 	TIMESTAMP=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f2-3)
@@ -155,14 +241,22 @@ Kernel - %s\n\n" \
 		fi
 
 		if [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
-			git add . || _errormsg "could not stage changes to git."
-			printf "Successfully switched configuration. Now commit your changes.\n"
-			# give a brief overview of what will be committed
-			git status
-			printf "Commit message: "
-			read -r COMMIT_MSG
-			git commit -m "$COMMIT_MSG" || _errormsg "Could not commit to git"
-			git push || _errormsg "Could not push to remote repository"
+			git add . || {
+				_restore_git_stash
+				_errormsg "could not stage changes to the updates.log"
+			}
+
+			COMMIT_MSG="Updated: $TARGET_HOST"
+
+			git commit -m "$COMMIT_MSG" || {
+				_restore_git_stash
+				_errormsg "Could not commit update to git"
+			}
+
+			git push || {
+				_restore_git_stash
+				_errormsg "Could not push update to remote repository"
+			}
 		fi
 	fi
 fi

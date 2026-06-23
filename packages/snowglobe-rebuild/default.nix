@@ -6,10 +6,11 @@
   symlinkJoin,
   makeWrapper,
   gitMinimal,
+  fzf,
   dash,
 }:
 let
-  snowglobe-rebuild-unwrapped = runCommandLocal "snowglobe-rebuild" { } ''
+  snowglobe-rebuild-unwrapped = runCommandLocal "snowglobe-rebuild-unwrapped" { } ''
     mkdir -p $out/bin
     cp ${flake + "/lib/scripts/snowglobe-rebuild.sh"} $out/bin/snowglobe-rebuild
     substituteInPlace $out/bin/snowglobe-rebuild \
@@ -18,6 +19,7 @@ let
 
   runtimePackages = [
     gitMinimal
+    fzf
   ];
 in
 symlinkJoin {
