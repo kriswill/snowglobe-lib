@@ -8,6 +8,7 @@ rec {
     final: prev:
     import ../packages {
       pkgs = final;
+      inherit flake;
     }
     # patches for things that dont build or aren't packaged correctly
     // import ./package-patches {

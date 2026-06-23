@@ -160,7 +160,14 @@ case "$SELECTED_OPTION" in
 		printf "package name: "
 		read -r PACKAGE_NAME
 		[ "$PACKAGE_NAME" ] || _errormsg "No package name was entered."
-		nom build ".#nixosConfigurations.testmonkey.pkgs.$PACKAGE_NAME" -o "$PACKAGE_RESULTS/$PACKAGE_NAME"
+		while :; do
+			# build the package as it would apply in a nixos configuration
+			if ! nom build ".#nixosConfigurations.testmonkey.pkgs.$PACKAGE_NAME" -o "$PACKAGE_RESULTS/$PACKAGE_NAME"; then
+				y_or_n "Package build failed. Try this build again?" || break
+			else
+				break
+			fi
+		done
 		printf "\n"
 		y_or_n "Build another package?" || exit 0
 	done
