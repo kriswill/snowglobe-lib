@@ -28,6 +28,8 @@ in
           wl-clipboard.enable = slib.setDefault true;
           # output control cli for wlr-output-management
           wlr-randr.enable = slib.setDefault true;
+          # display control gui written in GTK
+          wdisplays.enable = slib.setDefault true;
           # notification daemon for wayland
           swaync = {
             enable = slib.setDefault true;
