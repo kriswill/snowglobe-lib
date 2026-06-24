@@ -255,10 +255,12 @@ Kernel - %s\n\n" \
 				_errormsg "Could not commit update to git"
 			}
 
-			git push || {
-				_restore_git_stash
-				_errormsg "Could not push update to remote repository"
-			}
+			if [ "$REMOTE_REACHABLE" ]; then
+				git push || {
+					_restore_git_stash
+					_errormsg "Could not push update to remote repository"
+				}
+			fi
 
 			[ "$GIT_STASHED" ] && _restore_git_stash
 		fi
