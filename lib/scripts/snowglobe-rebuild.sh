@@ -160,7 +160,6 @@ if [ "$GIT_REPO_PRESENT" ]; then
 					_restore_git_stash
 				else
 					_errormsg "Could not pull with rebase"
-					_disable_git_sync
 				fi
 			fi
 		else
@@ -187,6 +186,7 @@ if [ "$GIT_REPO_PRESENT" ]; then
 				;;
 			"Stash")
 				git stash >/dev/null || _errormsg "Could not stash your local changes."
+				GIT_STASHED=1
 				;;
 			*)
 				_restore_git_stash
@@ -260,3 +260,5 @@ Kernel - %s\n\n" \
 		fi
 	fi
 fi
+
+[ "$GIT_STASHED" ] && _restore_git_stash
