@@ -65,6 +65,16 @@ _notify() {
 [ "$1" ] || _errormsg "Unknown usage."
 
 case "$1" in
+# TODO implement configuration via nixos module
+"help" | "--help")
+	printf "Wrapper around nh os and nixos-rebuild.\n"
+	printf "usage: snowglobe-rebuild [options]\n\n"
+
+	printf "Options are directly passed to one of the two programs.\n"
+	printf "For commands that use can 'nh os' (boot, switch, test, repl, etc) use man nh to see options.\n"
+	printf "For others use man nixos-rebuild or 'nixos-rebuild --help'\n"
+	exit 0
+	;;
 "test")
 	NEEDS_SUDO=1
 	CAN_USE_NH_OS=1
@@ -124,17 +134,6 @@ _restore_git_stash() {
 }
 # if the remote is unreachable, allow users to still test their config
 
-_disable_git_sync() {
-	_restore_git_stash
-	[ "$PERSISTENT" ] && _errormsg "Git operations should not fail for persistent changes. Try with 'test' until issues are resolved."
-
-	if y_or_n "Continue without git synchronization features?"; then
-		IGNORE_GIT_SYNCHRONIZATION=1
-	else
-		_errormsg "Aborted"
-	fi
-}
-
 if [ "$GIT_REPO_PRESENT" ]; then
 	[ "$WHOAMI" = "$FLAKE_DIR_OWNER" ] || _errormsg "$FLAKE_DIR is not owned by the current user. Git operations cannot continue safely."
 	[ "$(git remote)" ] && REMOTE_PRESENT=1
@@ -163,10 +162,13 @@ if [ "$GIT_REPO_PRESENT" ]; then
 				fi
 			fi
 		else
-			_disable_git_sync
+			_restore_git_stash
+			[ "$PERSISTENT" ] && _errormsg "Git synchronization operations should not fail for persistent changes. Try with 'test' until issues are resolved."
+			y_or_n "Continue without git synchronization features?" || _errormsg "Aborted"
+			IGNORE_GIT_SYNCHRONIZATION=1
 		fi
 
-		if [ ! "$IGNORE_GIT_SYNCHRONIZATION" ] && [ "$DIRTY_WORKTREE" ] && [ "$PERSISTENT" ]; then
+		if [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ] && [ "$DIRTY_WORKTREE" ] && [ "$PERSISTENT" ]; then
 			SELECTED_OPTION=$(
 				printf "Commit (recommended)\nStash\nAbort" |
 					fzf \
@@ -257,8 +259,8 @@ Kernel - %s\n\n" \
 				_restore_git_stash
 				_errormsg "Could not push update to remote repository"
 			}
+
+			[ "$GIT_STASHED" ] && _restore_git_stash
 		fi
 	fi
 fi
-
-[ "$GIT_STASHED" ] && _restore_git_stash
