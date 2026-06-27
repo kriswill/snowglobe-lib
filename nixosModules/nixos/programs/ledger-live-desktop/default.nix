@@ -20,6 +20,10 @@ in
   config = lib.mkIf cfg.enable (
     slib.installProgram {
       inherit programName config;
+      extraModules = {
+        # add udev rules for ledger devices
+        hardware.ledger.enable = true;
+      };
     }
   );
 }
