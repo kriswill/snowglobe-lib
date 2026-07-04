@@ -34,6 +34,7 @@
       ICON_DIR=$out/share/icons/hicolor/256x256/apps
       mkdir -p $ICON_DIR
       mv $out/share/icons/puddletag.png $ICON_DIR
+      wrapPythonPrograms
     '';
   });
 
