@@ -58,6 +58,6 @@ in
     hostname = "testmonkey";
     system = "x86_64-linux";
     configDir = ./testmonkey;
-    specialArgs = { inherit outputs; };
+    specialArgs = { inherit flake; };
   };
 }
