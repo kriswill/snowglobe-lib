@@ -184,6 +184,7 @@ if [ "$GIT_REPO_PRESENT" ]; then
 				printf "Commit Message: "
 				read -r COMMIT_MSG
 				[ "$COMMIT_MSG" ] || _errormsg "No commit message was entered."
+				git add . || _errormsg "Could not add changes to git"
 				git commit -m "$COMMIT_MSG" || _errormsg "Could not commit these changes to git."
 				;;
 			"Stash")
