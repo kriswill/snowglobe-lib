@@ -173,8 +173,6 @@ in
       };
       # make obs more beginner friendly
       obs-studio.enableVirtualCamera = slib.setDefault true;
-      # degoogle chromium
-      chromium.package = slib.setDefault pkgs.ungoogled-chromium;
       # declarative disk partitioning tool
       disko.enable = slib.setDefault true;
       # vencord
