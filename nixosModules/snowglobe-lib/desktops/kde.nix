@@ -93,6 +93,8 @@ in
       # use sddm as display manager
       displayManager.ly.enable = false;
       displayManager.sddm.enable = true;
+
+      gnome.gnome-software.enable = slib.overrideDefault false;
     };
 
     programs = {
@@ -105,7 +107,6 @@ in
       # kde has its own notepad
       mousepad.enable = slib.overrideDefault false;
       # use discover instead of gnome-software
-      gnome-software.enable = slib.overrideDefault false;
       # use dolphin instead of nautilus
       nautilus.enable = slib.overrideDefault false;
       # prevent 2 network manager applets

@@ -87,7 +87,7 @@ in
         # configure flatpak
         services.flatpak.enable = slib.setDefault true;
         # flatpak frontend of choice
-        programs.gnome-software.enable = slib.setDefault cfgs.flatpak.enable;
+        services.gnome.gnome-software.enable = slib.setDefault cfgs.flatpak.enable;
 
         # TODO redo this
         # service from nixos wiki to automatically add flathub
@@ -123,6 +123,8 @@ in
           pwvucontrol.enable = slib.setDefault (cfgs.pipewire.enable && cfgs.pipewire.pulse.enable);
           # calculator app
           gnome-calculator.enable = slib.setDefault true;
+          # secrets daemon frontend for gnome-keyring
+          seahorse.enable = slib.setDefault config.services.gnome.gnome-keyring.enable;
           # low battery notifier for laptops
           batsignal = {
             enable = slib.setDefault true;
