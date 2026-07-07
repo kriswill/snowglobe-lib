@@ -219,7 +219,6 @@ if [ "$PERSISTENT" ]; then
 		touch "$UPDATE_LOG" >/dev/null 2>&1 || sudo touch "$UPDATE_LOG"
 	fi
 
-	# TODO use nvd to create a log that's more useful than just an excuse to create an updated: $system commit
 	NIXOS_GENERATION_INFO=$(nixos-rebuild list-generations | grep True | tr -s ' ' | cut -d' ' -f1-5)
 	GENERATION=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f1)
 	TIMESTAMP=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f2-3)
