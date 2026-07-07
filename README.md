@@ -6,13 +6,19 @@
 
 **So, What is this?**
 
-Short Answer:
-A NixOS distribution / Opinionated NixOS Configuration builder based on flakes + some extra packages and nix functions you can import.
+Short Answer - A NixOS distribution / Opinionated NixOS Configuration builder based on flakes + some extra packages and nix functions you can import.
 
-Long Answer:
-automatic setup tools, NixOS module tweaks, fleet management automation, and preconfigured nix-community projects like disko and sops-nix
+Long Answer - Automatic setup tools, NixOS module tweaks, fleet management automation, and preconfigured nix-community projects like disko and sops-nix
 to assist with filling some of the holes and difficulties with managing your NixOS configurations.
 It aims to be non-invasive, allowing you to freely change the provided flake structure or default settings provided by the modules.
+
+**Why the name?**
+
+Short Answer - Clan was already taken.
+
+Long Answer - In a snowglobe you probably have a little village. In this analogy, the village is your fleet of Nix configurations.
+This project serves a factory for manufacturing these configuration environments. They can have one or more houses inside.
+Plus, it also fits with a part of my name and the ice/snow/winter theme that many Nix/NixOS projects seem to use.
 
 **Why Use this?**
 
