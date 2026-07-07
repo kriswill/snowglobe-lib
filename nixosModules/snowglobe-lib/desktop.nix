@@ -89,8 +89,12 @@ in
         # TODO Decide if we want to enable flatpak by default and automate flathub setup if so
         # configure flatpak
         services.flatpak.enable = slib.setDefault true;
-        # flatpak frontend of choice
-        services.gnome.gnome-software.enable = slib.setDefault cfgs.flatpak.enable;
+        services.gnome = {
+          # flatpak frontend of choice
+          gnome-software.enable = slib.setDefault cfgs.flatpak.enable;
+          # provide a default secret portal for independent window managers
+          gnome-keyring.enable = slib.setDefault true;
+        };
 
         programs = {
           # control applet for networkmanager

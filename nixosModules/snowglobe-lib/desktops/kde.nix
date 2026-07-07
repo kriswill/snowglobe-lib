@@ -94,7 +94,10 @@ in
       displayManager.ly.enable = false;
       displayManager.sddm.enable = true;
 
-      gnome.gnome-software.enable = slib.overrideDefault false;
+      gnome = {
+        gnome-software.enable = slib.overrideDefault false;
+        gnome-keyring.enable = slib.overrideDefault false;
+      };
     };
 
     programs = {
