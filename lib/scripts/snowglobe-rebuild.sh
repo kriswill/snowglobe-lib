@@ -225,16 +225,16 @@ if [ "$PERSISTENT" ]; then
 	TIMESTAMP=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f2-3)
 	KERNEL_VERSION=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f5)
 
-	PREVIOUS_GENERATIION=$(cat "$UPDATE_LOG" | head --lines 3 | grep Generation | cut -d'-' -f2 | tr -d ' ')
+	PREVIOUS_GENERATION="$(nixos-rebuild list-generations | grep -v -e 'True' -e 'Generation' | cut -d' ' -f1 | head --lines 1)"
+	[ "$PREVIOUS_GENERATION" ] || _errormsg "Could not obtain the previous generation number."
 	LOG=1
-	[ "$GENERATION" = "$PREVIOUS_GENERATIION" ] && unset LOG
+	[ "$GENERATION" = "$PREVIOUS_GENERATION" ] && unset LOG
 
 	if [ ${LOG+x} ]; then
 		UPDATE_MSG="$(
 			printf "%s\n%s
-Generation - %s
-Kernel - %s\n\n" \
-				"$TARGET_HOST" "$TIMESTAMP" "$GENERATION" "$KERNEL_VERSION"
+Kernel - %s%s\n" \
+				"$TARGET_HOST" "$TIMESTAMP" "$KERNEL_VERSION" "$(nvd history -m "$PREVIOUS_GENERATION" | grep -v 'Contents of profile version')"
 		)"
 		printf "%s\n\n" "$UPDATE_MSG" | cat - "$UPDATE_LOG" >/tmp/snowglobe-system-update.log
 		if [ "$(whoami)" = "$FLAKE_DIR_OWNER" ]; then

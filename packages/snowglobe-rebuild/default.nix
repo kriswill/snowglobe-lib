@@ -7,6 +7,7 @@
   makeWrapper,
   gitMinimal,
   fzf,
+  nvd,
   dash,
 }:
 let
@@ -20,6 +21,7 @@ let
   runtimePackages = [
     gitMinimal
     fzf
+    nvd
   ];
 in
 symlinkJoin {
