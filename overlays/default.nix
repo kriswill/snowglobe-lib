@@ -6,14 +6,12 @@ rec {
   snowglobe-pkgs =
     # custom packages
     final: prev:
+    let
+      system = prev.stdenv.hostPlatform.system;
+    in
     import ../packages {
       pkgs = final;
       inherit flake;
-    }
-    # patches for things that dont build or aren't packaged correctly
-    // import ./package-patches {
-      inherit final prev;
-      nixpkgs-stable = inputs.nixpkgs-stable.legacyPackages.${prev.stdenv.hostPlatform.system};
     }
     # extra vim plugins not in nixpkgs
     // {
@@ -22,9 +20,20 @@ rec {
         // import ../packages/vimPlugins {
           pkgs = final;
         };
+    }
+    # patches for things that dont build or aren't packaged correctly
+    // import ./package-patches {
+      inherit final prev;
+      nixpkgs-stable = inputs.nixpkgs-stable.legacyPackages.${system};
+    }
+    # packages from other flakes that either dont provide overlays, or I just want a subset for them.
+    // {
+      distro-grub-themes = inputs.distro-grub-themes.packages.${system};
     };
 
+  # overlays from other flakes. These are auto consumed with the modulesets.
   nix-post-build-hook-queue = inputs.nix-post-build-hook-queue.overlays.default;
   flux = inputs.flux.overlays.default;
+
   default = snowglobe-pkgs;
 }

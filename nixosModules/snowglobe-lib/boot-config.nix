@@ -23,7 +23,7 @@ in
           gfxmodeEfi = slib.setDefault "1920x1080";
           gfxmodeBios = slib.setDefault "1920x1080";
           # cool looking grub theme
-          theme = slib.setDefault pkgs.nixos-grub-theme;
+          theme = slib.setDefault pkgs.distro-grub-themes.nixos-grub-theme;
           extraEntries = ''
             menuentry "Reboot" {
               reboot
