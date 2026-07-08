@@ -107,7 +107,7 @@ This file is an unencrypted private key owned by root. Be aware that anyone who 
 You may wish to utilize something like the TPM to store it more securely, but it is up to you.
 
 initial git setup and choice of provider is not enforced. The project does not automatically configure git for your newly created /etc/nixos.
-once a git repo is detected, snowglobe-rebuild will attempt to sync commits and track updates through an updates.log file if you choose to use it.
+Once a git repo is detected, snowglobe-rebuild will attempt to sync commits and track updates through an updates.log file if you choose to use it.
 
 I will not provide the constantly changing module tree here. You can browse available modules and their descriptions using ```nixos-rebuild repl```
 or a third party program like ```nix-inspect``` https://github.com/bluskript/nix-inspect
