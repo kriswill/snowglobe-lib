@@ -4,12 +4,12 @@
 - snowfall-lib - https://github.com/snowfallorg/lib
 - clan-core - https://github.com/clan-lol/clan-core
 
-**So, What is this?**
+**What is this?**
 
-Short Answer - A NixOS distribution / Opinionated NixOS Configuration builder based on flakes + some extra packages and nix functions you can import.
+Short Answer - A NixOS configuration / distribution.
 
-Long Answer - Automatic setup tools, NixOS module tweaks, fleet management automation, and preconfigured nix-community projects like disko and sops-nix
-to assist with filling some of the holes and difficulties with managing your NixOS configurations.
+Long Answer - Automatic setup tools, NixOS module tweaks, fleet management automation, and preconfigured nix-community projects like disko and sops-nix.
+The configuration aims to assist with common difficulties of managing your NixOS configurations.
 It aims to be non-invasive, allowing you to freely change the provided flake structure or default settings provided by the modules.
 
 **Why the name?**
@@ -22,9 +22,9 @@ Plus, it also fits with a part of my name and the ice/snow/winter theme that man
 
 **Why Use this?**
 
-I've been using NixOS for the past several years, and it is a very powerful Linux distribution with many advantages over traditional distros like Debian or Arch.
+I've been using NixOS for the past several years, and it is a very powerful Linux distribution.
 Unfortunately, there are several gotchas surrounding nix and the nixpkgs ecosystem that give it a rather high barrier to entry to new users.
-The process of learning how to properly maintain and modularize your NixOS configuration is a very daunting and time consuming task.
+The process of learning to properly maintain and modularize your NixOS configuration is a very daunting and time consuming task.
 Example configurations found in the wild are often very confusing and personalized as there is no concrete way to structure them.
 
 So, I wrote this project as an attempt to solve some of these flaws and construct an example NixOS configuration for you that just works out of the box.
