@@ -109,6 +109,7 @@ _add_menuoption "Build testmonkeys"
 	_add_menuoption "Git: unstable -> main"
 }
 _add_menuoption "Build globes"
+_add_menuoption "Edit globes"
 _add_menuoption "Exit"
 
 while :; do
@@ -228,6 +229,11 @@ while :; do
 		done
 
 		exit 0
+		;;
+
+	"edit globes")
+		EDITOR="${EDITOR:-"nano"}"
+		$EDITOR "ci/globes.txt"
 		;;
 
 	# allows you to locally test your own repository against the current snowglobe-lib state
