@@ -1,0 +1,34 @@
+# Keeps `main` in sync with the Codeberg upstream by merging it in on a
+# schedule. Merge (rather than force-push) so this workflow file survives
+# each sync — scheduled workflows only run from the default branch, so
+# overwriting main would delete the workflow and stop the syncing.
+name: Sync main from Codeberg upstream
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Merge upstream/main and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://codeberg.org/earthgman/snowglobe-lib.git
+          git fetch upstream main
+          git merge --no-edit upstream/main
+          git push origin main
