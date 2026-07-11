@@ -172,9 +172,8 @@ while :; do
 				fi
 			done
 			printf "\n"
-			y_or_n "Build another package?" || exit 0
+			y_or_n "Build another package?" || break
 		done
-		exit 0
 		;;
 
 	"build testmonkeys")
