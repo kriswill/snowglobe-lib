@@ -184,6 +184,7 @@ if [ "$GIT_REPO_PRESENT" ]; then
 				printf "Commit Message: "
 				read -r COMMIT_MSG
 				[ "$COMMIT_MSG" ] || _errormsg "No commit message was entered."
+				git add . || _errormsg "Could not add changes to git"
 				git commit -m "$COMMIT_MSG" || _errormsg "Could not commit these changes to git."
 				;;
 			"Stash")
@@ -218,22 +219,21 @@ if [ "$PERSISTENT" ]; then
 		touch "$UPDATE_LOG" >/dev/null 2>&1 || sudo touch "$UPDATE_LOG"
 	fi
 
-	# TODO use nvd to create a log that's more useful than just an excuse to create an updated: $system commit
 	NIXOS_GENERATION_INFO=$(nixos-rebuild list-generations | grep True | tr -s ' ' | cut -d' ' -f1-5)
 	GENERATION=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f1)
 	TIMESTAMP=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f2-3)
 	KERNEL_VERSION=$(printf "%s" "$NIXOS_GENERATION_INFO" | cut -d' ' -f5)
 
-	PREVIOUS_GENERATIION=$(cat "$UPDATE_LOG" | head --lines 3 | grep Generation | cut -d'-' -f2 | tr -d ' ')
+	PREVIOUS_GENERATION="$(nixos-rebuild list-generations | grep -v -e 'True' -e 'Generation' | cut -d' ' -f1 | head --lines 1)"
+	[ "$PREVIOUS_GENERATION" ] || _errormsg "Could not obtain the previous generation number."
 	LOG=1
-	[ "$GENERATION" = "$PREVIOUS_GENERATIION" ] && unset LOG
+	[ "$GENERATION" = "$PREVIOUS_GENERATION" ] && unset LOG
 
 	if [ ${LOG+x} ]; then
 		UPDATE_MSG="$(
 			printf "%s\n%s
-Generation - %s
-Kernel - %s\n\n" \
-				"$TARGET_HOST" "$TIMESTAMP" "$GENERATION" "$KERNEL_VERSION"
+Kernel - %s%s\n" \
+				"$TARGET_HOST" "$TIMESTAMP" "$KERNEL_VERSION" "$(nvd history -m "$PREVIOUS_GENERATION" | grep -v 'Contents of profile version')"
 		)"
 		printf "%s\n\n" "$UPDATE_MSG" | cat - "$UPDATE_LOG" >/tmp/snowglobe-system-update.log
 		if [ "$(whoami)" = "$FLAKE_DIR_OWNER" ]; then

@@ -37,6 +37,8 @@ in
           };
           # wayland lockscreen that works with pam-gnupg
           swaylock.enable = slib.setDefault true;
+          # session and application manager for wayland under systemd
+          uwsm.enable = slib.setDefault true;
         };
 
         environment = {
@@ -84,23 +86,15 @@ in
           jack.enable = slib.setDefault true;
         };
 
+        # TODO Decide if we want to enable flatpak by default and automate flathub setup if so
         # configure flatpak
         services.flatpak.enable = slib.setDefault true;
-        # flatpak frontend of choice
-        programs.gnome-software.enable = slib.setDefault cfgs.flatpak.enable;
-
-        # TODO redo this
-        # service from nixos wiki to automatically add flathub
-        # systemd.user.services.add-flathub-repo = lib.mkIf cfgs.flatpak.enable {
-        #   wantedBy = [ "default.target" ];
-        #   path = [ config.services.flatpak.package ];
-        #   serviceConfig = {
-        #     Type = "simple";
-        #     ExecStart = ''
-        #       flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-        #     '';
-        #   };
-        # };
+        services.gnome = {
+          # flatpak frontend of choice
+          gnome-software.enable = slib.setDefault cfgs.flatpak.enable;
+          # provide a default secret portal for independent window managers
+          gnome-keyring.enable = slib.setDefault true;
+        };
 
         programs = {
           # control applet for networkmanager
@@ -112,7 +106,7 @@ in
           # frontend to manage dconf
           dconf-editor.enable = slib.setDefault config.programs.dconf.enable;
           # web browser
-          chromium.enable = slib.setDefault true;
+          helium.enable = slib.setDefault true;
           # file manager
           nautilus.enable = slib.setDefault true;
           # lightweight notepad clone
@@ -123,6 +117,8 @@ in
           pwvucontrol.enable = slib.setDefault (cfgs.pipewire.enable && cfgs.pipewire.pulse.enable);
           # calculator app
           gnome-calculator.enable = slib.setDefault true;
+          # secrets daemon frontend for gnome-keyring
+          seahorse.enable = slib.setDefault config.services.gnome.gnome-keyring.enable;
           # low battery notifier for laptops
           batsignal = {
             enable = slib.setDefault true;

@@ -15,13 +15,20 @@ in
     inputs.jovian-nixos.nixosModules.jovian
   ];
 
+  # TODO pnpm_9 is insecure
+  nixpkgs.config.permittedInsecurePackages = lib.mkIf cfg.decky-loader.enable [
+    "pnpm-9.15.9"
+  ];
+
   jovian = {
     steam = {
       enable = slib.setDefault true;
       autoStart = slib.setDefault true;
     };
 
-    decky-loader.enable = slib.setDefault true;
+    decky-loader = {
+      enable = slib.setDefault true;
+    };
   };
 
   # disable ly as jovian enables sddm

@@ -6,15 +6,15 @@
 }:
 let
   slib = import ../../../../lib/functions/module-wrappers { inherit lib; };
-  programName = "gnome-software";
+  programName = "chromium-browser";
   cfg = config.programs.${programName};
 in
 {
   options.programs.${programName} = slib.mkProgramOption {
-    description = "Gnome's frontend to flatpak";
-    programName = programName;
-    packageName = programName;
     inherit pkgs;
+    description = "chromium web browser";
+    programName = programName;
+    packageName = "chromium";
   };
 
   config = lib.mkIf cfg.enable (

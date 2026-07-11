@@ -4,11 +4,12 @@
   pkgs,
   lib,
   config,
-  outputs,
+  flake,
   ...
 }:
 let
   mkForce = lib.mkForce;
+  outputs = flake.outputs;
   enableAllModules =
     moduleType:
     let
@@ -56,7 +57,7 @@ in
   # add all custom packages
   environment.systemPackages = lib.forEach (builtins.attrNames (
     import ../../packages {
-      inherit pkgs;
+      inherit flake pkgs;
     }
   )) (package: pkgs.${package});
 }
