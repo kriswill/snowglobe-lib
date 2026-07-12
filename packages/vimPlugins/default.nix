@@ -22,6 +22,7 @@
 
   tuxedo-nvim = pkgs.vimUtils.buildVimPlugin {
     name = "tuxedo-nvim";
+    version = "unstable-06-11-2026";
     src = pkgs.fetchFromGitHub {
       owner = "iogamaster";
       repo = "tuxedo.nvim";
