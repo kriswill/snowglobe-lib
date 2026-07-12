@@ -10,7 +10,7 @@
 
 stdenvNoCC.mkDerivation {
   pname = "star-pixel-icons";
-  version = "unstable-03-09-2025";
+  version = "03.09.2025";
 
   src = fetchFromGitHub {
     owner = "Starciad";

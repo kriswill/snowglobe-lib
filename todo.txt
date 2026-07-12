@@ -1,0 +1,2 @@
+2026-07-12 Update flake.lock +snowglobe-lib @EarthGman due:2026-07-18 rec:1w
+2026-07-12 Check glabels-qt PR then remove overlay once merged +snowglobe-lib @EarthGman
