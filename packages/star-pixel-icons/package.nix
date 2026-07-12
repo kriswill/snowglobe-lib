@@ -3,12 +3,14 @@
   stdenvNoCC,
   fetchFromGitHub,
   unstableGitUpdater,
+  hicolor-icon-theme,
+  adwaita-icon-theme,
   gtk3,
 }:
 
 stdenvNoCC.mkDerivation {
   pname = "star-pixel-icons";
-  version = "1.0";
+  version = "unstable-03-09-2025";
 
   src = fetchFromGitHub {
     owner = "Starciad";
@@ -18,6 +20,11 @@ stdenvNoCC.mkDerivation {
   };
 
   nativeBuildInputs = [ gtk3 ];
+
+  propagatedBuildInputs = [
+    hicolor-icon-theme
+    adwaita-icon-theme
+  ];
 
   dontDropIconThemeCache = true;
 

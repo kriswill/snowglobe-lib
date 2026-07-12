@@ -6,7 +6,7 @@
 {
   # ran into this: https://github.com/j-evins/glabels-qt/issues/256
   # the current nixpkgs version is very old for some reason.
-  glabels-qt = prev.glabels-qt.overrideAttrs (finalAttrs: {
+  glabels-qt = prev.glabels-qt.overrideAttrs (old: {
     version = "3.99-master638";
     src = prev.fetchFromGitHub {
       owner = "j-evins";
@@ -16,16 +16,27 @@
     };
   });
 
-  # ani-cli cant download media from version in nixpkgs
-  ani-cli = prev.ani-cli.overrideAttrs (_: {
+  # ani-cli from unstable cannot download media
+  # credit https://github.com/pystardust/ani-cli/issues/1778
+  ani-cli = prev.ani-cli.overrideAttrs (old: {
     version = "4.14.1";
     src = prev.fetchFromGitHub {
       owner = "pystardust";
       repo = "ani-cli";
-      rev = "b8032b72901721a1ce859ca2816e8e2c914bc616";
-      hash = "sha256-+fR46bWXJ58LkXFvWAO/LyCd5THi7oMcqmhRoCKBZfM=";
+      rev = "fix";
+      hash = "sha256-uDzGtsihGUE1cOdGMerDmP8y56RQinr61bG4fLTPZaQ=";
     };
+
+    runtimeInputs = old.runtimeInputs ++ [ prev.botan3 ];
   });
+
+  # bottles depends on python314Packages.patool which fails to build in nixpkgs-unstable
+  # https://github.com/wummel/patool/issues/194
+  bottles = nixpkgs-stable.bottles;
+
+  # musescore 4.7.3 doesn't build
+  # https://github.com/NixOS/nixpkgs/issues/540499
+  musescore = nixpkgs-stable.musescore;
 
   # puddletag's icon is located in the wrong spot.
   # This causes some programs to display an empty icon entry

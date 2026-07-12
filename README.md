@@ -88,7 +88,7 @@ You can view every arguments possible value and its description at: lib/function
 
 **Using the installation images**
 
-Pre-built images can be found at https://www.earthgman.dev/snowglobe-installers
+Pre-built images can be found at https://www.earthgman.dev/assets/snowglobe-installers/
 These contain the scripts responsible for the automatic hardware detection, flake creation, and installation of the distribution.
 
 You can also build these yourself if you have nix installed by using: ```nixos-rebuild build-image```
