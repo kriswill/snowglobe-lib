@@ -4,18 +4,9 @@ let
   fetchFromGitHub = pkgs.fetchFromGitHub;
 in
 {
-  nvim-vague = buildVimPlugin {
-    pname = "vague.nvim";
-    src = fetchFromGitHub {
-      owner = "vague2k";
-      repo = "vague.nvim";
-      rev = "ceeac4d04faaa83df542992098e01d893a20b5b3";
-      sha256 = "10dk3vxdn7s2kaya0zqapls5dkl00qbdi3lzpxsjw0g1ga8cwdxz";
-    };
-  };
-
   shellcheck-nvim = buildVimPlugin {
     pname = "shellcheck.nvim";
+    version = "04.07.2025";
     src = fetchFromGitHub {
       owner = "pablos123";
       repo = "shellcheck.nvim";
@@ -26,7 +17,7 @@ in
 
   tuxedo-nvim = buildVimPlugin {
     pname = "tuxedo.nvim";
-    version = "0-unstable-06-11-2026";
+    version = "06.11.2026";
     src = fetchFromGitHub {
       owner = "iogamaster";
       repo = "tuxedo.nvim";
