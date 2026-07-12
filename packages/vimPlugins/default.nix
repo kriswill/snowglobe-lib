@@ -1,8 +1,12 @@
 { pkgs, ... }:
+let
+  buildVimPlugin = pkgs.vimUtils.buildVimPlugin;
+  fetchFromGitHub = pkgs.fetchFromGitHub;
+in
 {
-  nvim-vague = pkgs.vimUtils.buildVimPlugin {
-    name = "nvim-vague";
-    src = pkgs.fetchFromGitHub {
+  nvim-vague = buildVimPlugin {
+    pname = "vague.nvim";
+    src = fetchFromGitHub {
       owner = "vague2k";
       repo = "vague.nvim";
       rev = "ceeac4d04faaa83df542992098e01d893a20b5b3";
@@ -10,9 +14,9 @@
     };
   };
 
-  shellcheck-nvim = pkgs.vimUtils.buildVimPlugin {
-    name = "shellcheck-nvim";
-    src = pkgs.fetchFromGitHub {
+  shellcheck-nvim = buildVimPlugin {
+    pname = "shellcheck.nvim";
+    src = fetchFromGitHub {
       owner = "pablos123";
       repo = "shellcheck.nvim";
       rev = "ee40e705ea61a4d790907c93cd01cc52480351fa";
@@ -20,10 +24,10 @@
     };
   };
 
-  tuxedo-nvim = pkgs.vimUtils.buildVimPlugin {
-    name = "tuxedo-nvim";
-    version = "unstable-06-11-2026";
-    src = pkgs.fetchFromGitHub {
+  tuxedo-nvim = buildVimPlugin {
+    pname = "tuxedo.nvim";
+    version = "0-unstable-06-11-2026";
+    src = fetchFromGitHub {
       owner = "iogamaster";
       repo = "tuxedo.nvim";
       rev = "65650b0ae3b1c3755a43306b07ada13bd78d47ac";
