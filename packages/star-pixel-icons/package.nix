@@ -2,15 +2,16 @@
   lib,
   stdenvNoCC,
   fetchFromGitHub,
-  unstableGitUpdater,
   hicolor-icon-theme,
   adwaita-icon-theme,
+  kdePackages,
+  gnome-icon-theme,
   gtk3,
 }:
 
 stdenvNoCC.mkDerivation {
   pname = "star-pixel-icons";
-  version = "unstable-03-09-2025";
+  version = "0-unstable-03-09-2025";
 
   src = fetchFromGitHub {
     owner = "Starciad";
@@ -24,25 +25,29 @@ stdenvNoCC.mkDerivation {
   propagatedBuildInputs = [
     hicolor-icon-theme
     adwaita-icon-theme
+    gnome-icon-theme
+    kdePackages.breeze-icons
+    kdePackages.oxygen-icons
   ];
 
   dontDropIconThemeCache = true;
 
+  dontWrapQtApps = true;
+
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/share/icons/star-pixel-icons
-    cp -r src/SPI/* $out/share/icons/star-pixel-icons
-    gtk-update-icon-cache $out/share/icons/star-pixel-icons
+    ICON_DIR=$out/share/icons/star-pixel-icons
+    mkdir -p $ICON_DIR
+    cp -r src/SPI/* $ICON_DIR
+    gtk-update-icon-cache $ICON_DIR
 
     runHook postInstall
   '';
 
-  passthru.updateScript = unstableGitUpdater { };
-
   meta = {
-    homepage = "https://github.com/Starciad/star-pixel-icons";
-    description = "Starciad's pixel icon theme for linux";
+    homepage = "https://github.com/Starciad/star-pixel-icons-theme";
+    description = "Pixel icon theme for Linux";
     license = lib.licenses.cc-by-sa-40;
     platforms = lib.platforms.linux;
     maintainers = [ lib.maintainers.EarthGman ];
