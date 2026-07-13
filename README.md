@@ -28,10 +28,11 @@ The process of learning to properly maintain and modularize your NixOS configura
 Example configurations found in the wild are often very confusing and personalized as there is no concrete way to structure them.
 
 So, I wrote this project as an attempt to solve some of these flaws and construct an example NixOS configuration for you that just works out of the box.
-It is currently the daily driver for my personal fleet, which contains both all my workstations and servers, and is highly maintained.
+It aims to stay close to a traditional nix flake setup and module layout by avoiding abstraction functions or flake libraries such as flake-parts.
+If you wish to see an example product, it is the daily driver for my personal fleet, which contains both my workstations and servers.
 https://codeberg.org/earthgman/dotfiles
 
-**Some noteworthy configuration and features**
+**Configurations and features**
 - nixpkgs-unstable as the default package source.
 - dash as /bin/sh.
 - lix instead of cppnix.
@@ -41,14 +42,14 @@ https://codeberg.org/earthgman/dotfiles
 - ly as the default display manager (except for KDE Plasma)
 - default configurations and patches for KDE, Hyprland, Labwc, and Niri
 - public keyring moduleset (config.keyring) managed by the installer script (and you).
-- optional rebuild wrapper for git synchronization across hosts in your fleet which provides configuration modification logging via nvd (snowglobe-rebuild).
-- optional specialization profiles that enable configuration for certain out of the box experiences (gaming, office work, etc).
+- optional rebuild wrapper for update logging and git synchronization across hosts in your fleet (snowglobe-rebuild).
+- optional specialization profiles that enable out of the box experiences (gaming, office work, pentesting, etc).
 - many many extra program options for easier application management across your fleet with per-user package scopes.
 - package overlays/patches for packages that are not fully functional or dont build at all from nixpkgs-unstable.
 - automated installer environment which sets it all up.
 
 
-# DISCLAIMER
+# DISCLAIMERS
 
 It should go without saying, but this is a passion project that currently has a limited testing scope.
 You probably shouldn't use it if you can get fired.
