@@ -17,17 +17,14 @@
   });
 
   # ani-cli from unstable cannot download media
-  # credit https://github.com/pystardust/ani-cli/issues/1778
   ani-cli = prev.ani-cli.overrideAttrs (old: {
     version = "4.14.1";
     src = prev.fetchFromGitHub {
       owner = "pystardust";
       repo = "ani-cli";
-      rev = "fix";
-      hash = "sha256-uDzGtsihGUE1cOdGMerDmP8y56RQinr61bG4fLTPZaQ=";
+      rev = "master";
+      hash = "sha256-wU25uSikLbuzQ/nAZzWz3ilpM1Ewac4ZuICRCwUn/fQ=";
     };
-
-    runtimeInputs = old.runtimeInputs ++ [ prev.botan3 ];
   });
 
   # bottles depends on python314Packages.patool which fails to build in nixpkgs-unstable

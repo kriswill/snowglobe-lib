@@ -1,2 +1,6 @@
 2026-07-12 Update flake.lock +snowglobe-lib @EarthGman due:2026-07-18 rec:1w
 2026-07-12 Check glabels-qt PR then remove overlay once merged +snowglobe-lib @EarthGman
+2026-07-12 check star-pixel-icons PR. Remove star-pixel-icons package when merged
+2026-07-12 check if its ok to use variables in installPhase
+2026-07-12 commit _8bit-operator-font to nixpkgs
+2026-07-12 Edit package patches when updating flake.lock +snowglobe-lib @EarthGman due:2026-07-18 rec:1w
