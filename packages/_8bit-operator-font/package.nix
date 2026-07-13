@@ -10,8 +10,8 @@ stdenvNoCC.mkDerivation {
   version = "1.0";
 
   src = builtins.fetchurl {
-    url = "https://www.1001freefonts.com/d/14007/8-bit-operator.zip";
-    sha256 = "48c3763eb3dad4496bec6597013fb2940243e0fd149d1d1ad39f2561c1012817";
+    url = "https://www.earthgman.dev/assets/fonts/8-bit-operator.zip";
+    sha256 = "sha256:05r8070n29czscd1v78lzph460lln8zh35v5ximlkm6sncz7dhs8";
   };
 
   phases = [ "installPhase" ];
