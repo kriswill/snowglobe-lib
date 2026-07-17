@@ -27,7 +27,6 @@ in
           nvidia.enable = hasElem "nvidia" gpu-vendors;
         };
 
-        # config for how the system will start
         boot-config.enable = slib.setDefault true;
         # module to strip out some fluff that headless linux systems dont need.
         headless-debloater.enable = slib.setDefault (!hasDesktop);
