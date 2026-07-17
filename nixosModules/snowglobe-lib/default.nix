@@ -87,6 +87,8 @@ in
     networking = {
       # use networkmanager for connections
       networkmanager.enable = slib.setDefault true;
+      # use nftables over iptables
+      nftables.enable = slib.setDefault true;
     };
 
     boot = {

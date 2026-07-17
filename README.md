@@ -29,24 +29,26 @@ Example configurations found in the wild are often very confusing and personaliz
 
 So, I wrote this project as an attempt to solve some of these flaws and construct an example NixOS configuration for you that just works out of the box.
 It aims to stay close to a traditional nix flake setup and module layout by avoiding abstraction functions or flake libraries such as flake-parts.
-If you wish to see an example product, it is the daily driver for my personal fleet, which contains both my workstations and servers.
+If you wish to see an example configuration using this, it is the daily driver for my personal fleet, which contains both my workstations and servers.
 https://codeberg.org/earthgman/dotfiles
 
-**Configurations and features**
+**Changes to vanilla NixOS**
 - nixpkgs-unstable as the default package source.
 - dash as /bin/sh.
 - lix instead of cppnix.
-- disko instead of fileSystems.
+- disko over fileSystems for /etc/fstab.
 - sops-nix with age for secret management.
+- nftables instead of iptables.
 - improved default grub theme from https://github.com/AdisonCavani/distro-grub-themes
-- ly as the default display manager (except for KDE Plasma)
-- default configurations and patches for KDE, Hyprland, Labwc, and Niri
+- ly as the default display manager (except for KDE Plasma which uses sddm)
+- patches for some buggy behaviors with KDE on NixOS.
+- Noctaila shell enabled for labwc.
+- working default configurations for Niri and Hyprland.
 - public keyring moduleset (config.keyring) managed by the installer script (and you).
 - optional rebuild wrapper for update logging and git synchronization across hosts in your fleet (snowglobe-rebuild).
 - optional specialization profiles that enable out of the box experiences (gaming, office work, pentesting, etc).
+- a handful of rewritten nixos modules that aim to be more intuative (see nixosModules/nixos/disabled.nix).
 - many many extra program options for easier application management across your fleet with per-user package scopes.
-- package overlays/patches for packages that are not fully functional or dont build at all from nixpkgs-unstable.
-- automated installer environment which sets it all up.
 
 
 # DISCLAIMERS
