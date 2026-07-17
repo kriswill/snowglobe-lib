@@ -105,8 +105,8 @@ Once booted the rest should be self-explanitory.
 # Post install
 
 You may wish to change the ownership of /etc/nixos to your underprivledged user so you can edit the config files.
-If you do you will need to COPY (not move) /root/.config/sops/age/keys.txt to ~/.config/sops/age/keys.txt to access and modify your secrets.
-This file is an unencrypted private key owned by root. Be aware that anyone who gains unauthorized access to your system or drive will have access to it on the filesystem.
+If you do, you should continue to use the root user to edit your secrets. If for some reason you wish to expose the private key to every process running as your user, you can copy the key to ~/.config/sops/age.
+HEADS UP: This file is an unencrypted private key owned by root. Anybody who gains unauthorized access to it (via priviledge escalation or by stealing your drive) will be able to decrypt any secrets used by sops-nix.
 You may wish to utilize something like the TPM to store it more securely, but it is up to you.
 
 initial git setup and choice of provider is not enforced. The project does not automatically configure git for your newly created /etc/nixos.
