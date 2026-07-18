@@ -23,19 +23,35 @@
       owner = "pystardust";
       repo = "ani-cli";
       rev = "master";
-      hash = "sha256-wU25uSikLbuzQ/nAZzWz3ilpM1Ewac4ZuICRCwUn/fQ=";
+      hash = "sha256-uEB2RHN0JA8kvFFTeGg0n6JwMcPsccVhI7f1k+bZ5Ls=";
     };
   });
+
+  # ceph doesn't build
+  # https://github.com/NixOS/nixpkgs/issues/542206
+  ceph =
+    (prev.ceph.overrideScope (
+      _: prev: {
+        arrow-cpp = null;
+        ceph = prev.ceph.overrideAttrs (
+          {
+            cmakeFlags ? [ ],
+            ...
+          }:
+          {
+            cmakeFlags = cmakeFlags ++ [
+              (final.lib.cmakeBool "WITH_RADOSGW_SELECT_PARQUET" false)
+              (final.lib.cmakeBool "WITH_RADOSGW_ARROW_FLIGHT" false)
+            ];
+          }
+        );
+      }
+    )).ceph;
 
   # bottles depends on python314Packages.patool which fails to build in nixpkgs-unstable
   # https://github.com/wummel/patool/issues/194
   bottles = nixpkgs-stable.bottles;
 
-  # musescore 4.7.3 doesn't build
-  # https://github.com/NixOS/nixpkgs/issues/540499
-  musescore = nixpkgs-stable.musescore;
-
-  # puddletag's icon is located in the wrong spot.
   # This causes some programs to display an empty icon entry
   puddletag = prev.puddletag.overrideAttrs (_: {
     postFixup = ''
