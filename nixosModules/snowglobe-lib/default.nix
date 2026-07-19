@@ -88,6 +88,8 @@ in
       networkmanager.enable = slib.setDefault true;
       # use nftables over iptables
       nftables.enable = slib.setDefault true;
+      # dont allow ICMP pings by default
+      firewall.allowPing = slib.setDefault false;
     };
 
     boot = {

@@ -22,7 +22,7 @@
     src = prev.fetchFromGitHub {
       owner = "pystardust";
       repo = "ani-cli";
-      rev = "master";
+      rev = "5cfc4b0020e9b692b1a7d76d2f5462371c6c184f";
       hash = "sha256-uEB2RHN0JA8kvFFTeGg0n6JwMcPsccVhI7f1k+bZ5Ls=";
     };
   });

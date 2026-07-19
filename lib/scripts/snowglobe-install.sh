@@ -416,7 +416,7 @@ _install_nixos() {
 		swapon /mnt/tmp/swap || _errormsg "\nError: Could not activate the swap file with swapon."
 	fi
 
-	if [ "$REPO_DIR" ]; then
+	if [ -d "$REPO_DIR/.git" ]; then
 		# the infamous bug with nix flakes where if the new files are not added to git they cannot be realized to the /nix/store
 		git -C "$CONFIG_ROOT" add "$CONFIG_ROOT"
 	fi
@@ -681,7 +681,7 @@ _select_optional_profiles() {
 	fi
 	y_or_n --msg="Install penetration and security testing tools from Kali Linux? (nmap, tor-browser, john-the-ripper, wireshark, etc)" --default="no" && ENABLED_PROFILES+=("hacker-mode")
 	y_or_n --msg="Install additional nix tools? (recommended for developers)" --default="no" && ENABLED_PROFILES+=("nix-tools")
-	y_or_n --msg="Would you like to harden your configuration? This disables some features like password-based ssh authentication and mutable user configuration for increased security." --default="yes" && ENABLED_PROFILES+=("harden")
+	y_or_n --msg="Would you like to harden your configuration? This disables some features like password-based ssh authentication and mutable user configuration for increased security." --default="no" && ENABLED_PROFILES+=("harden")
 }
 
 _select_timezone

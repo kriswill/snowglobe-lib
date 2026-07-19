@@ -14,12 +14,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # boot.kernelPackages = pkgs.linuxPackages_hardened;
-    # enable firewall and prevent the ping of death
-    networking.firewall = {
-      enable = true;
-      allowPing = slib.setDefault false;
-    };
+    # TODO research hardened kernels
+    # boot.kernelPackages = slib.overrideDefault pkgs.linuxPackages_hardened;
 
     # prevent users from being imperatively modified
     users.mutableUsers = slib.setDefault false;
