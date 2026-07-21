@@ -242,7 +242,7 @@ Kernel - %s%s\n" \
 			sudo mv /tmp/snowglobe-system-update.log "$FLAKE_DIR/updates.log" || _errormsg "Could not move updates.log into place"
 		fi
 
-		if [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ]; then
+		if [ ! ${IGNORE_GIT_SYNCHRONIZATION+x} ] && [ ${GIT_REPO_PRESENT+x} ]; then
 			git add . || {
 				_restore_git_stash
 				_errormsg "could not stage changes to the updates.log"
