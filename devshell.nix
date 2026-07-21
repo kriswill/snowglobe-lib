@@ -33,6 +33,7 @@ in
       pkgs.libnotify
       pkgs.nvd
       pkgs.nh
+      pkgs.netcat
     ]
     ++ lib.optionals stdenv.hostPlatform.isLinux [
       pkgs.systemd
