@@ -184,6 +184,10 @@ while :; do
 
 	# for me only
 	"build installers")
+		ORIGINAL_BRANCH=$(git branch | grep '\*' | cut -d' ' -f2)
+		if [ "$ORIGINAL_BRANCH" != "main" ]; then
+			git checkout main || _errormsg "Could not check out main branch"
+		fi
 		WEBSITE_IP="homebase.internal.earthgman.dev"
 		# use a temporary upload dir so I can replace all images on the website at once
 		UPLOAD_DIR="/tmp/snowglobe-installers"
@@ -242,6 +246,10 @@ while :; do
 				fi
 			done
 		done
+
+		if [ "$ORIGINAL_BRANCH" != "main" ]; then
+			git checkout "$ORIGINAL_BRANCH" || _errormsg "Could not check out the original branch $ORIGINAL_BRANCH"
+		fi
 
 		exit 0
 		;;
