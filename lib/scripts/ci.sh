@@ -232,7 +232,7 @@ while :; do
 			cp result/iso/* "$ISO_OUTPATH" || _errormsg "Could not copy image to $ISO_OUTPATH"
 
 			sha256sum "$ISO_OUTPATH" | cut -d ' ' -f1 >"$ISO_HASHFILE"
-			gpg --sign --default-key 'EarthGman@protonmail.com' "$ISO_HASHFILE" || _errormsg "Failed to sign iso image hash for $image"
+			gpg --sign --default-key 'EarthGman' "$ISO_HASHFILE" || _errormsg "Failed to sign iso image hash for $image"
 
 			scp "$ISO_OUTPATH" "$HASH_SIGFILE" "earthgman@$WEBSITE_IP:$UPLOAD_DIR" || _errormsg "Could not copy image to the server."
 		done
