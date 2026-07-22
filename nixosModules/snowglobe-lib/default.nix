@@ -196,10 +196,6 @@ in
       };
       # give otp support for 2fa with pass
       password-store.package = slib.setDefault (pkgs.pass.withExtensions (exts: [ exts.pass-otp ]));
-      # free lutris
-      lutris.package = lib.mkIf (!config.nixpkgs.config.allowUnfree) (
-        slib.setDefault (pkgs.lutris.override { steamSupport = false; })
-      );
       # system information
       fastfetch.enable = slib.setDefault true;
       # file info fetcher
