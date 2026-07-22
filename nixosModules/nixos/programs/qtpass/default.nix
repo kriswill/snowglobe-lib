@@ -22,9 +22,10 @@ in
       inherit programName config;
       extraModules = {
         programs = {
-          password-store.enable = true;
-          git.enable = true;
-          pwgen.enable = true;
+          password-store.enable = slib.setDefault true;
+          git.enable = slib.setDefault true;
+          pwgen.enable = slib.setDefault true;
+          gnupg.agent.enable = true;
         };
       };
     }

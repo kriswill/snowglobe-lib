@@ -132,7 +132,6 @@ _restore_git_stash() {
 		git add .
 	fi
 }
-# if the remote is unreachable, allow users to still test their config
 
 if [ "$GIT_REPO_PRESENT" ]; then
 	[ "$WHOAMI" = "$FLAKE_DIR_OWNER" ] || _errormsg "$FLAKE_DIR is not owned by the current user. Git operations cannot continue safely."
@@ -211,6 +210,12 @@ else
 fi
 
 if [ "$PERSISTENT" ]; then
+	# check if the flake was updated by args passed to nh or nixos-rebuild and commit it
+	if git status | grep -q flake.lock; then
+		git add . || _errormsg "Failed to add changes to flake.lock to git."
+		git commit -m "update flake.lock" || _errormsg "Failed to commit update to flake.lock"
+	fi
+
 	# keep a log file of your system updates
 	UPDATE_LOG="$FLAKE_DIR/updates.log"
 	[ "$TARGET_HOST" ] || TARGET_HOST="$(cat /etc/hostname)"
