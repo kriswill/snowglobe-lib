@@ -19,6 +19,9 @@ in
         grub = {
           enable = true;
           efiSupport = isUEFI;
+          memtest86.enable = slib.setDefault (
+            (builtins.substring 0 3 config.nixpkgs.hostPlatform.system) == "x86"
+          );
           devices = [ "nodev" ];
           gfxmodeEfi = slib.setDefault "1920x1080";
           gfxmodeBios = slib.setDefault "1920x1080";

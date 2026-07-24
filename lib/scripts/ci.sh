@@ -184,11 +184,21 @@ while :; do
 
 	# for me only
 	"build installers")
-		WEBSITE_IP="192.168.25.69"
+		ORIGINAL_BRANCH=$(git branch | grep '\*' | cut -d' ' -f2)
+		if [ "$ORIGINAL_BRANCH" != "main" ]; then
+			git checkout main || _errormsg "Could not check out main branch"
+		fi
+		WEBSITE_IP="homebase.internal.earthgman.dev"
+		# use a temporary upload dir so I can replace all images on the website at once
 		UPLOAD_DIR="/tmp/snowglobe-installers"
+		WEBSITE_DIR="/srv/static-web-server/snowglobe-installers"
+		SUPPORTED_ARCHES="x86_64"
 		LOCAL_CACHE_DIR="$HOME/Archive/isos"
 
-		ping -c 1 "$WEBSITE_IP" || _errormsg "Unable to reach webserver at: $WEBSITE_IP"
+		# check if ssh can be reached
+		nc -z "$WEBSITE_IP" 22 || _errormsg "Unable to reach webserver at: $WEBSITE_IP"
+
+		# ensure the upload dir is clean before starting the builds
 		ssh "earthgman@$WEBSITE_IP" "rm -f $UPLOAD_DIR/*"
 
 		INSTALLERS=$(
@@ -222,10 +232,24 @@ while :; do
 			cp result/iso/* "$ISO_OUTPATH" || _errormsg "Could not copy image to $ISO_OUTPATH"
 
 			sha256sum "$ISO_OUTPATH" | cut -d ' ' -f1 >"$ISO_HASHFILE"
-			gpg --sign --default-key 'EarthGman@protonmail.com' "$ISO_HASHFILE" || _errormsg "Failed to sign iso image hash for $image"
+			gpg --sign --default-key 'EarthGman' "$ISO_HASHFILE" || _errormsg "Failed to sign iso image hash for $image"
 
 			scp "$ISO_OUTPATH" "$HASH_SIGFILE" "earthgman@$WEBSITE_IP:$UPLOAD_DIR" || _errormsg "Could not copy image to the server."
 		done
+
+		# move the images to the webserver directory listing
+		ssh "earthgman@$WEBSITE_IP" "chmod 440 $UPLOAD_DIR/*; chgrp static-web-server $UPLOAD_DIR/*"
+		for arch in $SUPPORTED_ARCHES; do
+			for file in $(ssh "earthgman@$WEBSITE_IP" "ls -A $UPLOAD_DIR"); do
+				if printf "%s" "$file" | grep -q "$arch"; then
+					ssh "earthgman@$WEBSITE_IP" "mv -f $UPLOAD_DIR/$file" "$WEBSITE_DIR/$arch" || _notify "Error" "Could not move $file from $UPLOAD_DIR to $WEBSITE_DIR"
+				fi
+			done
+		done
+
+		if [ "$ORIGINAL_BRANCH" != "main" ]; then
+			git checkout "$ORIGINAL_BRANCH" || _errormsg "Could not check out the original branch $ORIGINAL_BRANCH"
+		fi
 
 		exit 0
 		;;

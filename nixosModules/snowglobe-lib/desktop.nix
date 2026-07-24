@@ -109,6 +109,8 @@ in
           helium.enable = slib.setDefault true;
           # file manager
           nautilus.enable = slib.setDefault true;
+          # media player
+          vlc.enable = slib.setDefault true;
           # lightweight notepad clone
           mousepad.enable = slib.setDefault true;
           # GTK management app for fonts icons cursors, etc for independent WMs

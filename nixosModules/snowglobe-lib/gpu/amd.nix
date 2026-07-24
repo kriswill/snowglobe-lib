@@ -19,7 +19,7 @@ in
       # allow overclocking
       amdgpu.overdrive.enable = slib.setDefault true;
       # enable full resolution during early KMS while booting
-      amdgpu.initrd.enable = lib.mkDefault true;
+      amdgpu.initrd.enable = slib.setDefault true;
     };
   };
 }

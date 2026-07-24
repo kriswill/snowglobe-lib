@@ -23,6 +23,15 @@ in
         };
       })
       {
+        services = {
+          tor = {
+            enable = slib.setDefault true;
+            enableGeoIP = slib.setDefault false;
+            client.enable = slib.setDefault true;
+            torsocks.enable = slib.setDefault true;
+          };
+        };
+
         programs = {
           tcpdump.enable = lib.mkDefault true;
           metasploit.enable = lib.mkDefault true;
